@@ -63,6 +63,10 @@ class _MyHomePageState extends State<MyHomePage> {
         page = GeneratorPage();
       case 1:
         page = FavoritesPage();
+      case 2:
+        page = InventoryPage();
+      case 3:
+        page = RecipesPage();
       default: 
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -83,6 +87,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     NavigationRailDestination(
                       icon: Icon(Icons.favorite),
                       label: Text('Favorites'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.kitchen),
+                      label: Text('Inventory'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.cake),
+                      label: Text('Recipes')
                     ),
                   ],
                   selectedIndex: selectedIndex,
@@ -206,6 +218,28 @@ class BigCard extends StatelessWidget {
           semanticsLabel: "${pair.first} ${pair.second}",
         ),
       ),
+    );
+  }
+}
+
+class InventoryPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
+    return Center(
+      child: Text('No Inventory Yet.'),
+    );
+  }
+}
+
+class RecipesPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
+    return Center(
+      child: Text('No recipes yet.'),
     );
   }
 }
