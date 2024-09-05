@@ -93,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       label: Text('Inventory'),
                     ),
                     NavigationRailDestination(
-                      icon: Icon(Icons.cake),
+                      icon: Icon(Icons.local_dining),
                       label: Text('Recipes')
                     ),
                   ],
