@@ -67,6 +67,8 @@ class _MyHomePageState extends State<MyHomePage> {
         page = InventoryPage();
       case 3:
         page = RecipesPage();
+      case 4:
+        page = SettingsPage();
       default: 
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -95,6 +97,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     NavigationRailDestination(
                       icon: Icon(Icons.local_dining),
                       label: Text('Recipes')
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.settings),
+                      label: Text('Settings')
                     ),
                   ],
                   selectedIndex: selectedIndex,
@@ -240,6 +246,17 @@ class RecipesPage extends StatelessWidget {
 
     return Center(
       child: Text('No recipes yet.'),
+    );
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
+    return Center(
+      child: Text('No settings yet.'),
     );
   }
 }
