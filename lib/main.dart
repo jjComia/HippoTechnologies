@@ -28,6 +28,23 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
+  bool isLoggedIn = false; // Flag for login status
+  bool showRegistrationPage = false; // Flag for registration page
+
+  void login() {
+    isLoggedIn = true; // Mark as logged in
+    notifyListeners(); // Rebuild the UI
+  }
+
+  void showRegisterPage() {
+    showRegistrationPage = true; // Show registration page
+    notifyListeners();
+  }
+
+  void showLoginPage() {
+    showRegistrationPage = false; // Show login page
+    notifyListeners();
+  }
 
   void getNext() {
     current = WordPair.random();
@@ -39,7 +56,7 @@ class MyAppState extends ChangeNotifier {
   void toggleFavorite() {
     if (favorites.contains(current)) {
       favorites.remove(current);
-    } else  {
+    } else {
       favorites.add(current);
     }
     notifyListeners();
@@ -52,118 +69,192 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   var selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    Widget page; 
-    switch(selectedIndex) {
-      case 0: 
-        page = GeneratorPage();
-      case 1:
-        page = FavoritesPage();
-      case 2:
-        page = InventoryPage();
-      case 3:
-        page = RecipesPage();
-      case 4:
-        page = SettingsPage();
-      default: 
-        throw UnimplementedError('no widget for $selectedIndex');
-    }
-    
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Scaffold(
-          body: Row(
-            children: [
-              SafeArea(
-                child: NavigationRail(
-                  extended: constraints.maxWidth >= 600,
-                  destinations: [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.home),
-                      label: Text('Home'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.favorite),
-                      label: Text('Favorites'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.kitchen),
-                      label: Text('Inventory'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.local_dining),
-                      label: Text('Recipes')
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.settings),
-                      label: Text('Settings')
-                    ),
-                  ],
-                  selectedIndex: selectedIndex,
-                  onDestinationSelected: (value) {
-                    setState(() {
-                      selectedIndex = value;
-                    });
-                  },
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  child: page,
-                ),
-              ),
-            ],
-          ),
+    var appState = context.watch<MyAppState>();
+
+    // If not logged in, show either login or registration page
+    if (!appState.isLoggedIn) {
+      if (appState.showRegistrationPage) {
+        // Show Registration Page
+        return RegistrationPage(
+          onBackToLogin: () {
+            appState.showLoginPage(); // Go back to login page
+          },
+        );
+      } else {
+        // Show Login Page
+        return LoginPage(
+          onLoginSuccess: () {
+            appState.login(); // Mark as logged in
+          },
+          onRegisterTap: () {
+            appState.showRegisterPage(); // Go to registration page
+          },
+
         );
       }
+    }
+
+    // After login, show the main app with navigation
+    Widget page;
+    if (selectedIndex == 0) {
+      page = InventoryPage();
+    } else if (selectedIndex == 1) {
+      page = RecipesPage();
+    } else if (selectedIndex == 2) {
+      page = SettingsPage();
+    } else {
+      throw UnimplementedError('no widget for $selectedIndex');
+    }
+
+    return Scaffold(
+      body: page, // Display the page based on selectedIndex
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        onTap: (int index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.kitchen),
+            label: 'Inventory',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_dining),
+            label: 'Recipes',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
     );
   }
 }
 
-class GeneratorPage extends StatelessWidget {
+class LoginPage extends StatelessWidget {
+  final VoidCallback onLoginSuccess;
+  final VoidCallback onRegisterTap;
+
+  LoginPage({required this.onLoginSuccess, required this.onRegisterTap});
+
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          BigCard(pair: pair),
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
+    return Scaffold(
+      appBar: AppBar(title: Text('Login')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
               ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
               ),
-            ],
-          ),
-        ],
+            ),
+            SizedBox(height: 24.0),
+            ElevatedButton(
+              onPressed: () {
+                // Add login logic here
+                onLoginSuccess(); // Simulate successful login
+              },
+              child: Text('Login'),
+            ),
+            SizedBox(height: 8.0),
+            OutlinedButton(
+              onPressed: onRegisterTap, // Go to registration page
+              child: Text('Register'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RegistrationPage extends StatelessWidget {
+  final VoidCallback onBackToLogin;
+
+  RegistrationPage({required this.onBackToLogin});
+
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Register')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _confirmPasswordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Confirm Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 24.0),
+            ElevatedButton(
+              onPressed: () {
+                // Add registration logic here
+                print('Registering with username: ${_usernameController.text}');
+              },
+              child: Text('Register'),
+            ),
+            SizedBox(height: 8.0),
+            OutlinedButton(
+              onPressed: onBackToLogin, // Go back to login page
+              child: Text('Back to Login'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -179,7 +270,6 @@ class FavoritesPage extends StatelessWidget {
         child: Text('No favorites yet.'),
       );
     }
-    
 
     return ListView(
       children: [
