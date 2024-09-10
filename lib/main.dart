@@ -28,6 +28,12 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
+  bool isLoggedIn = false; // Add a flag for login status
+
+  void login() {
+    isLoggedIn = true; // Mark as logged in
+    notifyListeners(); // Notify listeners to rebuild the UI
+  }
 
   void getNext() {
     current = WordPair.random();
@@ -39,7 +45,7 @@ class MyAppState extends ChangeNotifier {
   void toggleFavorite() {
     if (favorites.contains(current)) {
       favorites.remove(current);
-    } else  {
+    } else {
       favorites.add(current);
     }
     notifyListeners();
@@ -53,136 +59,110 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
-  bool showRegistrationPage = false; // Control showing registration page
 
   @override
   Widget build(BuildContext context) {
-    Widget page; 
+    var appState = context.watch<MyAppState>();
+
+    // Check if the user is logged in
+    if (!appState.isLoggedIn) {
+      // Show only the login page if not logged in
+      return LoginPage(
+        onLoginSuccess: () {
+          // Call login method when login is successful
+          appState.login();
+        },
+      );
+    }
+
+    // After login, show the main app with navigation
+    Widget page;
     if (selectedIndex == 0) {
-      // Toggle between Login and Registration page
-      if (showRegistrationPage) {
-        page = RegistrationPage(
-          onBackToLogin: () {
-            setState(() {
-              showRegistrationPage = false;
-            });
-          },
-        );
-      } else {
-        page = LoginPage(
-          onRegisterTap: () {
-            setState(() {
-              showRegistrationPage = true;
-            });
-          },
-        );
-      }
-    } else if (selectedIndex == 1) {
       page = InventoryPage();
-    } else if (selectedIndex == 2) {
+    } else if (selectedIndex == 1) {
       page = RecipesPage();
-    } else if (selectedIndex == 3) {
+    } else if (selectedIndex == 2) {
       page = SettingsPage();
     } else {
       throw UnimplementedError('no widget for $selectedIndex');
     }
-    
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Scaffold(
-          body: Row(
-            children: [
-              SafeArea(
-                child: NavigationRail(
-                  extended: constraints.maxWidth >= 600,
-                  destinations: [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.login),
-                      label: Text('Login'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.kitchen),
-                      label: Text('Inventory'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.local_dining),
-                      label: Text('Recipes'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.settings),
-                      label: Text('Settings'),
-                    ),
-                  ],
-                  selectedIndex: selectedIndex,
-                  onDestinationSelected: (value) {
-                    setState(() {
-                      selectedIndex = value;
-                      showRegistrationPage = false; // Reset to login if nav changes
-                    });
-                  },
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  child: page,
-                ),
-              ),
-            ],
+
+    return Scaffold(
+      body: page, // Display the page based on selectedIndex
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        onTap: (int index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.kitchen),
+            label: 'Inventory',
           ),
-        );
-      }
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_dining),
+            label: 'Recipes',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
     );
   }
 }
 
-
 class LoginPage extends StatelessWidget {
-  final VoidCallback onRegisterTap;
+  final VoidCallback onLoginSuccess;
 
-  LoginPage({required this.onRegisterTap});
+  LoginPage({required this.onLoginSuccess});
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextField(
-            controller: _usernameController,
-            decoration: InputDecoration(
-              labelText: 'Username',
-              border: OutlineInputBorder(),
+    return Scaffold(
+      appBar: AppBar(title: Text('Login')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+              ),
             ),
-          ),
-          SizedBox(height: 16.0),
-          TextField(
-            controller: _passwordController,
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText: 'Password',
-              border: OutlineInputBorder(),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
             ),
-          ),
-          SizedBox(height: 24.0),
-          ElevatedButton(
-            onPressed: () {
-              // Add login logic here
-              print('Logging in with username: ${_usernameController.text}');
-            },
-            child: Text('Login'),
-          ),
-          SizedBox(height: 8.0),
-          OutlinedButton(
-            onPressed: onRegisterTap,
-            child: Text('Register'),
-          ),
-        ],
+            SizedBox(height: 24.0),
+            ElevatedButton(
+              onPressed: () {
+                // Add actual login logic here
+                // Simulate successful login
+                onLoginSuccess(); // Call the callback on success
+              },
+              child: Text('Login'),
+            ),
+          ],
+        ),
       ),
     );
   }
