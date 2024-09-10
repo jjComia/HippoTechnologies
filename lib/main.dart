@@ -52,23 +52,39 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   var selectedIndex = 0;
+  bool showRegistrationPage = false; // Control showing registration page
 
   @override
   Widget build(BuildContext context) {
     Widget page; 
-    switch(selectedIndex) {
-      case 0: 
-        page = GeneratorPage();
-      case 1:
-        page = FavoritesPage();
-      case 2:
-        page = InventoryPage();
-      case 3:
-        page = RecipesPage();
-      default: 
-        throw UnimplementedError('no widget for $selectedIndex');
+    if (selectedIndex == 0) {
+      // Toggle between Login and Registration page
+      if (showRegistrationPage) {
+        page = RegistrationPage(
+          onBackToLogin: () {
+            setState(() {
+              showRegistrationPage = false;
+            });
+          },
+        );
+      } else {
+        page = LoginPage(
+          onRegisterTap: () {
+            setState(() {
+              showRegistrationPage = true;
+            });
+          },
+        );
+      }
+    } else if (selectedIndex == 1) {
+      page = InventoryPage();
+    } else if (selectedIndex == 2) {
+      page = RecipesPage();
+    } else if (selectedIndex == 3) {
+      page = SettingsPage();
+    } else {
+      throw UnimplementedError('no widget for $selectedIndex');
     }
     
     return LayoutBuilder(
@@ -81,12 +97,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   extended: constraints.maxWidth >= 600,
                   destinations: [
                     NavigationRailDestination(
-                      icon: Icon(Icons.home),
-                      label: Text('Home'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.favorite),
-                      label: Text('Favorites'),
+                      icon: Icon(Icons.login),
+                      label: Text('Login'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.kitchen),
@@ -94,13 +106,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.local_dining),
-                      label: Text('Recipes')
+                      label: Text('Recipes'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.settings),
+                      label: Text('Settings'),
                     ),
                   ],
                   selectedIndex: selectedIndex,
                   onDestinationSelected: (value) {
                     setState(() {
                       selectedIndex = value;
+                      showRegistrationPage = false; // Reset to login if nav changes
                     });
                   },
                 ),
@@ -119,43 +136,113 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class GeneratorPage extends StatelessWidget {
+
+class LoginPage extends StatelessWidget {
+  final VoidCallback onRegisterTap;
+
+  LoginPage({required this.onRegisterTap});
+
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          BigCard(pair: pair),
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
-              ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
-            ],
+          TextField(
+            controller: _usernameController,
+            decoration: InputDecoration(
+              labelText: 'Username',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 16.0),
+          TextField(
+            controller: _passwordController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'Password',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 24.0),
+          ElevatedButton(
+            onPressed: () {
+              // Add login logic here
+              print('Logging in with username: ${_usernameController.text}');
+            },
+            child: Text('Login'),
+          ),
+          SizedBox(height: 8.0),
+          OutlinedButton(
+            onPressed: onRegisterTap,
+            child: Text('Register'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class RegistrationPage extends StatelessWidget {
+  final VoidCallback onBackToLogin;
+
+  RegistrationPage({required this.onBackToLogin});
+
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            controller: _usernameController,
+            decoration: InputDecoration(
+              labelText: 'Username',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 16.0),
+          TextField(
+            controller: _passwordController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'Password',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 16.0),
+          TextField(
+            controller: _confirmPasswordController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'Confirm Password',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 24.0),
+          ElevatedButton(
+            onPressed: () {
+              // Add registration logic here
+              print('Registering with username: ${_usernameController.text}');
+            },
+            child: Text('Register'),
+          ),
+          SizedBox(height: 8.0),
+          OutlinedButton(
+            onPressed: onBackToLogin,
+            child: Text('Back to Login'),
           ),
         ],
       ),
@@ -240,6 +327,17 @@ class RecipesPage extends StatelessWidget {
 
     return Center(
       child: Text('No recipes yet.'),
+    );
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
+    return Center(
+      child: Text('No settings yet.'),
     );
   }
 }
