@@ -28,11 +28,22 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
-  bool isLoggedIn = false; // Add a flag for login status
+  bool isLoggedIn = false; // Flag for login status
+  bool showRegistrationPage = false; // Flag for registration page
 
   void login() {
     isLoggedIn = true; // Mark as logged in
-    notifyListeners(); // Notify listeners to rebuild the UI
+    notifyListeners(); // Rebuild the UI
+  }
+
+  void showRegisterPage() {
+    showRegistrationPage = true; // Show registration page
+    notifyListeners();
+  }
+
+  void showLoginPage() {
+    showRegistrationPage = false; // Show login page
+    notifyListeners();
   }
 
   void getNext() {
@@ -64,15 +75,26 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
 
-    // Check if the user is logged in
+    // If not logged in, show either login or registration page
     if (!appState.isLoggedIn) {
-      // Show only the login page if not logged in
-      return LoginPage(
-        onLoginSuccess: () {
-          // Call login method when login is successful
-          appState.login();
-        },
-      );
+      if (appState.showRegistrationPage) {
+        // Show Registration Page
+        return RegistrationPage(
+          onBackToLogin: () {
+            appState.showLoginPage(); // Go back to login page
+          },
+        );
+      } else {
+        // Show Login Page
+        return LoginPage(
+          onLoginSuccess: () {
+            appState.login(); // Mark as logged in
+          },
+          onRegisterTap: () {
+            appState.showRegisterPage(); // Go to registration page
+          },
+        );
+      }
     }
 
     // After login, show the main app with navigation
@@ -120,8 +142,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class LoginPage extends StatelessWidget {
   final VoidCallback onLoginSuccess;
+  final VoidCallback onRegisterTap;
 
-  LoginPage({required this.onLoginSuccess});
+  LoginPage({required this.onLoginSuccess, required this.onRegisterTap});
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -155,11 +178,15 @@ class LoginPage extends StatelessWidget {
             SizedBox(height: 24.0),
             ElevatedButton(
               onPressed: () {
-                // Add actual login logic here
-                // Simulate successful login
-                onLoginSuccess(); // Call the callback on success
+                // Add login logic here
+                onLoginSuccess(); // Simulate successful login
               },
               child: Text('Login'),
+            ),
+            SizedBox(height: 8.0),
+            OutlinedButton(
+              onPressed: onRegisterTap, // Go to registration page
+              child: Text('Register'),
             ),
           ],
         ),
@@ -167,7 +194,6 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
-
 
 class RegistrationPage extends StatelessWidget {
   final VoidCallback onBackToLogin;
@@ -180,51 +206,54 @@ class RegistrationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextField(
-            controller: _usernameController,
-            decoration: InputDecoration(
-              labelText: 'Username',
-              border: OutlineInputBorder(),
+    return Scaffold(
+      appBar: AppBar(title: Text('Register')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+              ),
             ),
-          ),
-          SizedBox(height: 16.0),
-          TextField(
-            controller: _passwordController,
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText: 'Password',
-              border: OutlineInputBorder(),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
             ),
-          ),
-          SizedBox(height: 16.0),
-          TextField(
-            controller: _confirmPasswordController,
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText: 'Confirm Password',
-              border: OutlineInputBorder(),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _confirmPasswordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Confirm Password',
+                border: OutlineInputBorder(),
+              ),
             ),
-          ),
-          SizedBox(height: 24.0),
-          ElevatedButton(
-            onPressed: () {
-              // Add registration logic here
-              print('Registering with username: ${_usernameController.text}');
-            },
-            child: Text('Register'),
-          ),
-          SizedBox(height: 8.0),
-          OutlinedButton(
-            onPressed: onBackToLogin,
-            child: Text('Back to Login'),
-          ),
-        ],
+            SizedBox(height: 24.0),
+            ElevatedButton(
+              onPressed: () {
+                // Add registration logic here
+                print('Registering with username: ${_usernameController.text}');
+              },
+              child: Text('Register'),
+            ),
+            SizedBox(height: 8.0),
+            OutlinedButton(
+              onPressed: onBackToLogin, // Go back to login page
+              child: Text('Back to Login'),
+            ),
+          ],
+        ),
       ),
     );
   }
