@@ -93,6 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
           onRegisterTap: () {
             appState.showRegisterPage(); // Go to registration page
           },
+
         );
       }
     }
@@ -269,7 +270,6 @@ class FavoritesPage extends StatelessWidget {
         child: Text('No favorites yet.'),
       );
     }
-    
 
     return ListView(
       children: [
