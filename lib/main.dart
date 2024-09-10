@@ -20,7 +20,15 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
         ),
-        home: MyHomePage(),
+        home: Consumer<MyAppState>(
+          builder: (context, appState, child) {
+            if (appState.isLoggedIn) {
+              return LandingPage(); // Show landing page if logged in
+            } else {
+              return MyHomePage(); // Otherwise, show the main app
+            }
+          },
+        ),
       ),
     );
   }
@@ -28,21 +36,74 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
+  var favorites = <WordPair>[];
+  bool isLoggedIn = false;
 
   void getNext() {
     current = WordPair.random();
     notifyListeners();
   }
 
-  var favorites = <WordPair>[];
-
   void toggleFavorite() {
     if (favorites.contains(current)) {
       favorites.remove(current);
-    } else  {
+    } else {
       favorites.add(current);
     }
     notifyListeners();
+  }
+
+  void loginUser() {
+    isLoggedIn = true;
+    notifyListeners();
+  }
+
+  void logoutUser() {
+    isLoggedIn = false;
+    notifyListeners();
+  }
+}
+
+class LandingPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Landing Page'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              appState.logoutUser(); // Log out user and return to the home page
+            },
+            icon: Icon(Icons.logout),
+          )
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Welcome to the App!',
+              style: TextStyle(fontSize: 24),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to the app's main content after login
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                );
+              },
+              child: Text('Go to Main App'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -52,76 +113,74 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   var selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    Widget page; 
-    switch(selectedIndex) {
-      case 0: 
+    Widget page;
+    switch (selectedIndex) {
+      case 0:
         page = GeneratorPage();
+        break;
       case 1:
         page = FavoritesPage();
+        break;
       case 2:
         page = InventoryPage();
+        break;
       case 3:
         page = RecipesPage();
+        break;
       case 4:
         page = SettingsPage();
-      default: 
+        break;
+      default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
-    
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Scaffold(
-          body: Row(
-            children: [
-              SafeArea(
-                child: NavigationRail(
-                  extended: constraints.maxWidth >= 600,
-                  destinations: [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.home),
-                      label: Text('Home'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.favorite),
-                      label: Text('Favorites'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.kitchen),
-                      label: Text('Inventory'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.local_dining),
-                      label: Text('Recipes')
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.settings),
-                      label: Text('Settings')
-                    ),
-                  ],
-                  selectedIndex: selectedIndex,
-                  onDestinationSelected: (value) {
-                    setState(() {
-                      selectedIndex = value;
-                    });
-                  },
-                ),
+
+    return LayoutBuilder(builder: (context, constraints) {
+      return Scaffold(
+        body: Row(
+          children: [
+            SafeArea(
+              child: NavigationRail(
+                extended: constraints.maxWidth >= 600,
+                destinations: [
+                  NavigationRailDestination(
+                    icon: Icon(Icons.home),
+                    label: Text('Home'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.favorite),
+                    label: Text('Favorites'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.kitchen),
+                    label: Text('Inventory'),
+                  ),
+                  NavigationRailDestination(
+                      icon: Icon(Icons.local_dining), label: Text('Recipes')),
+                  NavigationRailDestination(
+                      icon: Icon(Icons.settings), label: Text('Settings')),
+                ],
+                selectedIndex: selectedIndex,
+                onDestinationSelected: (value) {
+                  setState(() {
+                    selectedIndex = value;
+                  });
+                },
               ),
-              Expanded(
-                child: Container(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  child: page,
-                ),
+            ),
+            Expanded(
+              child: Container(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                child: page,
               ),
-            ],
-          ),
-        );
-      }
-    );
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
 
@@ -179,15 +238,12 @@ class FavoritesPage extends StatelessWidget {
         child: Text('No favorites yet.'),
       );
     }
-    
 
     return ListView(
       children: [
         Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:')
-        ),
+            padding: const EdgeInsets.all(20),
+            child: Text('You have ${appState.favorites.length} favorites:')),
         for (var pair in appState.favorites)
           ListTile(
             leading: Icon(Icons.favorite),
@@ -211,7 +267,6 @@ class BigCard extends StatelessWidget {
     final theme = Theme.of(context);
     final style = theme.textTheme.displayMedium!.copyWith(
       color: theme.colorScheme.onPrimary,
-      
     );
 
     return Card(
@@ -231,8 +286,6 @@ class BigCard extends StatelessWidget {
 class InventoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
     return Center(
       child: Text('No Inventory Yet.'),
     );
@@ -242,8 +295,6 @@ class InventoryPage extends StatelessWidget {
 class RecipesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
     return Center(
       child: Text('No recipes yet.'),
     );
@@ -253,8 +304,6 @@ class RecipesPage extends StatelessWidget {
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
     return Center(
       child: Text('No settings yet.'),
     );
