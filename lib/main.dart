@@ -52,25 +52,44 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   var selectedIndex = 0;
+  bool showRegistration = false; // Flag to show registration page
 
   @override
   Widget build(BuildContext context) {
-    Widget page; 
-    switch(selectedIndex) {
-      case 0: 
-        page = GeneratorPage();
-      case 1:
-        page = FavoritesPage();
-      case 2:
-        page = InventoryPage();
-      case 3:
-        page = RecipesPage();
-      default: 
-        throw UnimplementedError('no widget for $selectedIndex');
+    Widget page;
+
+    // Conditionally show the registration page or selected page
+    if (showRegistration) {
+      page = RegistrationPage(
+        onBack: () {
+          setState(() {
+            showRegistration = false;
+          });
+        },
+      );
+    } else {
+      switch (selectedIndex) {
+        case 0:
+          page = LoginPage(
+            onRegisterClicked: () {
+              setState(() {
+                showRegistration = true;
+              });
+            },
+          );
+          break;
+        case 1:
+          page = InventoryPage();
+          break;
+        case 2:
+          page = RecipesPage();
+          break;
+        default:
+          throw UnimplementedError('No widget for $selectedIndex');
+      }
     }
-    
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return Scaffold(
@@ -81,12 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   extended: constraints.maxWidth >= 600,
                   destinations: [
                     NavigationRailDestination(
-                      icon: Icon(Icons.home),
-                      label: Text('Home'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.favorite),
-                      label: Text('Favorites'),
+                      icon: Icon(Icons.login),
+                      label: Text('Login'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.kitchen),
@@ -94,133 +109,117 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.local_dining),
-                      label: Text('Recipes')
+                      label: Text('Recipes'),
                     ),
                   ],
                   selectedIndex: selectedIndex,
                   onDestinationSelected: (value) {
                     setState(() {
                       selectedIndex = value;
+                      showRegistration = false; // Hide registration if switching
                     });
                   },
                 ),
               ),
               Expanded(
-                child: Container(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  child: page,
-                ),
+                child: page, // Directly show the page here without a Container
               ),
             ],
           ),
         );
-      }
+      },
     );
   }
 }
 
-class GeneratorPage extends StatelessWidget {
+class LoginPage extends StatelessWidget {
+  final VoidCallback onRegisterClicked;
+
+  LoginPage({required this.onRegisterClicked});
+
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          BigCard(pair: pair),
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
-              ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
-            ],
-          ),
-        ],
+    return Scaffold( // Add Scaffold for proper theme handling
+      appBar: AppBar(
+        title: Text('Login Page'),
       ),
-    );
-  }
-}
-
-class FavoritesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    if (appState.favorites.isEmpty) {
-      return Center(
-        child: Text('No favorites yet.'),
-      );
-    }
-    
-
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:')
-        ),
-        for (var pair in appState.favorites)
-          ListTile(
-            leading: Icon(Icons.favorite),
-            title: Text(pair.asLowerCase),
-          ),
-      ],
-    );
-  }
-}
-
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-      
-    );
-
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Text(
-          pair.asLowerCase,
-          style: style,
-          semanticsLabel: "${pair.first} ${pair.second}",
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Username',
+              ),
+            ),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Password',
+              ),
+              obscureText: true,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: onRegisterClicked, // Navigate to registration
+              child: Text('Register'),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
+
+class RegistrationPage extends StatelessWidget {
+  final VoidCallback onBack;
+
+  RegistrationPage({required this.onBack});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Registration Page'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: onBack, // Call back to go back to login
+        ),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Username',
+              ),
+            ),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Password',
+              ),
+              obscureText: true,
+            ),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Confirm Password',
+              ),
+              obscureText: true,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle registration logic
+              },
+              child: Text('Register'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 class InventoryPage extends StatelessWidget {
   @override
