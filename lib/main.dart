@@ -2,6 +2,7 @@ import 'dart:convert'; // Importing dart:convert to use jsonDecode function
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:ui';  // For BackdropFilter
 
 void main() {
   runApp(MyApp());
@@ -101,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // After login, show the main app with navigation
     Widget page;
     if (selectedIndex == 0) {
-      page = InventoryPage();
+      page = HomePage();
     } else if (selectedIndex == 1) {
       page = RecipesPage();
     } else if (selectedIndex == 2) {
@@ -124,8 +125,8 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.white,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.kitchen),
-            label: 'Inventory',
+            icon: Icon(Icons.home),
+            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.local_dining),
@@ -260,6 +261,50 @@ class RegistrationPage extends StatelessWidget {
   }
 }
 
+// Inventory Detail Page
+class InventoryDetailPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Inventory')),
+      body: Center(child: Text('Inventory Details Page')),
+    );
+  }
+}
+
+// Employees Page
+class EmployeesPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Employees')),
+      body: Center(child: Text('Employees Page')),
+    );
+  }
+}
+
+// Recipes Detail Page
+class RecipesDetailPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Recipes')),
+      body: Center(child: Text('Recipes Detail Page')),
+    );
+  }
+}
+
+// Ingredients Page
+class IngredientsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Ingredients')),
+      body: Center(child: Text('Ingredients Page')),
+    );
+  }
+}
+
 class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -318,15 +363,97 @@ class BigCard extends StatelessWidget {
   }
 }
 
-class InventoryPage extends StatelessWidget {
+//Home Page on nav bar. Contains subpages of inventory, recipes, ingredients and employees
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    return Center(
-      child: Text('No Inventory Yet.'),
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: GridView.count(
+        crossAxisCount: 2,  // 2 buttons per row
+        mainAxisSpacing: 20.0,  // Vertical spacing between buttons
+        crossAxisSpacing: 20.0,  // Horizontal spacing between buttons
+        children: [
+          _buildRoundedButton(
+            context,
+            'Inventory',
+            Icons.inventory,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => InventoryDetailPage()),
+              );
+            },
+          ),
+          _buildRoundedButton(
+            context,
+            'Employees',
+            Icons.person,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EmployeesPage()),
+              );
+            },
+          ),
+          _buildRoundedButton(
+            context,
+            'Recipes',
+            Icons.local_dining,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => RecipesDetailPage()),
+              );
+            },
+          ),
+          _buildRoundedButton(
+            context,
+            'Ingredients',
+            Icons.list,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => IngredientsPage()),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
+
+//Updated Button builder, rounded corners and has icons
+ Widget _buildRoundedButton(BuildContext context, String text, IconData icon, {required VoidCallback onTap}) {
+  return ElevatedButton(
+    onPressed: onTap,
+    style: ElevatedButton.styleFrom(
+      padding: const EdgeInsets.all(16.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24.0),  // Rounded corners
+      ),
+      backgroundColor: const Color.fromARGB(255, 252, 157, 69).withOpacity(0.8),  // Soft background color
+      elevation: 0.0,  // Slight elevation for softer shadow
+    ),
+    child: Row(  // Icon and text side by side
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          icon,
+          color: Colors.white,  // Icon color to match text
+        ),
+        SizedBox(width: 8.0),  // Space between icon and text
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white,  // White text color
+          ),
+        ),
+      ],
+    ),
+  );
+}
 }
 
 class RecipesPage extends StatelessWidget {
