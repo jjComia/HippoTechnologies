@@ -377,6 +377,7 @@ class HomePage extends StatelessWidget {
           _buildRoundedButton(
             context,
             'Inventory',
+            Icons.inventory,
             onTap: () {
               Navigator.push(
                 context,
@@ -387,6 +388,7 @@ class HomePage extends StatelessWidget {
           _buildRoundedButton(
             context,
             'Employees',
+            Icons.person,
             onTap: () {
               Navigator.push(
                 context,
@@ -397,6 +399,7 @@ class HomePage extends StatelessWidget {
           _buildRoundedButton(
             context,
             'Recipes',
+            Icons.local_dining,
             onTap: () {
               Navigator.push(
                 context,
@@ -407,6 +410,7 @@ class HomePage extends StatelessWidget {
           _buildRoundedButton(
             context,
             'Ingredients',
+            Icons.list,
             onTap: () {
               Navigator.push(
                 context,
@@ -419,27 +423,37 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // Helper method to create a rounded button
-  Widget _buildRoundedButton(BuildContext context, String text, {required VoidCallback onTap}) {
-    return ElevatedButton(
-      onPressed: onTap,
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.all(16.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0),  // Rounded corners
-        ),
-        minimumSize: Size(0, 120),  // Makes the buttons uniform in height
-        backgroundColor: Theme.of(context).colorScheme.primary,
+//Updated Button builder, rounded corners and has icons
+ Widget _buildRoundedButton(BuildContext context, String text, IconData icon, {required VoidCallback onTap}) {
+  return ElevatedButton(
+    onPressed: onTap,
+    style: ElevatedButton.styleFrom(
+      padding: const EdgeInsets.all(16.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24.0),  // Rounded corners
       ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 20,
-          color: Theme.of(context).colorScheme.onPrimary,
+      backgroundColor: const Color.fromARGB(255, 252, 157, 69).withOpacity(0.8),  // Soft background color
+      elevation: 0.0,  // Slight elevation for softer shadow
+    ),
+    child: Row(  // Icon and text side by side
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          icon,
+          color: Colors.white,  // Icon color to match text
         ),
-      ),
-    );
-  }
+        SizedBox(width: 8.0),  // Space between icon and text
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white,  // White text color
+          ),
+        ),
+      ],
+    ),
+  );
+}
 }
 
 class RecipesPage extends StatelessWidget {
