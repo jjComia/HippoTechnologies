@@ -432,7 +432,7 @@ class HomePage extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24.0),  // Rounded corners
       ),
-      backgroundColor: const Color.fromARGB(255, 252, 157, 69).withOpacity(0.8),  // Soft background color
+      backgroundColor: const Color.fromARGB(255, 253, 169, 90).withOpacity(0.8),  // Soft background color
       elevation: 0.0,  // Slight elevation for softer shadow
     ),
     child: Row(  // Icon and text side by side
