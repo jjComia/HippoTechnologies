@@ -363,6 +363,7 @@ class BigCard extends StatelessWidget {
   }
 }
 
+//Home Page on nav bar. Contains subpages of inventory, recipes, ingredients and employees
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
