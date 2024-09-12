@@ -15,13 +15,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
-        ),
-        home: MyHomePage(),
+      child: Consumer<MyAppState>(
+        builder: (context, appState, child) {
+          return MaterialApp(
+            title: 'Namer App',
+            theme: appState.isDarkMode 
+              ? ThemeData.dark().copyWith(colorScheme: ColorScheme.dark().copyWith(secondary: Colors.lightBlue)) 
+              : ThemeData.light().copyWith(colorScheme: ColorScheme.light().copyWith(secondary: Colors.lightBlue)),
+            home: MyHomePage(),
+          );
+        },
       ),
     );
   }
@@ -32,6 +35,8 @@ class MyAppState extends ChangeNotifier {
   bool isLoggedIn = false; // Flag for login status
   bool showRegistrationPage = false; // Flag for registration page
 
+  bool isDarkMode = false; // Flag for Dark Mode
+  
   void login() {
     isLoggedIn = true; // Mark as logged in
     notifyListeners(); // Rebuild the UI
@@ -62,6 +67,13 @@ class MyAppState extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  // Toggle Dark Mode
+  void toggleDarkMode(bool value) {
+    isDarkMode = value;
+    notifyListeners();
+  }
+
 }
 
 class MyHomePage extends StatefulWidget {
@@ -471,12 +483,45 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-
-    return Center(
-      child: Text('No settings yet.'),
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Settings'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SwitchListTile(
+              title: Text('Enable Dark Mode'),
+              value: appState.isDarkMode, // Assuming you've added this field in MyAppState
+              onChanged: (bool value) {
+                appState.toggleDarkMode(value); // Toggle Dark Mode
+              },
+            ),
+            ListTile(
+              title: Text('Notification Settings'),
+              onTap: () {
+                // Add navigation to a more detailed notification settings page if required
+                print('Tapped Notification Settings');
+              },
+            ),
+            ListTile(
+              title: Text('Account Settings'),
+              onTap: () {
+                // Add more detailed settings if needed
+                print('Tapped Account Settings');
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
+
+
 
 void parseJson() {
   // JSON data as a string
