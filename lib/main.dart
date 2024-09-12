@@ -46,22 +46,6 @@ class MyAppState extends ChangeNotifier {
     showRegistrationPage = false; // Show login page
     notifyListeners();
   }
-
-  void getNext() {
-    current = WordPair.random();
-    notifyListeners();
-  }
-
-  var favorites = <WordPair>[];
-
-  void toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
-    } else {
-      favorites.add(current);
-    }
-    notifyListeners();
-  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -71,6 +55,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
+  Widget? selectedPage; // Track which page is selected, including buttons on HomePage
 
   @override
   Widget build(BuildContext context) {
@@ -79,14 +64,12 @@ class _MyHomePageState extends State<MyHomePage> {
     // If not logged in, show either login or registration page
     if (!appState.isLoggedIn) {
       if (appState.showRegistrationPage) {
-        // Show Registration Page
         return RegistrationPage(
           onBackToLogin: () {
             appState.showLoginPage(); // Go back to login page
           },
         );
       } else {
-        // Show Login Page
         return LoginPage(
           onLoginSuccess: () {
             appState.login(); // Mark as logged in
@@ -94,30 +77,18 @@ class _MyHomePageState extends State<MyHomePage> {
           onRegisterTap: () {
             appState.showRegisterPage(); // Go to registration page
           },
-
         );
       }
     }
 
-    // After login, show the main app with navigation
-    Widget page;
-    if (selectedIndex == 0) {
-      page = HomePage();
-    } else if (selectedIndex == 1) {
-      page = RecipesPage();
-    } else if (selectedIndex == 2) {
-      page = SettingsPage();
-    } else {
-      throw UnimplementedError('no widget for $selectedIndex');
-    }
-
     return Scaffold(
-      body: page, // Display the page based on selectedIndex
+      body: getPageForIndex(selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
         onTap: (int index) {
           setState(() {
             selectedIndex = index;
+            selectedPage = null; // Reset selectedPage when tapping bottom nav items
           });
         },
         selectedItemColor: Colors.blue,
@@ -129,10 +100,6 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.local_dining),
-            label: 'Recipes',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: 'Settings',
           ),
@@ -140,7 +107,43 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
+  // Function to return the selected page based on selectedIndex or button taps
+  Widget getPageForIndex(int index) {
+    // If a button was clicked on HomePage, show the selected page
+    if (selectedPage != null) {
+      return selectedPage!;
+    }
+
+    // Handle BottomNavigationBar page switching
+    if (index == 0) {
+      return HomePage(
+        onPageTap: (Widget page) {
+          setState(() {
+            selectedPage = page; // Change the selectedPage to the clicked button's page
+          });
+        },
+      );
+    } else if (index == 1) {
+      return SettingsPage(
+        onPageTap: (Widget page) {
+          setState(() {
+            selectedPage = page;
+          });
+        },
+      );
+    } else {
+      return HomePage(
+        onPageTap: (Widget page) {
+          setState(() {
+            selectedPage = page;
+          });
+        },
+      );
+    }
+  }
 }
+
 
 class LoginPage extends StatelessWidget {
   final VoidCallback onLoginSuccess;
@@ -305,66 +308,12 @@ class IngredientsPage extends StatelessWidget {
   }
 }
 
-class FavoritesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    if (appState.favorites.isEmpty) {
-      return Center(
-        child: Text('No favorites yet.'),
-      );
-    }
-
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:')
-        ),
-        for (var pair in appState.favorites)
-          ListTile(
-            leading: Icon(Icons.favorite),
-            title: Text(pair.asLowerCase),
-          ),
-      ],
-    );
-  }
-}
-
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-      
-    );
-
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Text(
-          pair.asLowerCase,
-          style: style,
-          semanticsLabel: "${pair.first} ${pair.second}",
-        ),
-      ),
-    );
-  }
-}
-
 //Home Page on nav bar. Contains subpages of inventory, recipes, ingredients and employees
 class HomePage extends StatelessWidget {
+  final Function(Widget) onPageTap;   // Function to hangle page navigation
+
+  const HomePage({required this.onPageTap});
+  
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -379,10 +328,8 @@ class HomePage extends StatelessWidget {
             'Inventory',
             Icons.inventory,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => InventoryDetailPage()),
-              );
+              // Use the onPageTap function for navigation
+              onPageTap(InventoryDetailPage());
             },
           ),
           _buildRoundedButton(
@@ -390,10 +337,8 @@ class HomePage extends StatelessWidget {
             'Employees',
             Icons.person,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EmployeesPage()),
-              );
+              // Use the onPageTap function for navigation
+              onPageTap(EmployeesPage());
             },
           ),
           _buildRoundedButton(
@@ -401,10 +346,8 @@ class HomePage extends StatelessWidget {
             'Recipes',
             Icons.local_dining,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => RecipesDetailPage()),
-              );
+              // Use the onPageTap function for navigation
+              onPageTap(RecipesDetailPage());
             },
           ),
           _buildRoundedButton(
@@ -412,10 +355,8 @@ class HomePage extends StatelessWidget {
             'Ingredients',
             Icons.list,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => IngredientsPage()),
-              );
+              // Use the onPageTap function for navigation
+              onPageTap(IngredientsPage());
             },
           ),
         ],
@@ -453,7 +394,7 @@ class HomePage extends StatelessWidget {
       ],
     ),
   );
-}
+ }
 }
 
 class RecipesPage extends StatelessWidget {
@@ -468,12 +409,32 @@ class RecipesPage extends StatelessWidget {
 }
 
 class SettingsPage extends StatelessWidget {
+  final Function(Widget) onPageTap;
+
+  const SettingsPage({required this.onPageTap});
+  
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
+    return Scaffold(
+      appBar: AppBar(title: Text('Settings')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            onPageTap(SettingsDetailPage());
+          },
+          child: Text('Go to Settings Detail')
+        ),
+      ),
+    );
+  }
+}
 
-    return Center(
-      child: Text('No settings yet.'),
+class SettingsDetailPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Settings Detail')),
+      body: Center(child: Text('Settings Detail Page')),
     );
   }
 }
