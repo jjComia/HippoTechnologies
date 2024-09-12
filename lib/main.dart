@@ -52,27 +52,10 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void login() {
-    isLoggedIn = true; // Mark as logged in
-    notifyListeners(); // Rebuild the UI
-  }
-
-  void showRegisterPage() {
-    showRegistrationPage = true; // Show registration page
-    notifyListeners();
-  }
-
-  void showLoginPage() {
-    showRegistrationPage = false; // Show login page
-    notifyListeners();
-  }
-
-  // Toggle Dark Mode
   void toggleDarkMode(bool value) {
-    isDarkMode = value;
+    isDarkMode = value; // Toggle Dark Mode
     notifyListeners();
   }
-
 }
 
 class MyHomePage extends StatefulWidget {
