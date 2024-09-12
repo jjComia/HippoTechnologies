@@ -15,13 +15,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
-        ),
-        home: MyHomePage(),
+      child: Consumer<MyAppState>(
+        builder: (context, appState, child) {
+          return MaterialApp(
+            title: 'Namer App',
+            theme: appState.isDarkMode 
+              ? ThemeData.dark().copyWith(colorScheme: ColorScheme.dark().copyWith(secondary: Colors.lightBlue)) 
+              : ThemeData.light().copyWith(colorScheme: ColorScheme.light().copyWith(secondary: Colors.lightBlue)),
+            home: MyHomePage(),
+          );
+        },
       ),
     );
   }
@@ -31,6 +34,23 @@ class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
   bool isLoggedIn = false; // Flag for login status
   bool showRegistrationPage = false; // Flag for registration page
+
+  bool isDarkMode = false; // Flag for Dark Mode
+  
+  void login() {
+    isLoggedIn = true; // Mark as logged in
+    notifyListeners(); // Rebuild the UI
+  }
+
+  void showRegisterPage() {
+    showRegistrationPage = true; // Show registration page
+    notifyListeners();
+  }
+
+  void showLoginPage() {
+    showRegistrationPage = false; // Show login page
+    notifyListeners();
+  }
 
   void login() {
     isLoggedIn = true; // Mark as logged in
@@ -46,6 +66,13 @@ class MyAppState extends ChangeNotifier {
     showRegistrationPage = false; // Show login page
     notifyListeners();
   }
+
+  // Toggle Dark Mode
+  void toggleDarkMode(bool value) {
+    isDarkMode = value;
+    notifyListeners();
+  }
+
 }
 
 class MyHomePage extends StatefulWidget {
@@ -64,12 +91,15 @@ class _MyHomePageState extends State<MyHomePage> {
     // If not logged in, show either login or registration page
     if (!appState.isLoggedIn) {
       if (appState.showRegistrationPage) {
+        // Show Registration Page
         return RegistrationPage(
           onBackToLogin: () {
             appState.showLoginPage(); // Go back to login page
           },
         );
       } else {
+
+        // Show Login Page
         return LoginPage(
           onLoginSuccess: () {
             appState.login(); // Mark as logged in
@@ -83,6 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       body: getPageForIndex(selectedIndex),
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
         onTap: (int index) {
@@ -143,7 +174,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 }
-
 
 class LoginPage extends StatelessWidget {
   final VoidCallback onLoginSuccess;
@@ -264,6 +294,17 @@ class RegistrationPage extends StatelessWidget {
   }
 }
 
+// Ingredients Page
+class IngredientsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Ingredients')),
+      body: Center(child: Text('Ingredients Page')),
+    );
+  }
+}
+
 // Inventory Detail Page
 class InventoryDetailPage extends StatelessWidget {
   @override
@@ -293,17 +334,6 @@ class RecipesDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Recipes')),
       body: Center(child: Text('Recipes Detail Page')),
-    );
-  }
-}
-
-// Ingredients Page
-class IngredientsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Ingredients')),
-      body: Center(child: Text('Ingredients Page')),
     );
   }
 }
@@ -373,7 +403,7 @@ class HomePage extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24.0),  // Rounded corners
       ),
-      backgroundColor: const Color.fromARGB(255, 252, 157, 69).withOpacity(0.8),  // Soft background color
+      backgroundColor: const Color.fromARGB(255, 253, 169, 90).withOpacity(0.8),  // Soft background color
       elevation: 0.0,  // Slight elevation for softer shadow
     ),
     child: Row(  // Icon and text side by side
@@ -415,29 +445,46 @@ class SettingsPage extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    
     return Scaffold(
-      appBar: AppBar(title: Text('Settings')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            onPageTap(SettingsDetailPage());
-          },
-          child: Text('Go to Settings Detail')
+      appBar: AppBar(
+        title: Text('Settings'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SwitchListTile(
+              title: Text('Enable Dark Mode'),
+              value: appState.isDarkMode, // Assuming you've added this field in MyAppState
+              onChanged: (bool value) {
+                appState.toggleDarkMode(value); // Toggle Dark Mode
+              },
+            ),
+            ListTile(
+              title: Text('Notification Settings'),
+              onTap: () {
+                // Add navigation to a more detailed notification settings page if required
+                print('Tapped Notification Settings');
+              },
+            ),
+            ListTile(
+              title: Text('Account Settings'),
+              onTap: () {
+                // Add more detailed settings if needed
+                print('Tapped Account Settings');
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class SettingsDetailPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Settings Detail')),
-      body: Center(child: Text('Settings Detail Page')),
-    );
-  }
-}
+
 
 void parseJson() {
   // JSON data as a string
