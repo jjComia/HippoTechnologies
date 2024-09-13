@@ -421,6 +421,17 @@ class RecipesPage extends StatelessWidget {
   }
 }
 
+// Inventory Detail Page
+class AccountSettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Account Settings')),
+      body: Center(child: Text('Account Settings Here')),
+    );
+  }
+}
+
 class SettingsPage extends StatelessWidget {
   final Function(Widget) onPageTap;
 
@@ -457,6 +468,7 @@ class SettingsPage extends StatelessWidget {
               title: Text('Account Settings'),
               onTap: () {
                 // Add more detailed settings if needed
+                onPageTap(AccountSettingsPage());
                 print('Tapped Account Settings');
               },
             ),
