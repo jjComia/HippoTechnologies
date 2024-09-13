@@ -36,6 +36,9 @@ class MyAppState extends ChangeNotifier {
   bool showRegistrationPage = false; // Flag for registration page
 
   bool isDarkMode = false; // Flag for Dark Mode
+
+  // Nullable Type Function - Can be null or have function reference - Used to reset navigation  
+  Function? resetNavigation;
   
   void login() {
     isLoggedIn = true; // Mark as logged in
@@ -56,6 +59,16 @@ class MyAppState extends ChangeNotifier {
     isDarkMode = value; // Toggle Dark Mode
     notifyListeners();
   }
+
+  void logout() {
+    isLoggedIn = false;
+
+    if (resetNavigation != null) {
+      resetNavigation!(); // Reset navigation to HomePage
+    }
+
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -66,6 +79,23 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
   Widget? selectedPage; // Track which page is selected, including buttons on HomePage
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Register the reset navigation function in MyAppState
+    var appState = context.read<MyAppState>();
+    appState.resetNavigation = resetToHomePage;
+  }
+
+  void resetToHomePage() {
+    setState(() {
+      selectedIndex = 0;
+      selectedPage = null;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -421,13 +451,35 @@ class RecipesPage extends StatelessWidget {
   }
 }
 
-// Inventory Detail Page
+// Account Settings Page
 class AccountSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
     return Scaffold(
       appBar: AppBar(title: Text('Account Settings')),
-      body: Center(child: Text('Account Settings Here')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+             ListTile(
+              title: Text(
+                'LOGOUT',
+                style: TextStyle(
+                 color: Colors.red, // Change this to any color you like
+                ),
+              ),
+
+              onTap: () {
+                appState.logout();
+              },
+            ),
+              
+          
+          ]
+        )
+      )
     );
   }
 }
