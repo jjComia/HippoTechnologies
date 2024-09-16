@@ -15,13 +15,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
-        ),
-        home: MyHomePage(),
+      child: Consumer<MyAppState>(
+        builder: (context, appState, child) {
+          return MaterialApp(
+            title: 'Namer App',
+            theme: appState.isDarkMode 
+              ? ThemeData.dark().copyWith(colorScheme: ColorScheme.dark().copyWith(secondary: Colors.lightBlue)) 
+              : ThemeData.light().copyWith(colorScheme: ColorScheme.light().copyWith(secondary: Colors.lightBlue)),
+            home: MyHomePage(),
+          );
+        },
       ),
     );
   }
@@ -32,6 +35,11 @@ class MyAppState extends ChangeNotifier {
   bool isLoggedIn = false; // Flag for login status
   bool showRegistrationPage = false; // Flag for registration page
 
+  bool isDarkMode = false; // Flag for Dark Mode
+
+  // Nullable Type Function - Can be null or have function reference - Used to reset navigation  
+  Function? resetNavigation;
+  
   void login() {
     isLoggedIn = true; // Mark as logged in
     notifyListeners(); // Rebuild the UI
@@ -46,6 +54,21 @@ class MyAppState extends ChangeNotifier {
     showRegistrationPage = false; // Show login page
     notifyListeners();
   }
+
+  void toggleDarkMode(bool value) {
+    isDarkMode = value; // Toggle Dark Mode
+    notifyListeners();
+  }
+
+  void logout() {
+    isLoggedIn = false;
+
+    if (resetNavigation != null) {
+      resetNavigation!(); // Reset navigation to HomePage
+    }
+
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -56,6 +79,23 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
   Widget? selectedPage; // Track which page is selected, including buttons on HomePage
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Register the reset navigation function in MyAppState
+    var appState = context.read<MyAppState>();
+    appState.resetNavigation = resetToHomePage;
+  }
+
+  void resetToHomePage() {
+    setState(() {
+      selectedIndex = 0;
+      selectedPage = null;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +110,8 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         );
       } else {
+
+        // Show Login Page
         return LoginPage(
           onLoginSuccess: () {
             appState.login(); // Mark as logged in
@@ -264,6 +306,17 @@ class RegistrationPage extends StatelessWidget {
   }
 }
 
+// Ingredients Page
+class IngredientsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Ingredients')),
+      body: Center(child: Text('Ingredients Page')),
+    );
+  }
+}
+
 // Inventory Detail Page
 class InventoryDetailPage extends StatelessWidget {
   @override
@@ -293,17 +346,6 @@ class RecipesDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Recipes')),
       body: Center(child: Text('Recipes Detail Page')),
-    );
-  }
-}
-
-// Ingredients Page
-class IngredientsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Ingredients')),
-      body: Center(child: Text('Ingredients Page')),
     );
   }
 }
@@ -373,7 +415,7 @@ class HomePage extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24.0),  // Rounded corners
       ),
-      backgroundColor: const Color.fromARGB(255, 252, 157, 69).withOpacity(0.8),  // Soft background color
+      backgroundColor: const Color.fromARGB(255, 253, 169, 90).withOpacity(0.8),  // Soft background color
       elevation: 0.0,  // Slight elevation for softer shadow
     ),
     child: Row(  // Icon and text side by side
@@ -408,6 +450,39 @@ class RecipesPage extends StatelessWidget {
   }
 }
 
+// Account Settings Page
+class AccountSettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    return Scaffold(
+      appBar: AppBar(title: Text('Account Settings')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+             ListTile(
+              title: Text(
+                'LOGOUT',
+                style: TextStyle(
+                 color: Colors.red, // Change this to any color you like
+                ),
+              ),
+
+              onTap: () {
+                appState.logout();
+              },
+            ),
+              
+          
+          ]
+        )
+      )
+    );
+  }
+}
+
 class SettingsPage extends StatelessWidget {
   final Function(Widget) onPageTap;
 
@@ -415,29 +490,47 @@ class SettingsPage extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    
     return Scaffold(
-      appBar: AppBar(title: Text('Settings')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            onPageTap(SettingsDetailPage());
-          },
-          child: Text('Go to Settings Detail')
+      appBar: AppBar(
+        title: Text('Settings'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SwitchListTile(
+              title: Text('Enable Dark Mode'),
+              value: appState.isDarkMode, // Assuming you've added this field in MyAppState
+              onChanged: (bool value) {
+                appState.toggleDarkMode(value); // Toggle Dark Mode
+              },
+            ),
+            ListTile(
+              title: Text('Notification Settings'),
+              onTap: () {
+                // Add navigation to a more detailed notification settings page if required
+                print('Tapped Notification Settings');
+              },
+            ),
+            ListTile(
+              title: Text('Account Settings'),
+              onTap: () {
+                // Add more detailed settings if needed
+                onPageTap(AccountSettingsPage());
+                print('Tapped Account Settings');
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class SettingsDetailPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Settings Detail')),
-      body: Center(child: Text('Settings Detail Page')),
-    );
-  }
-}
+
 
 void parseJson() {
   // JSON data as a string
