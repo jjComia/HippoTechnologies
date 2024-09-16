@@ -2,7 +2,7 @@ import 'dart:convert'; // Importing dart:convert to use jsonDecode function
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui';  // For BackdropFilter
+// For BackdropFilter
 
 void main() {
   runApp(MyApp());
@@ -440,6 +440,20 @@ class HomePage extends StatelessWidget {
  }
 }
 
+class ProfileSettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Profile Settings'),
+      ),
+      body: Center(
+        child: Text('This is the Profile Settings Page'),
+      ), 
+    );
+  }
+}
+
 class RecipesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -492,7 +506,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
@@ -504,24 +518,75 @@ class SettingsPage extends StatelessWidget {
           children: [
             SwitchListTile(
               title: Text('Enable Dark Mode'),
-              value: appState.isDarkMode, // Assuming you've added this field in MyAppState
+              value: appState.isDarkMode,
               onChanged: (bool value) {
-                appState.toggleDarkMode(value); // Toggle Dark Mode
-              },
-            ),
-            ListTile(
-              title: Text('Notification Settings'),
-              onTap: () {
-                // Add navigation to a more detailed notification settings page if required
-                print('Tapped Notification Settings');
+                appState.toggleDarkMode(value);
               },
             ),
             ListTile(
               title: Text('Account Settings'),
               onTap: () {
-                // Add more detailed settings if needed
                 onPageTap(AccountSettingsPage());
-                print('Tapped Account Settings');
+              },
+            ),
+            ListTile(
+              title: Text('Order Preference'),
+              trailing: DropdownButton<String>(
+                value: 'Pickup',
+                items: <String>['Pickup', 'Delivery'].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  // Save order preference
+                  print('Order preference: $newValue');
+                },
+              ),
+            ),
+            ListTile(
+              title: Text('New Product Notifications'),
+              trailing: Switch(
+                value: true,  // Replace with actual state
+                onChanged: (bool value) {
+                  // Toggle notifications
+                  print('New product notifications: $value');
+                },
+              ),
+            ),
+            ListTile(
+              title: Text('Accent Color'),
+              trailing: DropdownButton<Color>(
+                value: Colors.lightBlue,
+                items: <Color>[Colors.lightBlue, Colors.green, Colors.pink].map<DropdownMenuItem<Color>>((Color color) {
+                  return DropdownMenuItem<Color>(
+                    value: color,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      color: color,
+                    ),
+                  );
+                }).toList(),
+                onChanged: (Color? newValue) {
+                  // Change accent color
+                  print('Accent color changed to: $newValue');
+                },
+              ),
+            ),
+            ListTile(
+              title: Text('Privacy Policy'),
+              onTap: () {
+                // Show Privacy Policy
+                print('Privacy Policy Tapped');
+              },
+            ),
+            ListTile(
+              title: Text('Terms of Service'),
+              onTap: () {
+                // Show Terms of Service
+                print('Terms of Service Tapped');
               },
             ),
           ],
@@ -530,6 +595,7 @@ class SettingsPage extends StatelessWidget {
     );
   }
 }
+
 
 
 
