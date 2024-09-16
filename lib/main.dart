@@ -524,9 +524,9 @@ class SettingsPage extends StatelessWidget {
               },
             ),
             ListTile(
-              title: Text('Profile Settings'),
+              title: Text('Account Settings'),
               onTap: () {
-                onPageTap(ProfileSettingsPage());
+                onPageTap(AccountSettingsPage());
               },
             ),
             ListTile(
