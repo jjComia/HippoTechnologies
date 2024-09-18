@@ -2,6 +2,7 @@ import 'dart:convert'; // Importing dart:convert to use jsonDecode function
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 // For BackdropFilter
 
 void main() {
@@ -226,6 +227,7 @@ class LoginPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Add login logic here
+                print('Logging in with username: ${_usernameController.text}');
                 onLoginSuccess(); // Simulate successful login
               },
               child: Text('Login'),
@@ -592,51 +594,5 @@ class SettingsPage extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-
-
-
-void parseJson() {
-  // JSON data as a string
-  String jsonData = '''
-  {
-    "inventory": [
-      {
-        "item_id": "001",
-        "name": "Croissant",
-        "quantity": 50,
-        "price": 2.5,
-        "ingredients": ["flour", "butter", "sugar", "yeast"]
-      },
-      {
-        "item_id": "002",
-        "name": "Chocolate Cake",
-        "quantity": 20,
-        "price": 15.0,
-        "ingredients": ["flour", "cocoa", "sugar", "eggs", "butter"]
-      },
-      {
-        "item_id": "003",
-        "name": "Bagel",
-        "quantity": 100,
-        "price": 1.5,
-        "ingredients": ["flour", "water", "yeast", "salt"]
-      }
-    ]
-  }
-  ''';
-
-  // Decoding the JSON data
-  var inventoryData = jsonDecode(jsonData);
-
-  // Iterating over the items in the inventory
-  for (var item in inventoryData['inventory']) {
-    print("Item: ${item['name']}");
-    print("Quantity: ${item['quantity']}");
-    print("Price: \$${item['price']}");
-    print("Ingredients: ${item['ingredients'].join(', ')}");
-    print("");
   }
 }
