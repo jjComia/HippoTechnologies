@@ -20,8 +20,8 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Namer App',
             theme: appState.isDarkMode 
-              ? ThemeData.dark().copyWith(colorScheme: ColorScheme.dark().copyWith(secondary: Colors.lightBlue)) 
-              : ThemeData.light().copyWith(colorScheme: ColorScheme.light().copyWith(secondary: Colors.lightBlue)),
+              ? ThemeData.dark().copyWith(colorScheme: ColorScheme.dark().copyWith(secondary: const Color.fromARGB(255, 69, 145, 105))) 
+              : ThemeData.light().copyWith(colorScheme: ColorScheme.light().copyWith(secondary: Color.fromARGB(255, 69, 145, 105))),
             home: MyHomePage(),
           );
         },
@@ -135,9 +135,9 @@ class _MyHomePageState extends State<MyHomePage> {
             selectedPage = null; // Reset selectedPage when tapping bottom nav items
           });
         },
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
+        selectedItemColor: Color.fromARGB(255, 69, 145, 105),
+        unselectedItemColor: Color.fromARGB(255, 162, 185, 188),
+        backgroundColor: Color.fromARGB(255, 198, 255, 196),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -416,7 +416,7 @@ class HomePage extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24.0),  // Rounded corners
       ),
-      backgroundColor: const Color.fromARGB(255, 253, 169, 90).withOpacity(0.8),  // Soft background color
+      backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),  // Soft background color
       elevation: 0.0,  // Slight elevation for softer shadow
     ),
     child: Row(  // Icon and text side by side
@@ -424,14 +424,14 @@ class HomePage extends StatelessWidget {
       children: [
         Icon(
           icon,
-          color: Colors.white,  // Icon color to match text
+          color: Color.fromARGB(255, 69, 145, 105),  // Icon color to match text
         ),
         SizedBox(width: 8.0),  // Space between icon and text
         Text(
           text,
           style: TextStyle(
             fontSize: 18,
-            color: Colors.white,  // White text color
+            color: Color.fromARGB(255, 69, 145, 105),  // White text color
           ),
         ),
       ],
