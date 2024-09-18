@@ -249,6 +249,8 @@ class RegistrationPage extends StatelessWidget {
 
   RegistrationPage({required this.onBackToLogin});
 
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -263,6 +265,22 @@ class RegistrationPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            TextField(
+              controller: _firstNameController, // First Name
+              decoration: InputDecoration(
+                labelText: 'First Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _lastNameController, // Last Name
+              decoration: InputDecoration(
+                labelText: 'Last Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16.0),
             TextField(
               controller: _usernameController,
               decoration: InputDecoration(
@@ -293,6 +311,41 @@ class RegistrationPage extends StatelessWidget {
               onPressed: () {
                 // Add registration logic here
                 print('Registering with username: ${_usernameController.text}');
+                var firstName = _firstNameController.text;
+                var lastName = _lastNameController.text;
+                var username = _usernameController.text;
+                var password = _passwordController.text;
+                var confirmPassword = _confirmPasswordController.text;
+
+                if (password != confirmPassword) {      // Check if passwords match
+                  // Passwords do not match, display a sweet alert
+                  print('Passwords do not match');
+                  print('Password: $password');
+                  print('Confirm Password: $confirmPassword');
+                  return;
+                } else {
+                  // Passwords Match, proceed with registration
+                  print('First Name: $firstName');
+                  print('Last Name: $lastName');
+                  print('Username: $username');
+                  print('Password: $password');
+
+                  // Make api call to register user
+                  var url = Uri.parse('https://bakery.permavite.com/users');
+                  var response = http.post(
+                    url,
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: jsonEncode(<String, String>{
+                      'first_name': firstName,
+                      'last_name': lastName,
+                      'username': username,
+                      'password': password,
+                      'passSalt': '',
+                    }),
+                  );
+                }
               },
               child: Text('Register'),
             ),
