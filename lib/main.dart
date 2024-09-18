@@ -309,7 +309,7 @@ class RegistrationPage extends StatelessWidget {
             SizedBox(height: 24.0),
             ElevatedButton(
               onPressed: () {
-                // Add registration logic here
+                // Add registration logic here.
                 print('Registering with username: ${_usernameController.text}');
                 var firstName = _firstNameController.text;
                 var lastName = _lastNameController.text;
