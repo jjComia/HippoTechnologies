@@ -42,6 +42,15 @@ class MyAppState extends ChangeNotifier {
 
   // Nullable Type Function - Can be null or have function reference - Used to reset navigation  
   Function? resetNavigation;
+
+  Future<void> checkSessionID() async {
+    String? sessionID = await sessionService.getSessionID();
+    print('Session ID: $sessionID');
+    if (sessionID != null) {
+      isLoggedIn = true; // Mark as logged in
+    }
+    notifyListeners(); // Rebuild the UI
+  }
   
   void login() {
     isLoggedIn = true; // Mark as logged in
@@ -90,6 +99,9 @@ class _MyHomePageState extends State<MyHomePage> {
     // Register the reset navigation function in MyAppState
     var appState = context.read<MyAppState>();
     appState.resetNavigation = resetToHomePage;
+
+    //Check if user is logged in
+    appState.checkSessionID();
   }
 
   void resetToHomePage() {
