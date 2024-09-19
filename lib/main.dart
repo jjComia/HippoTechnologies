@@ -3,7 +3,9 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-// For BackdropFilter
+import 'pages/registration.dart'; // Import the RegistrationPage
+import 'pages/login.dart';        // Import the LoginPage
+import 'services/session_service.dart';
 
 void main() {
   runApp(MyApp());
@@ -32,7 +34,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
+  final SessionService sessionService = SessionService();
   bool isLoggedIn = false; // Flag for login status
   bool showRegistrationPage = false; // Flag for registration page
 
@@ -63,11 +65,11 @@ class MyAppState extends ChangeNotifier {
 
   void logout() {
     isLoggedIn = false;
+    sessionService.deleteSessionID();
 
     if (resetNavigation != null) {
       resetNavigation!(); // Reset navigation to HomePage
     }
-
     notifyListeners();
   }
 }
@@ -108,6 +110,9 @@ class _MyHomePageState extends State<MyHomePage> {
         return RegistrationPage(
           onBackToLogin: () {
             appState.showLoginPage(); // Go back to login page
+          },
+          onRegisterSuccess: () {
+            appState.login(); // Mark as logged in
           },
         );
       } else {
@@ -188,178 +193,6 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 
-class LoginPage extends StatelessWidget {
-  final VoidCallback onLoginSuccess;
-  final VoidCallback onRegisterTap;
-
-  LoginPage({required this.onLoginSuccess, required this.onRegisterTap});
-
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 24.0),
-            ElevatedButton(
-              onPressed: () {
-                // Add login logic here
-                print('Logging in with username: ${_usernameController.text}');
-                onLoginSuccess(); // Simulate successful login
-              },
-              child: Text('Login'),
-            ),
-            SizedBox(height: 8.0),
-            OutlinedButton(
-              onPressed: onRegisterTap, // Go to registration page
-              child: Text('Register'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class RegistrationPage extends StatelessWidget {
-  final VoidCallback onBackToLogin;
-
-  RegistrationPage({required this.onBackToLogin});
-
-  final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Register')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _firstNameController, // First Name
-              decoration: InputDecoration(
-                labelText: 'First Name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: _lastNameController, // Last Name
-              decoration: InputDecoration(
-                labelText: 'Last Name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: _confirmPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Confirm Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 24.0),
-            ElevatedButton(
-              onPressed: () {
-                // Add registration logic here
-                print('Registering with username: ${_usernameController.text}');
-                var firstName = _firstNameController.text;
-                var lastName = _lastNameController.text;
-                var username = _usernameController.text;
-                var password = _passwordController.text;
-                var confirmPassword = _confirmPasswordController.text;
-
-                if (password != confirmPassword) {      // Check if passwords match
-                  // Passwords do not match, display a sweet alert
-                  print('Passwords do not match');
-                  print('Password: $password');
-                  print('Confirm Password: $confirmPassword');
-                  return;
-                } else {
-                  // Passwords Match, proceed with registration
-                  print('First Name: $firstName');
-                  print('Last Name: $lastName');
-                  print('Username: $username');
-                  print('Password: $password');
-
-                  // Make api call to register user
-                  var url = Uri.parse('https://bakery.permavite.com/users');
-                  var response = http.post(
-                    url,
-                    headers: <String, String>{
-                      'Content-Type': 'application/json; charset=UTF-8',
-                    },
-                    body: jsonEncode(<String, String>{
-                      'first_name': firstName,
-                      'last_name': lastName,
-                      'username': username,
-                      'password': password,
-                      'passSalt': '',
-                    }),
-                  );
-                }
-              },
-              child: Text('Register'),
-            ),
-            SizedBox(height: 8.0),
-            OutlinedButton(
-              onPressed: onBackToLogin, // Go back to login page
-              child: Text('Back to Login'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 // Ingredients Page
 class IngredientsPage extends StatelessWidget {
@@ -552,11 +385,19 @@ class AccountSettingsPage extends StatelessWidget {
   }
 }
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   final Function(Widget) onPageTap;
 
   const SettingsPage({required this.onPageTap});
-  
+
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  String _selectedPreference = 'Pickup'; // Order preference state
+  Color _selectedAccentColor = Colors.lightBlue; // Accent color state
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
@@ -580,13 +421,13 @@ class SettingsPage extends StatelessWidget {
             ListTile(
               title: Text('Account Settings'),
               onTap: () {
-                onPageTap(AccountSettingsPage());
+                widget.onPageTap(AccountSettingsPage());
               },
             ),
             ListTile(
               title: Text('Order Preference'),
               trailing: DropdownButton<String>(
-                value: 'Pickup',
+                value: _selectedPreference,
                 items: <String>['Pickup', 'Delivery'].map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
@@ -594,7 +435,9 @@ class SettingsPage extends StatelessWidget {
                   );
                 }).toList(),
                 onChanged: (String? newValue) {
-                  // Save order preference
+                  setState(() {
+                    _selectedPreference = newValue!;
+                  });
                   print('Order preference: $newValue');
                 },
               ),
@@ -602,7 +445,7 @@ class SettingsPage extends StatelessWidget {
             ListTile(
               title: Text('New Product Notifications'),
               trailing: Switch(
-                value: true,  // Replace with actual state
+                value: true, // Replace with actual state
                 onChanged: (bool value) {
                   // Toggle notifications
                   print('New product notifications: $value');
@@ -612,7 +455,7 @@ class SettingsPage extends StatelessWidget {
             ListTile(
               title: Text('Accent Color'),
               trailing: DropdownButton<Color>(
-                value: Colors.lightBlue,
+                value: _selectedAccentColor,
                 items: <Color>[Colors.lightBlue, Colors.green, Colors.pink].map<DropdownMenuItem<Color>>((Color color) {
                   return DropdownMenuItem<Color>(
                     value: color,
@@ -624,7 +467,9 @@ class SettingsPage extends StatelessWidget {
                   );
                 }).toList(),
                 onChanged: (Color? newValue) {
-                  // Change accent color
+                  setState(()  {
+                    _selectedAccentColor = newValue!;
+                  });
                   print('Accent color changed to: $newValue');
                 },
               ),
