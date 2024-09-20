@@ -2,6 +2,10 @@ import 'dart:convert'; // Importing dart:convert to use jsonDecode function
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../services/session_service.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
+import '../main.dart';
+
+
 class LoginPage extends StatelessWidget {
   final VoidCallback onLoginSuccess;
   final VoidCallback onRegisterTap;
@@ -12,9 +16,29 @@ class LoginPage extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> loginUser() async {
+  Future<void> loginUser(BuildContext context) async {
     var username = _usernameController.text;
     var password = _passwordController.text;
+
+    var strError = '';
+    if (username.length < 3) {
+      strError += 'Username must be 3 or more characters.\n';
+    } if (password.length < 6) {
+      strError += 'Password must be 6 or more characters.\n';
+    }
+
+    if (strError != '') {
+      // Make a awesome dialog to show the error
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.scale,
+        title: 'Error',
+        desc: strError,
+        btnOkOnPress: () {},
+      ).show();
+      return;
+    }
 
     var params = {
       'username': username,
@@ -36,11 +60,31 @@ class LoginPage extends StatelessWidget {
       // Handle the response
       if (response.statusCode == 201) {
         print('Login successful');
-        print('Response: ${response.body}');
         sessionService.saveSession(jsonDecode(response.body)['id']);
-        onLoginSuccess();
-      } else {
+        // Make a awesome dialog to show the success, then call onLoginSuccess
+        if (context.mounted){
+          AwesomeDialog(
+            context: context,
+            dialogType: DialogType.success,
+            animType: AnimType.scale,
+            title: 'Success',
+            desc: 'Login successful',
+            btnOkOnPress: onLoginSuccess,
+          ).show();
+        }
+      } else if (response.statusCode == 404) {
         print('Failed to Login: ${response.body}');
+        // Make a awesome dialog to show the error
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.scale,
+          title: 'Error',
+          desc: 'Invalid username or password',
+          btnOkOnPress: () {},
+        ).show();
+      } else {
+        print('Failed to Login: ${response.statusCode}');
       }
     } catch (e) {
       print('Error occurred: $e');
@@ -80,7 +124,7 @@ class LoginPage extends StatelessWidget {
                 onPressed: () {
                   // Add login logic here
                   print('Logging in with username: ${_usernameController.text}');
-                  loginUser();
+                  loginUser(context);
                 },
                 child: Text('Login'),
               ),

@@ -16,6 +16,7 @@ dependencies:
   http: ^1.2.2
   shared_preferences: ^2.3.2
   flutter_speed_dial: ^6.0.0
+  awesome_dialog: ^3.2.1
 
 dev_dependencies:
   flutter_test:
