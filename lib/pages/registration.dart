@@ -1,10 +1,7 @@
 import 'dart:convert'; // Importing dart:convert to use jsonDecode function
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import '../services/session_service.dart';
-import '../main.dart';
 
 
 class RegistrationPage extends StatelessWidget {

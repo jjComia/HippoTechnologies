@@ -1,11 +1,10 @@
-import 'dart:convert'; // Importing dart:convert to use jsonDecode function
-import 'package:english_words/english_words.dart';
+// Importing dart:convert to use jsonDecode function
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'pages/registration.dart'; // Import the RegistrationPage
 import 'pages/login.dart';        // Import the LoginPage
 import 'services/session_service.dart';
+import 'pages/recipePage.dart';
 
 void main() {
   runApp(MyApp());
@@ -239,16 +238,6 @@ class EmployeesPage extends StatelessWidget {
   }
 }
 
-// Recipes Detail Page
-class RecipesDetailPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Recipes')),
-      body: Center(child: Text('Recipes Detail Page')),
-    );
-  }
-}
 
 //Home Page on nav bar. Contains subpages of inventory, recipes, ingredients and employees
 class HomePage extends StatelessWidget {
@@ -353,16 +342,6 @@ class ProfileSettingsPage extends StatelessWidget {
   }
 }
 
-class RecipesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    return Center(
-      child: Text('No recipes yet.'),
-    );
-  }
-}
 
 // Account Settings Page
 class AccountSettingsPage extends StatelessWidget {
