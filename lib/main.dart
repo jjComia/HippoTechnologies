@@ -45,7 +45,6 @@ class MyAppState extends ChangeNotifier {
 
   Future<void> checkSessionID() async {
     String? sessionID = await sessionService.getSessionID();
-    print('Session ID: $sessionID');
     if (sessionID != null) {
       isLoggedIn = true; // Mark as logged in
     }

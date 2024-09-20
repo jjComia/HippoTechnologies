@@ -1,34 +1,71 @@
-import 'dart:convert'; // Importing dart:convert to use jsonDecode function
-import 'package:english_words/english_words.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:awesome_dialog/awesome_dialog.dart';
 import '../services/session_service.dart';
-import '../main.dart';
 
-
-class RegistrationPage extends StatelessWidget {
+class RegistrationPage extends StatefulWidget {
   final VoidCallback onBackToLogin;
   final VoidCallback onRegisterSuccess;
   final SessionService sessionService = SessionService();
 
   RegistrationPage({required this.onRegisterSuccess, required this.onBackToLogin});
 
+  @override
+  _RegistrationPageState createState() => _RegistrationPageState();
+}
+
+class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
-  Future<void> registerUser() async {
+  bool _passwordsMatch = true;
+
+  void _checkPasswords() {
+    setState(() {
+      _passwordsMatch = _passwordController.text == _confirmPasswordController.text;
+    });
+  }
+
+  Future<void> registerUser(BuildContext context) async {
     var firstName = _firstNameController.text;
     var lastName = _lastNameController.text;
     var username = _usernameController.text;
     var password = _passwordController.text;
     var confirmPassword = _confirmPasswordController.text;
 
-    if (password != confirmPassword) {
-      print('Passwords do not match');
+    List<String> errorMessages = [];
+    if (firstName.length < 2) {
+      errorMessages.add('First Name must be 2 or more characters.');
+    }
+    if (lastName.length < 2) {
+      errorMessages.add('Last Name must be 2 or more characters.');
+    }
+    if (username.length < 3) {
+      errorMessages.add('Username must be 3 or more characters.');
+    }
+    if (password.length < 6) {
+      errorMessages.add('Password must be 6 or more characters.');
+    }
+    if (confirmPassword.isEmpty) {
+      errorMessages.add('Confirm Password is required.');
+    } else if (password != confirmPassword) {
+      errorMessages.add('Passwords do not match.');
+    }
+
+    if (errorMessages.isNotEmpty) {
+      // Show error dialog
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.scale,
+        title: 'Incorrect Input(s)',
+        desc: errorMessages.join('\n'),
+        btnOkOnPress: () {},
+      ).show();
       return;
     }
 
@@ -38,12 +75,12 @@ class RegistrationPage extends StatelessWidget {
       'lastName': lastName,
       'username': username,
       'password': password,
-      'passSalt': '', // Add logic for password salt if needed
+      'passSalt': '',
       'perms': 0,
     };
 
     // Make API call to register user
-    var url = Uri.parse('https://bakery.permavite.com/users');
+    var url = Uri.parse('https://bakery.permavite.com/register/user');
     try {
       var response = await http.post(
         url,
@@ -55,16 +92,38 @@ class RegistrationPage extends StatelessWidget {
 
       // Handle the response
       if (response.statusCode == 201) {
-        print('Registration successful');
-        print('Response: ${response.body}');
-        sessionService.saveSession(jsonDecode(response.body)['id']);
-        onRegisterSuccess();
+        widget.sessionService.saveSession(jsonDecode(response.body)['id']);
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.scale,
+          title: 'Success',
+          desc: 'Registration successful',
+          btnOkOnPress: widget.onRegisterSuccess,
+        ).show();
       } else {
-        print('Failed to register: ${response.body}');
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.scale,
+          title: 'Error',
+          desc: 'Registration Failed. Please try again.',
+          btnOkOnPress: () {},
+        ).show();
       }
     } catch (e) {
       print('Error occurred: $e');
     }
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -79,7 +138,7 @@ class RegistrationPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextField(
-                controller: _firstNameController, // First Name
+                controller: _firstNameController,
                 decoration: InputDecoration(
                   labelText: 'First Name',
                   border: OutlineInputBorder(),
@@ -87,7 +146,7 @@ class RegistrationPage extends StatelessWidget {
               ),
               SizedBox(height: 16.0),
               TextField(
-                controller: _lastNameController, // Last Name
+                controller: _lastNameController,
                 decoration: InputDecoration(
                   labelText: 'Last Name',
                   border: OutlineInputBorder(),
@@ -107,8 +166,21 @@ class RegistrationPage extends StatelessWidget {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Colors.blue),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red, width: 1.0),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red, width: 1.0),
+                  ),
+                  errorText: !_passwordsMatch ? 'Passwords do not match' : null,
                 ),
+                onChanged: (value) => _checkPasswords(),
               ),
               SizedBox(height: 16.0),
               TextField(
@@ -116,25 +188,38 @@ class RegistrationPage extends StatelessWidget {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Confirm Password',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Colors.blue),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red, width: 1.0),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red, width: 1.0),
+                  ),
+                  errorText: !_passwordsMatch ? 'Passwords do not match' : null,
                 ),
+                onChanged: (value) => _checkPasswords(),
               ),
               SizedBox(height: 24.0),
               ElevatedButton(
                 onPressed: () {
-                  registerUser(); // Register user
+                  registerUser(context); // Register user
                 },
                 child: Text('Register'),
               ),
               SizedBox(height: 8.0),
               OutlinedButton(
-                onPressed: onBackToLogin, // Go back to login page
+                onPressed: widget.onBackToLogin,
                 child: Text('Back to Login'),
               ),
             ],
           ),
         ),
-      )
+      ),
     );
   }
 }
