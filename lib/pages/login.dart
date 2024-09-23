@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../services/session_service.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
-import '../main.dart';
 
 
 class LoginPage extends StatelessWidget {
