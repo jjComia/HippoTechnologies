@@ -1,0 +1,257 @@
+// Importing dart:convert to use jsonDecode function
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../services/session_service.dart';
+import 'dart:convert';
+import '../models/recipe.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+
+final SessionService sessionService = SessionService();
+List<Inventory> inventory = [];
+
+Future<void> getInventory() async {
+  var url = Uri.https('bakery.permavite.com', 'inventory');
+
+  // Include the session ID in the headers
+  var response = await http.get(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+    },
+  );
+
+  var jsonData = jsonDecode(response.body);
+
+  if (response.statusCode == 200) {
+    inventory.clear(); // Clear the list to avoid duplicates
+
+    for (var eachInventory in jsonData) {
+      final inventory = Inventory(
+        name: eachInventory['name'],
+        description: eachInventory['description'],
+      );
+      inventory.add(inventory);
+    }
+    print('Number of Inventory Items loaded: ${inventory.length}');
+  } else {
+    print('Failed to load Inventory Items: ${response.statusCode}');
+  }
+}
+
+// Text editing controllers for user input
+final TextEditingController _inventoryNameController = TextEditingController();
+final TextEditingController _quantityController = TextEditingController();
+final TextEditingController _purchaseQuantityController = TextEditingController();
+final TextEditingController _costPerPurchaseUnitController = TextEditingController();
+final TextEditingController _unitController = TextEditingController();
+final TextEditingController _notesController = TextEditingController();
+
+// Function to add an inventory item to the database
+Future<void> addInventoryItem() async {
+  var name = _inventoryNameController.text;
+  var quantity = double.tryParse(_quantityController.text) ?? 0.0;
+  var purchaseQuantity = double.tryParse(_purchaseQuantityController.text) ?? 0.0;
+  var costPerPurchaseUnit = double.tryParse(_costPerPurchaseUnitController.text) ?? 0.0;
+  var unit = _unitController.text;
+  var notes = _notesController;
+
+   var url = Uri.parse('https://bakery.permavite.com/inventory');
+  // POST request to add the inventory item to the database
+  var response = await http.post(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      //'Authorization': '${sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
+      'Authorization': 'Bearer 24201287-A54D-4D16-9CC3-5920A823FF12',
+    },
+    body: jsonEncode({
+      'name': name,
+      'quantity': quantity,
+      'purchaseQuantity': purchaseQuantity,
+      'costPerPurchaseUnit': costPerPurchaseUnit,
+      'unit': unit,
+      'notes': notes,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    print('Inventory Item added successfully');
+    getInventory(); // Reload the inventory after adding a new one
+  } else {
+    print('Failed to add Inventory Item: ${response.statusCode}');
+  }
+}
+
+// Function to show the add inventory dialog with a fade and scale transition
+void _showAddInventoryDialog(BuildContext context) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: "Add Inventory Item",
+    barrierColor: Colors.black.withOpacity(0.5), // Darkens the background
+    transitionDuration: Duration(milliseconds: 300),
+    pageBuilder: (context, anim1, anim2) {
+      return AlertDialog(
+        // backgroundColor:  Color.fromARGB(255, 162, 185, 188).withOpacity(1.0), COLOR FOR POPUP BG?
+        title: Text('Add Inventory Item'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                controller: _inventoryNameController,
+                decoration: InputDecoration(labelText: 'Inventory Item Name'),
+              ),
+              TextField(
+                controller: _quantityController,
+                decoration: InputDecoration(labelText: 'Quantity'),
+              ),
+              TextField(
+                controller: _purchaseQuantityController,
+                decoration: InputDecoration(labelText: 'Purchase Quantity'),
+              ),
+              TextField(
+                controller: _costPerPurchaseUnitController,
+                decoration: InputDecoration(labelText: 'Cost Per Purchase Unit)'),
+              ),
+              TextField(
+                controller: _unitController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Unit'),
+              ),
+              TextField(
+                controller: _notesController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Notes'),
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              addInventoryItem(); // Add the Inventory Item
+
+              Navigator.of(context).pop(); // Close the dialog after adding
+            },
+            child: Text('Add'),
+          ),
+        ],
+      );
+    },
+    transitionBuilder: (context, anim1, anim2, child) {
+      return FadeTransition(
+        opacity: anim1,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.9, end: 1.0).animate(anim1),
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
+// Inventory Detail Page
+class InventoryDetailPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Inventory')),
+      body: FutureBuilder(
+        future: getInventory(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (inventory.isEmpty) {
+              return Center(
+                child: Text('No Inventory Items available'),
+              );
+            }
+            return ListView.builder(
+              itemCount: inventory.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: ListTile(
+                      title: Text(
+                        inventory[index].name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      textColor: const Color.fromARGB(255, 69, 145, 105),
+                      subtitle: Text(
+                        inventory[index].description ?? 'No description available',
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
+      floatingActionButton: SpeedDial(
+        animatedIcon: AnimatedIcons.menu_close,
+        backgroundColor: const Color.fromARGB(255, 162, 185, 188).withOpacity(0.8),
+        overlayColor: Colors.black,
+        overlayOpacity: 0.5,
+        spacing: 12,
+        spaceBetweenChildren: 12,
+        children: [
+          SpeedDialChild(
+            child: Icon(Icons.search),
+            label: 'Search Inventory Items',
+            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            onTap: () {
+              // Add search functionality here
+              print('Search button tapped');
+            },
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.add),
+            label: 'Add Inventory Item',
+            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            onTap: () {
+              _showAddInventoryDialog(context); // Show the add inventory dialog
+            },
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.delete),
+            label: 'Delete Inventory Item',
+            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            onTap: () {
+              print('Delete button tapped');
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
