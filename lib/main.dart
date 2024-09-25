@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'pages/registration.dart'; // Import the RegistrationPage
 import 'pages/login.dart';        // Import the LoginPage
+import 'pages/inventoryPage.dart'; //Import the Inventory Page
 import 'services/session_service.dart';
 import 'pages/recipePage.dart';
 
@@ -211,17 +212,6 @@ class IngredientsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Ingredients')),
       body: Center(child: Text('Ingredients Page')),
-    );
-  }
-}
-
-// Inventory Detail Page
-class InventoryDetailPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Inventory')),
-      body: Center(child: Text('Inventory Details Page')),
     );
   }
 }

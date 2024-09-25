@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../services/session_service.dart';
 import 'dart:convert';
-import '../models/recipe.dart';
+import '../models/inventory.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 final SessionService sessionService = SessionService();
-List<Inventory> inventory = [];
+List<Inventory> inventoryItems = [];
 
-Future<void> getInventory() async {
+Future<void> getInventoryItems() async {
   var url = Uri.https('bakery.permavite.com', 'inventory');
 
   // Include the session ID in the headers
@@ -17,23 +17,25 @@ Future<void> getInventory() async {
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+      'Authorization': '${await sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED 
+      //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
   );
 
   var jsonData = jsonDecode(response.body);
 
   if (response.statusCode == 200) {
-    inventory.clear(); // Clear the list to avoid duplicates
+    print('here');
+    inventoryItems.clear(); // Clear the list to avoid duplicates
 
     for (var eachInventory in jsonData) {
       final inventory = Inventory(
         name: eachInventory['name'],
-        description: eachInventory['description'],
+        quantity: eachInventory['quantity'],
       );
-      inventory.add(inventory);
+      inventoryItems.add(inventory);
     }
-    print('Number of Inventory Items loaded: ${inventory.length}');
+    print('Number of Inventory Items loaded: ${inventoryItems.length}');
   } else {
     print('Failed to load Inventory Items: ${response.statusCode}');
   }
@@ -50,11 +52,20 @@ final TextEditingController _notesController = TextEditingController();
 // Function to add an inventory item to the database
 Future<void> addInventoryItem() async {
   var name = _inventoryNameController.text;
-  var quantity = double.tryParse(_quantityController.text) ?? 0.0;
-  var purchaseQuantity = double.tryParse(_purchaseQuantityController.text) ?? 0.0;
+  var quantity = int.tryParse(_quantityController.text) ?? 0.0;
+  var purchaseQuantity = int.tryParse(_purchaseQuantityController.text) ?? 0.0;
   var costPerPurchaseUnit = double.tryParse(_costPerPurchaseUnitController.text) ?? 0.0;
   var unit = _unitController.text;
-  var notes = _notesController;
+  var notes = _notesController.text;
+
+  print('Name: $name');
+  print('Quantity: $quantity');
+  print('Purchase Quantity: $purchaseQuantity');
+  print('Cost Per Purchase Unit: $costPerPurchaseUnit');
+  print('Unit: $unit');
+  print('Notes: $notes');
+
+  print ('Session ID: ${await sessionService.getSessionID()}');
 
    var url = Uri.parse('https://bakery.permavite.com/inventory');
   // POST request to add the inventory item to the database
@@ -62,8 +73,8 @@ Future<void> addInventoryItem() async {
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      //'Authorization': '${sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
-      'Authorization': 'Bearer 24201287-A54D-4D16-9CC3-5920A823FF12',
+      'Authorization': '${await sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
+      //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
     body: jsonEncode({
       'name': name,
@@ -75,11 +86,13 @@ Future<void> addInventoryItem() async {
     }),
   );
 
-  if (response.statusCode == 200) {
+  if (response.statusCode == 201) {
     print('Inventory Item added successfully');
-    getInventory(); // Reload the inventory after adding a new one
+    getInventoryItems(); // Reload the inventory after adding a new one
   } else {
-    print('Failed to add Inventory Item: ${response.statusCode}');
+    print('Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+    print('Failed to add Inventory Item');
   }
 }
 
@@ -165,16 +178,17 @@ class InventoryDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Inventory')),
       body: FutureBuilder(
-        future: getInventory(),
+        future: getInventoryItems(),
         builder: (context, snapshot) {
+          print('inventoryItems: $inventoryItems');
           if (snapshot.connectionState == ConnectionState.done) {
-            if (inventory.isEmpty) {
+            if (inventoryItems.isEmpty) {
               return Center(
                 child: Text('No Inventory Items available'),
               );
             }
             return ListView.builder(
-              itemCount: inventory.length,
+              itemCount: inventoryItems.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -185,7 +199,7 @@ class InventoryDetailPage extends StatelessWidget {
                     ),
                     child: ListTile(
                       title: Text(
-                        inventory[index].name,
+                        inventoryItems[index].name,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -193,7 +207,7 @@ class InventoryDetailPage extends StatelessWidget {
                       ),
                       textColor: const Color.fromARGB(255, 69, 145, 105),
                       subtitle: Text(
-                        inventory[index].description ?? 'No description available',
+                        inventoryItems[index].quantity.toString() ?? 'No quantity available',
                         style: const TextStyle(
                           fontSize: 20,
                         ),
