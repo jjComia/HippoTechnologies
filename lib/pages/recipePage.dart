@@ -64,8 +64,8 @@ Future<void> addRecipe() async {
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      //'Authorization': '${sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
-      'Authorization': 'Bearer 24201287-A54D-4D16-9CC3-5920A823FF12',
+      'Authorization': '${ await sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
+      //'Authorization' : '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
     body: jsonEncode({
       'name': name,
@@ -78,7 +78,7 @@ Future<void> addRecipe() async {
     }),
   );
 
-  if (response.statusCode == 200) {
+  if (response.statusCode == 201) {
     print('Recipe added successfully');
     getRecipes(); // Reload the recipes after adding a new one
   } else {
