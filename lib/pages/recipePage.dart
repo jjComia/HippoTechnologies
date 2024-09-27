@@ -58,14 +58,15 @@ Future<void> addRecipe() async {
   var prepTime = double.tryParse(_prepTimeController.text) ?? 0.0;
   var cookTime = double.tryParse(_cookTimeController.text) ?? 0.0;
 
-   var url = Uri.parse('https://bakery.permavite.com/recipes');
+  print('Adding recipe: $name, $description, $prepUnit, $cookUnit, $rating, $prepTime, $cookTime');
+
+  var url = Uri.parse('https://bakery.permavite.com/recipes');
   // POST request to add the recipe to the database
   var response = await http.post(
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      //'Authorization': '${sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
-      'Authorization': 'Bearer 24201287-A54D-4D16-9CC3-5920A823FF12',
+      'Authorization': '${await sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
     },
     body: jsonEncode({
       'name': name,
@@ -78,7 +79,7 @@ Future<void> addRecipe() async {
     }),
   );
 
-  if (response.statusCode == 200) {
+  if (response.statusCode == 201) {
     print('Recipe added successfully');
     getRecipes(); // Reload the recipes after adding a new one
   } else {
