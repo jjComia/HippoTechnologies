@@ -4,13 +4,14 @@ import 'package:http/http.dart' as http;
 import '../services/session_service.dart';
 import 'dart:convert';
 import '../models/recipe.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 final SessionService sessionService = SessionService();
 List<Recipe> recipes = [];
 
 Future<void> getRecipes() async {
-  var url = Uri.https('bakery.permavite.com', 'recipes');
+  var url = Uri.https('bakery.permavite.com', 'api/recipes');
 
   // Include the session ID in the headers
   var response = await http.get(
@@ -48,8 +49,25 @@ final TextEditingController _ratingController = TextEditingController();
 final TextEditingController _prepTimeController = TextEditingController();
 final TextEditingController _cookTimeController = TextEditingController();
 
+// Function to check if parameters are valid
+bool checkRecipeParams() {
+  var name = _recipeNameController.text;
+  var description = _descriptionController.text;
+  var prepUnit = _prepUnitController.text;
+  var cookUnit = _cookUnitController.text;
+  var rating = double.tryParse(_ratingController.text) ?? 0.0;
+  var prepTime = double.tryParse(_prepTimeController.text) ?? 0.0;
+  var cookTime = double.tryParse(_cookTimeController.text) ?? 0.0;
+
+  if (name.isEmpty || description.isEmpty || prepUnit.isEmpty || cookUnit.isEmpty || rating < 0 || rating > 5 || prepTime < 0 || cookTime < 0) {
+    print('Please fill in all fields');
+    return false;
+  }
+  return true;
+}
+
 // Function to add a recipe to the database
-Future<void> addRecipe() async {
+Future<bool> addRecipe() async {
   var name = _recipeNameController.text;
   var description = _descriptionController.text;
   var prepUnit = _prepUnitController.text;
@@ -60,7 +78,7 @@ Future<void> addRecipe() async {
 
   print('Adding recipe: $name, $description, $prepUnit, $cookUnit, $rating, $prepTime, $cookTime');
 
-  var url = Uri.parse('https://bakery.permavite.com/recipes');
+  var url = Uri.parse('https://bakery.permavite.com/api/recipes');
   // POST request to add the recipe to the database
   var response = await http.post(
     url,
@@ -82,22 +100,19 @@ Future<void> addRecipe() async {
   if (response.statusCode == 201) {
     print('Recipe added successfully');
     getRecipes(); // Reload the recipes after adding a new one
+    return true;
   } else {
     print('Failed to add recipe: ${response.statusCode}');
+    return false;
   }
 }
 
-// Function to show the add recipe dialog with a fade and scale transition
 void _showAddRecipeDialog(BuildContext context) {
-  showGeneralDialog(
+  showSlidingGeneralDialog(
     context: context,
-    barrierDismissible: true,
     barrierLabel: "Add Recipe",
-    barrierColor: Colors.black.withOpacity(0.5), // Darkens the background
-    transitionDuration: Duration(milliseconds: 300),
-    pageBuilder: (context, anim1, anim2) {
+    pageBuilder: (context) {
       return AlertDialog(
-        // backgroundColor:  Color.fromARGB(255, 162, 185, 188).withOpacity(1.0), COLOR FOR POPUP BG?
         title: Text('Add Recipe'),
         content: SingleChildScrollView(
           child: Column(
@@ -146,26 +161,156 @@ void _showAddRecipeDialog(BuildContext context) {
           ),
           ElevatedButton(
             onPressed: () {
-              addRecipe(); // Add the recipe
+              if (checkRecipeParams() == false) {
+                AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.error,
+                  animType: AnimType.scale,
+                  title: 'Error',
+                  desc: 'Not all fields populated.\nPlease fill in all fields.',
+                  btnOkOnPress: () {},
+                ).show();
+              } else {
+                // Slide to the next dialog by first popping the current one
+                Navigator.of(context).pop();
 
-              Navigator.of(context).pop(); // Close the dialog after adding
+                // Delay to ensure the first dialog closes completely before opening the next
+                Future.delayed(Duration(milliseconds: 200), () {
+                  _showAddIngredientsDialog(context); // Show the next dialog for adding ingredients
+                });
+              }
             },
-            child: Text('Add'),
+            child: Text('Next'),
           ),
         ],
       );
     },
-    transitionBuilder: (context, anim1, anim2, child) {
-      return FadeTransition(
-        opacity: anim1,
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 0.9, end: 1.0).animate(anim1),
-          child: child,
+  );
+}
+
+
+
+void _showAddIngredientsDialog(BuildContext context) {
+  showSlidingGeneralDialog(
+    context: context,
+    barrierLabel: "Add Ingredients",
+    pageBuilder: (context) {
+      final TextEditingController _ingredientController = TextEditingController();
+      final TextEditingController _quantityController = TextEditingController();
+
+      return AlertDialog(
+        title: Text('Add Ingredients'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                controller: _ingredientController,
+                decoration: InputDecoration(labelText: 'Ingredient'),
+              ),
+              TextField(
+                controller: _quantityController,
+                decoration: InputDecoration(labelText: 'Quantity'),
+              ),
+              SizedBox(height: 10),
+              // You can add additional TextFields for multiple ingredients if needed
+            ],
+          ),
         ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (_ingredientController.text.isEmpty || _quantityController.text.isEmpty) {
+                AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.error,
+                  animType: AnimType.scale,
+                  title: 'Error',
+                  desc: 'Please add at least one ingredient and quantity.',
+                  btnOkOnPress: () {},
+                ).show();
+              } else {
+                // Slide to the next dialog by first popping the current one
+                Navigator.of(context).pop();
+
+                // Delay to ensure the first dialog closes completely before opening the next
+                Future.delayed(Duration(milliseconds: 200), () {
+                  _showAddStepsDialog(context); // Show the next dialog for adding ingredients
+                });
+              }
+            },
+            child: Text('Next'),
+          ),
+        ],
       );
     },
   );
 }
+
+void _showAddStepsDialog(BuildContext context) {
+  showSlidingGeneralDialog(
+    context: context,
+    barrierLabel: "Add Steps",
+    pageBuilder: (context) {
+      final TextEditingController _stepController = TextEditingController();
+
+      return AlertDialog(
+        title: Text('Add Steps'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                controller: _stepController,
+                decoration: InputDecoration(labelText: 'Step'),
+              ),
+              SizedBox(height: 10),
+              // You can add additional TextFields for multiple steps if needed
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (_stepController.text.isEmpty) {
+                AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.error,
+                  animType: AnimType.scale,
+                  title: 'Error',
+                  desc: 'Please add at least one step.',
+                  btnOkOnPress: () {},
+                ).show();
+              } else {
+                // Slide to the next dialog by first popping the current one
+                Navigator.of(context).pop();
+
+                // Delay to ensure the first dialog closes completely before opening the next
+                Future.delayed(Duration(milliseconds: 200), () {
+                  _showAddRecipeDialog(context); // Show the next dialog for adding ingredients
+                });
+              }
+            },
+            child: Text('Next'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
 // Recipes Detail Page
 class RecipesDetailPage extends StatelessWidget {
@@ -260,6 +405,84 @@ class RecipesDetailPage extends StatelessWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+void showSlidingGeneralDialog({
+  required BuildContext context,
+  required WidgetBuilder pageBuilder,
+  Duration transitionDuration = const Duration(milliseconds: 300),
+  Color barrierColor = Colors.black54,
+  bool barrierDismissible = true,
+  String barrierLabel = '',
+}) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: barrierDismissible,
+    barrierLabel: barrierLabel,
+    barrierColor: barrierColor,
+    transitionDuration: transitionDuration,
+    pageBuilder: (context, anim1, anim2) => pageBuilder(context),
+    transitionBuilder: (context, anim1, anim2, child) {
+      final curvedAnimation = CurvedAnimation(parent: anim1, curve: Curves.easeInOut);
+      return SlideTransition(
+        position: Tween<Offset>(begin: Offset(1, 0), end: Offset.zero).animate(curvedAnimation),
+        child: child,
+      );
+    },
+  );
+}
+
+
+class AddIngredientsPage extends StatelessWidget {
+  final TextEditingController _ingredientController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Add Ingredients'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: <Widget>[
+            TextField(
+              controller: _ingredientController,
+              decoration: InputDecoration(labelText: 'Ingredient'),
+            ),
+            TextField(
+              controller: _quantityController,
+              decoration: InputDecoration(labelText: 'Quantity'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                // Add recipe logic here
+                if (_ingredientController.text.isEmpty || _quantityController.text.isEmpty) {
+                  AwesomeDialog(
+                    context: context,
+                    dialogType: DialogType.error,
+                    animType: AnimType.scale,
+                    title: 'Error',
+                    desc: 'Please add at least one ingredient and quantity.',
+                    btnOkOnPress: () {},
+                  ).show();
+                } else {
+                  // You can add the logic to save the recipe and ingredients here
+
+                  // Pop back to the previous page or show a success message
+                  Navigator.of(context).pop();
+                  getRecipes();
+                }
+              },
+              child: Text('Add Recipe'),
+            ),
+          ],
+        ),
       ),
     );
   }
