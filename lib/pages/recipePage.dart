@@ -172,7 +172,7 @@ class RecipesDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Recipes')),
+      appBar: AppBar(title: Text('Recipes'), backgroundColor: Color.fromARGB(255, 249, 251, 250)),
       body: FutureBuilder(
         future: getRecipes(),
         builder: (context, snapshot) {

@@ -1,5 +1,6 @@
 // Importing dart:convert to use jsonDecode function
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'pages/registration.dart'; // Import the RegistrationPage
 import 'pages/login.dart';        // Import the LoginPage
@@ -7,6 +8,7 @@ import 'services/session_service.dart';
 import 'pages/recipePage.dart';
 
 void main() {
+  debugPaintSizeEnabled = false; // Set to true for visual layout debugging
   runApp(MyApp());
 }
 
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
             title: 'Namer App',
             theme: appState.isDarkMode 
               ? ThemeData.dark().copyWith(colorScheme: ColorScheme.dark().copyWith(secondary: const Color.fromARGB(255, 69, 145, 105))) 
-              : ThemeData.light().copyWith(colorScheme: ColorScheme.light().copyWith(secondary: Color.fromARGB(255, 69, 145, 105))),
+              : ThemeData.light().copyWith(scaffoldBackgroundColor: Color.fromARGB(255, 249, 251, 250), colorScheme: ColorScheme.light().copyWith(secondary: Color.fromARGB(255, 69, 145, 105))),
             home: MyHomePage(),
           );
         },
