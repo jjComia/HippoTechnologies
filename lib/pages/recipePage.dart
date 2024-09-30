@@ -153,34 +153,39 @@ void _showAddRecipeDialog(BuildContext context) {
           ),
         ),
         actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (checkRecipeParams() == false) {
-                AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.error,
-                  animType: AnimType.scale,
-                  title: 'Error',
-                  desc: 'Not all fields populated.\nPlease fill in all fields.',
-                  btnOkOnPress: () {},
-                ).show();
-              } else {
-                // Slide to the next dialog by first popping the current one
-                Navigator.of(context).pop();
-
-                // Delay to ensure the first dialog closes completely before opening the next
-                Future.delayed(Duration(milliseconds: 200), () {
-                  _showAddIngredientsDialog(context); // Show the next dialog for adding ingredients
-                });
-              }
-            },
-            child: Text('Next'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (checkRecipeParams() == false) {
+                    AwesomeDialog(
+                      context: context,
+                      dialogType: DialogType.error,
+                      animType: AnimType.scale,
+                      title: 'Error',
+                      desc: 'Not all fields populated.\nPlease fill in all fields.',
+                      btnOkOnPress: () {},
+                    ).show();
+                  } else {
+                    // Slide to the next dialog by first popping the current one
+                    Navigator.of(context).pop();
+              
+                    // Delay to ensure the first dialog closes completely before opening the next
+                    Future.delayed(Duration(milliseconds: 200), () {
+                      _showAddIngredientsDialog(context); // Show the next dialog for adding ingredients
+                    });
+                  }
+                },
+                child: Text('Next'),
+              ),
+            ],
           ),
         ],
       );
@@ -191,121 +196,253 @@ void _showAddRecipeDialog(BuildContext context) {
 
 
 void _showAddIngredientsDialog(BuildContext context) {
+  List<TextEditingController> _ingredientControllers = [TextEditingController()];
+  List<TextEditingController> _quantityControllers = [TextEditingController()];
+
   showSlidingGeneralDialog(
     context: context,
     barrierLabel: "Add Ingredients",
     pageBuilder: (context) {
-      final TextEditingController _ingredientController = TextEditingController();
-      final TextEditingController _quantityController = TextEditingController();
-
-      return AlertDialog(
-        title: Text('Add Ingredients'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(
-                controller: _ingredientController,
-                decoration: InputDecoration(labelText: 'Ingredient'),
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text('Add Ingredients'),
+            content: Container(
+              width: 100,  // Set a fixed width
+              height: 392, // Set a fixed height
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    for (int i = 0; i < _ingredientControllers.length; i++) ...[
+                      TextField(
+                        controller: _ingredientControllers[i],
+                        decoration: InputDecoration(labelText: 'Ingredient ${i + 1}'),
+                      ),
+                      TextField(
+                        controller: _quantityControllers[i],
+                        decoration: InputDecoration(labelText: 'Quantity ${i + 1}'),
+                      ),
+                      SizedBox(height: 10),
+                    ],
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _ingredientControllers.add(TextEditingController());
+                          _quantityControllers.add(TextEditingController());
+                        });
+                      },
+                      child: Text('Add Another Ingredient'),
+                    ),
+                  ],
+                ),
               ),
-              TextField(
-                controller: _quantityController,
-                decoration: InputDecoration(labelText: 'Quantity'),
+            ),
+            actions: <Widget>[
+              Center(
+                child: SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        if (_ingredientControllers.length > 1) {
+                          // Remove the last ingredient and quantity text fields
+                          _ingredientControllers.removeLast();
+                          _quantityControllers.removeLast();
+                        }
+                      });
+                    },
+                    child: Text('Remove Ingredient'),
+                  ),
+                )
               ),
-              SizedBox(height: 10),
-              // You can add additional TextFields for multiple ingredients if needed
+              Center(
+                child: SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _ingredientControllers.add(TextEditingController());
+                      _quantityControllers.add(TextEditingController());
+                    });
+                  },
+                  child: Text('Add Another Ingredient'),
+                ),
+                )
+              ),
+              Center(
+                child: SizedBox(
+                  width: 300,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                      
+                            // Delay before showing the next dialog
+                            Future.delayed(Duration(milliseconds: 200), () {
+                              _showAddRecipeDialog(context); // Transition to the next dialog
+                            });
+                        },
+                        child: Text('Back'),
+                      ),
+                     TextButton(
+                        onPressed: () {
+                          bool isValid = true;
+                          for (int i = 0; i < _ingredientControllers.length; i++) {
+                            if (_ingredientControllers[i].text.isEmpty || _quantityControllers[i].text.isEmpty) {
+                              isValid = false;
+                              break;
+                            }
+                          }
+                      
+                          if (!isValid) {
+                            AwesomeDialog(
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.scale,
+                              title: 'Error',
+                              desc: 'Please add at least one ingredient and quantity.',
+                              btnOkOnPress: () {},
+                            ).show();
+                          } else {
+                            Navigator.of(context).pop();
+                      
+                            // Delay before showing the next dialog
+                            Future.delayed(Duration(milliseconds: 200), () {
+                              _showAddStepsDialog(context); // Transition to the next dialog
+                            });
+                          }
+                        },
+                        child: Text('Next'),
+                      ),
+                    ],
+                  ),
+                )
+              )
             ],
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (_ingredientController.text.isEmpty || _quantityController.text.isEmpty) {
-                AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.error,
-                  animType: AnimType.scale,
-                  title: 'Error',
-                  desc: 'Please add at least one ingredient and quantity.',
-                  btnOkOnPress: () {},
-                ).show();
-              } else {
-                // Slide to the next dialog by first popping the current one
-                Navigator.of(context).pop();
-
-                // Delay to ensure the first dialog closes completely before opening the next
-                Future.delayed(Duration(milliseconds: 200), () {
-                  _showAddStepsDialog(context); // Show the next dialog for adding ingredients
-                });
-              }
-            },
-            child: Text('Next'),
-          ),
-        ],
+          );
+        },
       );
     },
   );
 }
 
+
 void _showAddStepsDialog(BuildContext context) {
+  List<TextEditingController> _stepControllers = [TextEditingController()];
+
   showSlidingGeneralDialog(
     context: context,
     barrierLabel: "Add Steps",
     pageBuilder: (context) {
-      final TextEditingController _stepController = TextEditingController();
-
-      return AlertDialog(
-        title: Text('Add Steps'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(
-                controller: _stepController,
-                decoration: InputDecoration(labelText: 'Step'),
+      return StatefulBuilder(
+        builder: (Context, setState) {
+          return AlertDialog(
+            title: Text('Add Steps'),
+            content: Container(
+              width: 100,  // Same fixed width as Add Ingredients dialog
+              height: 392, // Same fixed height as Add Ingredients dialog
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    for (int i = 0; i < _stepControllers.length; i++) ...[
+                      TextField(
+                        controller: _stepControllers[i],
+                        decoration: InputDecoration(labelText: 'Step ${i + 1}'),
+                      ),
+                      SizedBox(height: 10),
+                    ],
+                  ],
+                ),
               ),
-              SizedBox(height: 10),
-              // You can add additional TextFields for multiple steps if needed
+            ),
+            actions: <Widget>[
+              Center(
+                child: SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        if (_stepControllers.length > 1) {
+                          // Remove the last ingredient and quantity text fields
+                          _stepControllers.removeLast();
+                        }
+                      });
+                    },
+                    child: Text('Remove Step'),
+                  ),
+                )
+              ),
+              Center(
+                child: SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _stepControllers.add(TextEditingController());
+                    });
+                  },
+                  child: Text('Add Another Step'),
+                ),
+                )
+              ),
+              Center(
+                child: SizedBox(
+                  width: 300,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                      
+                          // Delay before showing the next dialog
+                          Future.delayed(Duration(milliseconds: 200), () {
+                            _showAddIngredientsDialog(context); // Transition to the next dialog
+                          });
+                        },
+                        child: Text('Back'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          bool isValid = true;
+                          for (int i = 0; i < _stepControllers.length; i++) {
+                            if (_stepControllers[i].text.isEmpty) {
+                              isValid = false;
+                              break;
+                            }
+                          }
+                      
+                          if (!isValid) {
+                            AwesomeDialog(
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.scale,
+                              title: 'Error',
+                              desc: 'Please add at least one step',
+                              btnOkOnPress: () {},
+                            ).show();
+                          } else {
+                            Navigator.of(context).pop();
+                      
+                            // Delay before showing the next dialog
+                            Future.delayed(Duration(milliseconds: 200), () {
+                              _showAddStepsDialog(context); // Transition to the next dialog
+                            });
+                          }
+                        },
+                        child: Text('Next'),
+                      ),
+                    ],
+                  ),
+                )
+              )
             ],
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (_stepController.text.isEmpty) {
-                AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.error,
-                  animType: AnimType.scale,
-                  title: 'Error',
-                  desc: 'Please add at least one step.',
-                  btnOkOnPress: () {},
-                ).show();
-              } else {
-                // Slide to the next dialog by first popping the current one
-                Navigator.of(context).pop();
-
-                // Delay to ensure the first dialog closes completely before opening the next
-                Future.delayed(Duration(milliseconds: 200), () {
-                  _showAddRecipeDialog(context); // Show the next dialog for adding ingredients
-                });
-              }
-            },
-            child: Text('Next'),
-          ),
-        ],
+          );
+        }
       );
     },
   );
