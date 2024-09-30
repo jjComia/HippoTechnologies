@@ -6,4 +6,4 @@
   //final String unit;
   //final String notes;
 
-  Inventory({required this.name, required this.quantity, });
+  Inventory({required this.name, required this.quantity, })*/
