@@ -58,7 +58,7 @@ Future<void> addRecipe() async {
   var prepTime = double.tryParse(_prepTimeController.text) ?? 0.0;
   var cookTime = double.tryParse(_cookTimeController.text) ?? 0.0;
 
-   var url = Uri.parse('https://bakery.permavite.com/recipes');
+   var url = Uri.parse('https://bakery.permavite.com/api/recipes');
   // POST request to add the recipe to the database
   var response = await http.post(
     url,

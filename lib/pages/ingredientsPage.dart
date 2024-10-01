@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../services/session_service.dart';
 import 'dart:convert';
-import '../models/inventory.dart';
+import '../models/ingredients.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 final SessionService sessionService = SessionService();
-List<Inventory> inventoryItems = [];
+List<Ingredient> ingredients = [];
 
-Future<void> getInventoryItems() async {
-  var url = Uri.https('bakery.permavite.com/api', 'inventory');
+Future<void> getIngredients() async {
+  var url = Uri.https('bakery.permavite.com/api', 'ingredients');
 
   // Include the session ID in the headers
   var response = await http.get(
@@ -26,49 +26,53 @@ Future<void> getInventoryItems() async {
 
   if (response.statusCode == 200) {
     print('here');
-    inventoryItems.clear(); // Clear the list to avoid duplicates
+    ingredients.clear(); // Clear the list to avoid duplicates
 
-    for (var eachInventory in jsonData) {
-      final inventory = Inventory(
-        name: eachInventory['name'],
-        quantity: eachInventory['quantity'],
-      );
-      inventoryItems.add(inventory);
+    for (var eachIngredient in jsonData) {
+      final ingredient = Ingredient(
+        recipeID: eachIngredient['recipeID'],
+        inventoryID: eachIngredient['inventoryID'],
+        name: eachIngredient['name'],
+        quantity: eachIngredient['quantity'],
+        minQuantity: eachIngredient['minQuantity'],
+        unit: eachIngredient['unit']
+        );
+      ingredients.add(ingredient);
     }
-    print('Number of Inventory Items loaded: ${inventoryItems.length}');
+    print('Number of Ingredients loaded: ${ingredients.length}');
   } else {
-    print('Failed to load Inventory Items: ${response.statusCode}');
+    print('Failed to load Ingredients: ${response.statusCode}');
   }
 }
 
 // Text editing controllers for user input
-final TextEditingController _inventoryNameController = TextEditingController();
+final TextEditingController _recipeIDController = TextEditingController();
+final TextEditingController _inventoryIDController = TextEditingController();
+final TextEditingController _nameController = TextEditingController();
 final TextEditingController _quantityController = TextEditingController();
-final TextEditingController _purchaseQuantityController = TextEditingController();
-final TextEditingController _costPerPurchaseUnitController = TextEditingController();
+final TextEditingController _minQuantityController = TextEditingController();
 final TextEditingController _unitController = TextEditingController();
-final TextEditingController _notesController = TextEditingController();
 
-// Function to add an inventory item to the database
-Future<void> addInventoryItem() async {
-  var name = _inventoryNameController.text;
-  var quantity = int.tryParse(_quantityController.text) ?? 0.0;
-  var purchaseQuantity = int.tryParse(_purchaseQuantityController.text) ?? 0.0;
-  var costPerPurchaseUnit = double.tryParse(_costPerPurchaseUnitController.text) ?? 0.0;
+// Function to add an ingredient to the database
+Future<void> addIngredient() async {
+  var recipeID = _recipeIDController.text;
+  var inventoryID = _inventoryIDController;
+  var name = _nameController;
+  var quantity = double.tryParse(_quantityController.text) ?? 0.0;
+  var minQuantity = double.tryParse(_minQuantityController.text) ?? 0.0;
   var unit = _unitController.text;
-  var notes = _notesController.text;
 
+  print('RecipeID: $recipeID');
+  print('InventoryID: $inventoryID');
   print('Name: $name');
   print('Quantity: $quantity');
-  print('Purchase Quantity: $purchaseQuantity');
-  print('Cost Per Purchase Unit: $costPerPurchaseUnit');
+  print('Minimum Quantity: $minQuantity');
   print('Unit: $unit');
-  print('Notes: $notes');
 
   print ('Session ID: ${await sessionService.getSessionID()}');
 
-   var url = Uri.parse('https://bakery.permavite.com/api/inventory');
-  // POST request to add the inventory item to the database
+   var url = Uri.parse('https://bakery.permavite.com/api/ingredients');
+  // POST request to add the ingredient to the database
   var response = await http.post(
     url,
     headers: <String, String>{
@@ -77,66 +81,66 @@ Future<void> addInventoryItem() async {
       //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
     body: jsonEncode({
+      'recipeID': recipeID,
+      'inventoryID': inventoryID,
       'name': name,
       'quantity': quantity,
-      'purchaseQuantity': purchaseQuantity,
-      'costPerPurchaseUnit': costPerPurchaseUnit,
+      'minQuantity': minQuantity,
       'unit': unit,
-      'notes': notes,
     }),
   );
 
   if (response.statusCode == 201) {
-    print('Inventory Item added successfully');
-    getInventoryItems(); // Reload the inventory after adding a new one
+    print('Ingredient added successfully');
+    getIngredients(); // Reload the ingredient page after adding a new one
   } else {
     print('Status Code: ${response.statusCode}');
     print('Response Body: ${response.body}');
-    print('Failed to add Inventory Item');
+    print('Failed to add Ingredient');
   }
 }
 
-// Function to show the add inventory dialog with a fade and scale transition
-void _showAddInventoryDialog(BuildContext context) {
+// Function to show the add ingredient dialog with a fade and scale transition
+void _showAddIngredientDialog(BuildContext context) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: "Add Inventory Item",
+    barrierLabel: "Add Ingredient",
     barrierColor: Colors.black.withOpacity(0.5), // Darkens the background
     transitionDuration: Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
       return AlertDialog(
         // backgroundColor:  Color.fromARGB(255, 162, 185, 188).withOpacity(1.0), COLOR FOR POPUP BG?
-        title: Text('Add Inventory Item'),
+        title: Text('Add Ingredient'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextField(
-                controller: _inventoryNameController,
-                decoration: InputDecoration(labelText: 'Inventory Item Name'),
+                controller: _recipeIDController,
+                decoration: InputDecoration(labelText: 'Recipe ID'),
+              ),
+              TextField(
+                controller: _inventoryIDController,
+                decoration: InputDecoration(labelText: 'Inventory ID'),
+              ),
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(labelText: 'Ingredient Name'),
               ),
               TextField(
                 controller: _quantityController,
-                decoration: InputDecoration(labelText: 'Quantity'),
+                decoration: InputDecoration(labelText: 'Quantity)'),
               ),
               TextField(
-                controller: _purchaseQuantityController,
-                decoration: InputDecoration(labelText: 'Purchase Quantity'),
-              ),
-              TextField(
-                controller: _costPerPurchaseUnitController,
-                decoration: InputDecoration(labelText: 'Cost Per Purchase Unit)'),
+                controller: _minQuantityController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Minimum Quantity'),
               ),
               TextField(
                 controller: _unitController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: 'Unit'),
-              ),
-              TextField(
-                controller: _notesController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Notes'),
               ),
             ],
           ),
@@ -150,7 +154,7 @@ void _showAddInventoryDialog(BuildContext context) {
           ),
           ElevatedButton(
             onPressed: () {
-              addInventoryItem(); // Add the Inventory Item
+              addIngredient(); // Add the Ingredient Item
 
               Navigator.of(context).pop(); // Close the dialog after adding
             },
@@ -171,24 +175,24 @@ void _showAddInventoryDialog(BuildContext context) {
   );
 }
 
-// Inventory Detail Page
-class InventoryDetailPage extends StatelessWidget {
+// Ingredient Detail Page
+class IngredientsDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Inventory')),
+      appBar: AppBar(title: Text('Ingredient')),
       body: FutureBuilder(
-        future: getInventoryItems(),
+        future: getIngredients(),
         builder: (context, snapshot) {
-          print('inventoryItems: $inventoryItems');
+          print('Ingredients: $ingredients');
           if (snapshot.connectionState == ConnectionState.done) {
-            if (inventoryItems.isEmpty) {
+            if (ingredients.isEmpty) {
               return Center(
-                child: Text('No Inventory Items available'),
+                child: Text('No Ingredient Items available'),
               );
             }
             return ListView.builder(
-              itemCount: inventoryItems.length,
+              itemCount: ingredients.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -199,7 +203,7 @@ class InventoryDetailPage extends StatelessWidget {
                     ),
                     child: ListTile(
                       title: Text(
-                        inventoryItems[index].name,
+                        ingredients[index].name,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -207,7 +211,7 @@ class InventoryDetailPage extends StatelessWidget {
                       ),
                       textColor: const Color.fromARGB(255, 69, 145, 105),
                       subtitle: Text(
-                        inventoryItems[index].quantity.toString() ?? 'No quantity available',
+                        ingredients[index].quantity.toString() ?? 'No quantity available',
                         style: const TextStyle(
                           fontSize: 20,
                         ),
@@ -238,7 +242,7 @@ class InventoryDetailPage extends StatelessWidget {
         children: [
           SpeedDialChild(
             child: Icon(Icons.search),
-            label: 'Search Inventory Items',
+            label: 'Search Ingredient',
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             onTap: () {
@@ -248,16 +252,16 @@ class InventoryDetailPage extends StatelessWidget {
           ),
           SpeedDialChild(
             child: Icon(Icons.add),
-            label: 'Add Inventory Item',
+            label: 'Add Ingredient',
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             onTap: () {
-              _showAddInventoryDialog(context); // Show the add inventory dialog
+              _showAddIngredientDialog(context); // Show the add ingredient dialog
             },
           ),
           SpeedDialChild(
             child: Icon(Icons.delete),
-            label: 'Delete Inventory Item',
+            label: 'Delete Ingredient',
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             onTap: () {
