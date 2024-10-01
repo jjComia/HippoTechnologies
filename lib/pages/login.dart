@@ -55,7 +55,8 @@ class LoginPage extends StatelessWidget {
         );
 
       print ('Response: ${response.body}');
-        
+      print(jsonDecode(response.body)['id']);
+      
       // Handle the response
       if (response.statusCode == 201) {
         print('Login successful');

@@ -10,7 +10,7 @@ final SessionService sessionService = SessionService();
 List<Ingredient> ingredients = [];
 
 Future<void> getIngredients() async {
-  var url = Uri.https('bakery.permavite.com/api', 'ingredients');
+  var url = Uri.https('bakery.permavite.com', 'api/ingredients');
 
   // Include the session ID in the headers
   var response = await http.get(
@@ -56,10 +56,10 @@ final TextEditingController _unitController = TextEditingController();
 // Function to add an ingredient to the database
 Future<void> addIngredient() async {
   var recipeID = _recipeIDController.text;
-  var inventoryID = _inventoryIDController;
-  var name = _nameController;
-  var quantity = double.tryParse(_quantityController.text) ?? 0.0;
-  var minQuantity = double.tryParse(_minQuantityController.text) ?? 0.0;
+  var inventoryID = _inventoryIDController.text;
+  var name = _nameController.text;
+  var quantity = int.tryParse(_quantityController.text) ?? 0;
+  var minQuantity = int.tryParse(_minQuantityController.text) ?? 0;
   var unit = _unitController.text;
 
   print('RecipeID: $recipeID');

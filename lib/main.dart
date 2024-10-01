@@ -5,8 +5,8 @@ import 'pages/registration.dart'; // Import the RegistrationPage
 import 'pages/login.dart';        // Import the LoginPage
 import 'pages/inventoryPage.dart'; //Import the Inventory Page
 import 'services/session_service.dart';
-import 'pages/recipePage.dart';
-import 'pages/ingredientsPage.dart';
+import 'pages/recipePage.dart'; // Import the Recipes Page
+import 'pages/ingredientsPage.dart'; // Import the Ingredients Page
 
 void main() {
   runApp(MyApp());

@@ -10,8 +10,9 @@ final SessionService sessionService = SessionService();
 List<Inventory> inventoryItems = [];
 
 Future<void> getInventoryItems() async {
-  var url = Uri.https('bakery.permavite.com/api', 'inventory');
-
+  var url = Uri.https('bakery.permavite.com', 'api/inventory');
+  print('here');
+  print(await sessionService.getSessionID());
   // Include the session ID in the headers
   var response = await http.get(
     url,
@@ -32,6 +33,10 @@ Future<void> getInventoryItems() async {
       final inventory = Inventory(
         name: eachInventory['name'],
         quantity: eachInventory['quantity'],
+        purchasequantity: eachInventory['purchaseQuantity'],
+        costperpurchaseunit: eachInventory['costPerPurchaseUnit'],
+        unit: eachInventory['unit'],
+        notes: eachInventory['notes']
       );
       inventoryItems.add(inventory);
     }
@@ -52,8 +57,8 @@ final TextEditingController _notesController = TextEditingController();
 // Function to add an inventory item to the database
 Future<void> addInventoryItem() async {
   var name = _inventoryNameController.text;
-  var quantity = int.tryParse(_quantityController.text) ?? 0.0;
-  var purchaseQuantity = int.tryParse(_purchaseQuantityController.text) ?? 0.0;
+  var quantity = int.tryParse(_quantityController.text) ?? 0;
+  var purchaseQuantity = int.tryParse(_purchaseQuantityController.text) ?? 0;
   var costPerPurchaseUnit = double.tryParse(_costPerPurchaseUnitController.text) ?? 0.0;
   var unit = _unitController.text;
   var notes = _notesController.text;

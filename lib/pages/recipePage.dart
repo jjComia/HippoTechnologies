@@ -10,26 +10,34 @@ final SessionService sessionService = SessionService();
 List<Recipe> recipes = [];
 
 Future<void> getRecipes() async {
-  var url = Uri.https('bakery.permavite.com', 'recipes');
+  var url = Uri.https('bakery.permavite.com', 'api/recipes');
 
   // Include the session ID in the headers
   var response = await http.get(
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+      'Authorization': '${await sessionService.getSessionID()}'
+      //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
   );
-
+  print('here');
+  print(response.statusCode);
   var jsonData = jsonDecode(response.body);
 
   if (response.statusCode == 200) {
     recipes.clear(); // Clear the list to avoid duplicates
+    print(response.body);
 
     for (var eachRecipe in jsonData) {
       final recipe = Recipe(
         name: eachRecipe['name'],
         description: eachRecipe['description'],
+        rating: eachRecipe['rating'],
+        prepTime: eachRecipe['prepTime'],
+        prepUnit: eachRecipe['prepUnit'],
+        cookTime: eachRecipe['cookTime'],
+        cookUnit: eachRecipe['cookUnit'],
       );
       recipes.add(recipe);
     }
@@ -64,8 +72,8 @@ Future<void> addRecipe() async {
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      //'Authorization': '${sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
-      'Authorization': 'Bearer 24201287-A54D-4D16-9CC3-5920A823FF12',
+      'Authorization': '${sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
+      //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
     body: jsonEncode({
       'name': name,
@@ -78,7 +86,7 @@ Future<void> addRecipe() async {
     }),
   );
 
-  if (response.statusCode == 200) {
+  if (response.statusCode == 201) {
     print('Recipe added successfully');
     getRecipes(); // Reload the recipes after adding a new one
   } else {
