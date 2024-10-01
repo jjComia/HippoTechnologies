@@ -18,7 +18,8 @@ Future<void> getRecipes() async {
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+      //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+      'Authorization': '${await sessionService.getSessionID()}',
     },
   );
 
