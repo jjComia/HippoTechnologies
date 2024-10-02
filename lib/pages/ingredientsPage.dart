@@ -3,21 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../services/session_service.dart';
 import 'dart:convert';
-import '../models/recipe.dart';
+import '../models/ingredients.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 final SessionService sessionService = SessionService();
-List<Recipe> recipes = [];
+List<Ingredient> ingredients = [];
 
-Future<void> getRecipes() async {
-  var url = Uri.https('bakery.permavite.com', 'api/recipes');
+Future<void> getIngredients() async {
+  var url = Uri.https('bakery.permavite.com', 'api/ingredients');
 
   // Include the session ID in the headers
   var response = await http.get(
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': '${await sessionService.getSessionID()}'
+      'Authorization': '${await sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED 
       //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
   );
@@ -25,124 +25,122 @@ Future<void> getRecipes() async {
   var jsonData = jsonDecode(response.body);
 
   if (response.statusCode == 200) {
-    recipes.clear(); // Clear the list to avoid duplicates
+    print('here');
+    ingredients.clear(); // Clear the list to avoid duplicates
 
-    for (var eachRecipe in jsonData) {
-      final recipe = Recipe(
-        name: eachRecipe['name'],
-        description: eachRecipe['description'],
-        rating: eachRecipe['rating'],
-        prepTime: eachRecipe['prepTime'],
-        prepUnit: eachRecipe['prepUnit'],
-        cookTime: eachRecipe['cookTime'],
-        cookUnit: eachRecipe['cookUnit'],
-      );
-      recipes.add(recipe);
+    for (var eachIngredient in jsonData) {
+      final ingredient = Ingredient(
+        recipeId: eachIngredient['recipeId'],
+        inventoryId: eachIngredient['inventoryId'],
+        name: eachIngredient['name'],
+        quantity: eachIngredient['quantity'],
+        minQuantity: eachIngredient['minQuantity'],
+        unit: eachIngredient['unit']
+        );
+      ingredients.add(ingredient);
     }
-    print('Number of recipes loaded: ${recipes.length}');
+    print('Number of Ingredients loaded: ${ingredients.length}');
   } else {
-    print('Failed to load recipes: ${response.statusCode}');
+    print('Failed to load Ingredients: ${response.statusCode}');
   }
 }
 
 // Text editing controllers for user input
-final TextEditingController _recipeNameController = TextEditingController();
-final TextEditingController _descriptionController = TextEditingController();
-final TextEditingController _prepUnitController = TextEditingController();
-final TextEditingController _cookUnitController = TextEditingController();
-final TextEditingController _ratingController = TextEditingController();
-final TextEditingController _prepTimeController = TextEditingController();
-final TextEditingController _cookTimeController = TextEditingController();
+final TextEditingController _recipeIdController = TextEditingController();
+final TextEditingController _inventoryIdController = TextEditingController();
+final TextEditingController _nameController = TextEditingController();
+final TextEditingController _quantityController = TextEditingController();
+final TextEditingController _minQuantityController = TextEditingController();
+final TextEditingController _unitController = TextEditingController();
 
-// Function to add a recipe to the database
-Future<void> addRecipe() async {
-  var name = _recipeNameController.text;
-  var description = _descriptionController.text;
-  var prepUnit = _prepUnitController.text;
-  var cookUnit = _cookUnitController.text;
-  var rating = double.tryParse(_ratingController.text) ?? 0.0;
-  var prepTime = double.tryParse(_prepTimeController.text) ?? 0.0;
-  var cookTime = double.tryParse(_cookTimeController.text) ?? 0.0;
+// Function to add an ingredient to the database
+Future<void> addIngredient() async {
+  var recipeId = _recipeIdController.text;
+  var inventoryId = _inventoryIdController.text;
+  var name = _nameController.text;
+  var quantity = int.tryParse(_quantityController.text) ?? 0;
+  var minQuantity = int.tryParse(_minQuantityController.text) ?? 0;
+  var unit = _unitController.text;
 
+  print('RecipeID: $recipeId');
+  print('InventoryID: $inventoryId');
+  print('Name: $name');
+  print('Quantity: $quantity');
+  print('Minimum Quantity: $minQuantity');
+  print('Unit: $unit');
 
-  print('Adding recipe: $name, $description, $prepUnit, $cookUnit, $rating, $prepTime, $cookTime');
+  print ('Session ID: ${await sessionService.getSessionID()}');
 
-  var url = Uri.parse('https://bakery.permavite.com/api/recipes');
-
-  // POST request to add the recipe to the database
+   var url = Uri.parse('https://bakery.permavite.com/api/ingredients');
+  // POST request to add the ingredient to the database
   var response = await http.post(
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-
       'Authorization': '${await sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
-
+      //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
     body: jsonEncode({
+      'recipeID': recipeId,
+      'inventoryID': inventoryId,
       'name': name,
-      'description': description,
-      'prepUnit': prepUnit,
-      'cookUnit': cookUnit,
-      'rating': rating,
-      'prepTime': prepTime,
-      'cookTime': cookTime,
+      'quantity': quantity,
+      'minQuantity': minQuantity,
+      'unit': unit,
     }),
   );
 
   if (response.statusCode == 201) {
-    print('Recipe added successfully');
-    getRecipes(); // Reload the recipes after adding a new one
+    print('Ingredient added successfully');
+    getIngredients(); // Reload the ingredient page after adding a new one
   } else {
-    print('Failed to add recipe: ${response.statusCode}');
+    print('Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+    print('Failed to add Ingredient');
   }
 }
 
-// Function to show the add recipe dialog with a fade and scale transition
-void _showAddRecipeDialog(BuildContext context) {
+// Function to show the add ingredient dialog with a fade and scale transition
+void _showAddIngredientDialog(BuildContext context) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: "Add Recipe",
+    barrierLabel: "Add Ingredient",
     barrierColor: Colors.black.withOpacity(0.5), // Darkens the background
     transitionDuration: Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
       return AlertDialog(
         // backgroundColor:  Color.fromARGB(255, 162, 185, 188).withOpacity(1.0), COLOR FOR POPUP BG?
-        title: Text('Add Recipe'),
+        title: Text('Add Ingredient'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextField(
-                controller: _recipeNameController,
-                decoration: InputDecoration(labelText: 'Recipe Name'),
+                controller: _recipeIdController,
+                decoration: InputDecoration(labelText: 'Recipe ID'),
               ),
               TextField(
-                controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
+                controller: _inventoryIdController,
+                decoration: InputDecoration(labelText: 'Inventory ID'),
               ),
               TextField(
-                controller: _prepUnitController,
-                decoration: InputDecoration(labelText: 'Prep Unit (e.g. Minutes, Hours)'),
+                controller: _nameController,
+                decoration: InputDecoration(labelText: 'Ingredient Name'),
               ),
               TextField(
-                controller: _cookUnitController,
-                decoration: InputDecoration(labelText: 'Cook Unit (e.g. Minutes, Hours)'),
+                controller: _quantityController,
+                decoration: InputDecoration(labelText: 'Quantity)'),
               ),
               TextField(
-                controller: _ratingController,
+                controller: _minQuantityController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Rating (0-5)'),
+                decoration: InputDecoration(labelText: 'Minimum Quantity'),
               ),
               TextField(
-                controller: _prepTimeController,
+                controller: _unitController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Prep Time (e.g. 15 for 15 minutes)'),
-              ),
-              TextField(
-                controller: _cookTimeController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Cook Time (e.g. 30 for 30 minutes)'),
+                decoration: InputDecoration(labelText: 'Unit'),
               ),
             ],
           ),
@@ -156,7 +154,7 @@ void _showAddRecipeDialog(BuildContext context) {
           ),
           ElevatedButton(
             onPressed: () {
-              addRecipe(); // Add the recipe
+              addIngredient(); // Add the Ingredient Item
 
               Navigator.of(context).pop(); // Close the dialog after adding
             },
@@ -177,23 +175,24 @@ void _showAddRecipeDialog(BuildContext context) {
   );
 }
 
-// Recipes Detail Page
-class RecipesDetailPage extends StatelessWidget {
+// Ingredient Detail Page
+class IngredientsDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Recipes'), backgroundColor: Color.fromARGB(255, 249, 251, 250)),
+      appBar: AppBar(title: Text('Ingredient')),
       body: FutureBuilder(
-        future: getRecipes(),
+        future: getIngredients(),
         builder: (context, snapshot) {
+          print('Ingredients: $ingredients');
           if (snapshot.connectionState == ConnectionState.done) {
-            if (recipes.isEmpty) {
+            if (ingredients.isEmpty) {
               return Center(
-                child: Text('No recipes available'),
+                child: Text('No Ingredient Items available'),
               );
             }
             return ListView.builder(
-              itemCount: recipes.length,
+              itemCount: ingredients.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -204,7 +203,7 @@ class RecipesDetailPage extends StatelessWidget {
                     ),
                     child: ListTile(
                       title: Text(
-                        recipes[index].name,
+                        ingredients[index].name,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -212,7 +211,7 @@ class RecipesDetailPage extends StatelessWidget {
                       ),
                       textColor: const Color.fromARGB(255, 69, 145, 105),
                       subtitle: Text(
-                        recipes[index].description ?? 'No description available',
+                        ingredients[index].quantity.toString() ?? 'No quantity available',
                         style: const TextStyle(
                           fontSize: 20,
                         ),
@@ -243,7 +242,7 @@ class RecipesDetailPage extends StatelessWidget {
         children: [
           SpeedDialChild(
             child: Icon(Icons.search),
-            label: 'Search Recipes',
+            label: 'Search Ingredient',
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             onTap: () {
@@ -253,16 +252,16 @@ class RecipesDetailPage extends StatelessWidget {
           ),
           SpeedDialChild(
             child: Icon(Icons.add),
-            label: 'Add Recipe',
+            label: 'Add Ingredient',
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             onTap: () {
-              _showAddRecipeDialog(context); // Show the add recipe dialog
+              _showAddIngredientDialog(context); // Show the add ingredient dialog
             },
           ),
           SpeedDialChild(
             child: Icon(Icons.delete),
-            label: 'Delete Recipe',
+            label: 'Delete Ingredient',
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             onTap: () {

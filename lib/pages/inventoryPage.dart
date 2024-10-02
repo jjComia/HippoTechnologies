@@ -3,21 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../services/session_service.dart';
 import 'dart:convert';
-import '../models/recipe.dart';
+import '../models/inventory.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 final SessionService sessionService = SessionService();
-List<Recipe> recipes = [];
+List<Inventory> inventoryItems = [];
 
-Future<void> getRecipes() async {
-  var url = Uri.https('bakery.permavite.com', 'api/recipes');
+Future<void> getInventoryItems() async {
+  var url = Uri.https('bakery.permavite.com', 'api/inventory');
+  print(await sessionService.getSessionID());
 
   // Include the session ID in the headers
   var response = await http.get(
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': '${await sessionService.getSessionID()}'
+      'Authorization': '${await sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED 
       //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
   );
@@ -25,124 +26,121 @@ Future<void> getRecipes() async {
   var jsonData = jsonDecode(response.body);
 
   if (response.statusCode == 200) {
-    recipes.clear(); // Clear the list to avoid duplicates
+    inventoryItems.clear(); // Clear the list to avoid duplicates
 
-    for (var eachRecipe in jsonData) {
-      final recipe = Recipe(
-        name: eachRecipe['name'],
-        description: eachRecipe['description'],
-        rating: eachRecipe['rating'],
-        prepTime: eachRecipe['prepTime'],
-        prepUnit: eachRecipe['prepUnit'],
-        cookTime: eachRecipe['cookTime'],
-        cookUnit: eachRecipe['cookUnit'],
+    for (var eachInventory in jsonData) {
+      final inventory = Inventory(
+        name: eachInventory['name'],
+        quantity: eachInventory['quantity'],
+        purchaseQuantity: eachInventory['purchaseQuantity'],
+        costPerPurchaseUnit: eachInventory['costPerPurchaseUnit'],
+        unit: eachInventory['unit'],
+        notes: eachInventory['notes']
       );
-      recipes.add(recipe);
+      inventoryItems.add(inventory);
     }
-    print('Number of recipes loaded: ${recipes.length}');
+    print('Number of Inventory Items loaded: ${inventoryItems.length}');
   } else {
-    print('Failed to load recipes: ${response.statusCode}');
+    print('Failed to load Inventory Items: ${response.statusCode}');
   }
 }
 
 // Text editing controllers for user input
-final TextEditingController _recipeNameController = TextEditingController();
-final TextEditingController _descriptionController = TextEditingController();
-final TextEditingController _prepUnitController = TextEditingController();
-final TextEditingController _cookUnitController = TextEditingController();
-final TextEditingController _ratingController = TextEditingController();
-final TextEditingController _prepTimeController = TextEditingController();
-final TextEditingController _cookTimeController = TextEditingController();
+final TextEditingController _inventoryNameController = TextEditingController();
+final TextEditingController _quantityController = TextEditingController();
+final TextEditingController _purchaseQuantityController = TextEditingController();
+final TextEditingController _costPerPurchaseUnitController = TextEditingController();
+final TextEditingController _unitController = TextEditingController();
+final TextEditingController _notesController = TextEditingController();
 
-// Function to add a recipe to the database
-Future<void> addRecipe() async {
-  var name = _recipeNameController.text;
-  var description = _descriptionController.text;
-  var prepUnit = _prepUnitController.text;
-  var cookUnit = _cookUnitController.text;
-  var rating = double.tryParse(_ratingController.text) ?? 0.0;
-  var prepTime = double.tryParse(_prepTimeController.text) ?? 0.0;
-  var cookTime = double.tryParse(_cookTimeController.text) ?? 0.0;
+// Function to add an inventory item to the database
+Future<void> addInventoryItem() async {
+  var name = _inventoryNameController.text;
+  var quantity = int.tryParse(_quantityController.text) ?? 0;
+  var purchaseQuantity = int.tryParse(_purchaseQuantityController.text) ?? 0;
+  var costPerPurchaseUnit = int.tryParse(_costPerPurchaseUnitController.text) ?? 0;
+  var unit = _unitController.text;
+  var notes = _notesController.text;
 
+  print('Name: $name');
+  print('Quantity: $quantity');
+  print('Purchase Quantity: $purchaseQuantity');
+  print('Cost Per Purchase Unit: $costPerPurchaseUnit');
+  print('Unit: $unit');
+  print('Notes: $notes');
 
-  print('Adding recipe: $name, $description, $prepUnit, $cookUnit, $rating, $prepTime, $cookTime');
+  print ('Session ID: ${await sessionService.getSessionID()}');
 
-  var url = Uri.parse('https://bakery.permavite.com/api/recipes');
-
-  // POST request to add the recipe to the database
+   var url = Uri.parse('https://bakery.permavite.com/api/inventory');
+  // POST request to add the inventory item to the database
   var response = await http.post(
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-
       'Authorization': '${await sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
-
+      //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
     body: jsonEncode({
       'name': name,
-      'description': description,
-      'prepUnit': prepUnit,
-      'cookUnit': cookUnit,
-      'rating': rating,
-      'prepTime': prepTime,
-      'cookTime': cookTime,
+      'quantity': quantity,
+      'purchaseQuantity': purchaseQuantity,
+      'costPerPurchaseUnit': costPerPurchaseUnit,
+      'unit': unit,
+      'notes': notes,
     }),
   );
 
   if (response.statusCode == 201) {
-    print('Recipe added successfully');
-    getRecipes(); // Reload the recipes after adding a new one
+    print('Inventory Item added successfully');
+    getInventoryItems(); // Reload the inventory after adding a new one
   } else {
-    print('Failed to add recipe: ${response.statusCode}');
+    print('Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+    print('Failed to add Inventory Item');
   }
 }
 
-// Function to show the add recipe dialog with a fade and scale transition
-void _showAddRecipeDialog(BuildContext context) {
+// Function to show the add inventory dialog with a fade and scale transition
+void _showAddInventoryDialog(BuildContext context) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: "Add Recipe",
+    barrierLabel: "Add Inventory Item",
     barrierColor: Colors.black.withOpacity(0.5), // Darkens the background
     transitionDuration: Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
       return AlertDialog(
         // backgroundColor:  Color.fromARGB(255, 162, 185, 188).withOpacity(1.0), COLOR FOR POPUP BG?
-        title: Text('Add Recipe'),
+        title: Text('Add Inventory Item'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextField(
-                controller: _recipeNameController,
-                decoration: InputDecoration(labelText: 'Recipe Name'),
+                controller: _inventoryNameController,
+                decoration: InputDecoration(labelText: 'Inventory Item Name'),
               ),
               TextField(
-                controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
+                controller: _quantityController,
+                decoration: InputDecoration(labelText: 'Quantity'),
               ),
               TextField(
-                controller: _prepUnitController,
-                decoration: InputDecoration(labelText: 'Prep Unit (e.g. Minutes, Hours)'),
+                controller: _purchaseQuantityController,
+                decoration: InputDecoration(labelText: 'Purchase Quantity'),
               ),
               TextField(
-                controller: _cookUnitController,
-                decoration: InputDecoration(labelText: 'Cook Unit (e.g. Minutes, Hours)'),
+                controller: _costPerPurchaseUnitController,
+                decoration: InputDecoration(labelText: 'Cost Per Purchase Unit)'),
               ),
               TextField(
-                controller: _ratingController,
+                controller: _unitController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Rating (0-5)'),
+                decoration: InputDecoration(labelText: 'Unit'),
               ),
               TextField(
-                controller: _prepTimeController,
+                controller: _notesController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Prep Time (e.g. 15 for 15 minutes)'),
-              ),
-              TextField(
-                controller: _cookTimeController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Cook Time (e.g. 30 for 30 minutes)'),
+                decoration: InputDecoration(labelText: 'Notes'),
               ),
             ],
           ),
@@ -156,7 +154,7 @@ void _showAddRecipeDialog(BuildContext context) {
           ),
           ElevatedButton(
             onPressed: () {
-              addRecipe(); // Add the recipe
+              addInventoryItem(); // Add the Inventory Item
 
               Navigator.of(context).pop(); // Close the dialog after adding
             },
@@ -177,23 +175,24 @@ void _showAddRecipeDialog(BuildContext context) {
   );
 }
 
-// Recipes Detail Page
-class RecipesDetailPage extends StatelessWidget {
+// Inventory Detail Page
+class InventoryDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Recipes'), backgroundColor: Color.fromARGB(255, 249, 251, 250)),
+      appBar: AppBar(title: Text('Inventory')),
       body: FutureBuilder(
-        future: getRecipes(),
+        future: getInventoryItems(),
         builder: (context, snapshot) {
+          print('inventoryItems: $inventoryItems');
           if (snapshot.connectionState == ConnectionState.done) {
-            if (recipes.isEmpty) {
+            if (inventoryItems.isEmpty) {
               return Center(
-                child: Text('No recipes available'),
+                child: Text('No Inventory Items available'),
               );
             }
             return ListView.builder(
-              itemCount: recipes.length,
+              itemCount: inventoryItems.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -204,7 +203,7 @@ class RecipesDetailPage extends StatelessWidget {
                     ),
                     child: ListTile(
                       title: Text(
-                        recipes[index].name,
+                        inventoryItems[index].name,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -212,7 +211,7 @@ class RecipesDetailPage extends StatelessWidget {
                       ),
                       textColor: const Color.fromARGB(255, 69, 145, 105),
                       subtitle: Text(
-                        recipes[index].description ?? 'No description available',
+                        inventoryItems[index].quantity.toString() ?? 'No quantity available',
                         style: const TextStyle(
                           fontSize: 20,
                         ),
@@ -243,7 +242,7 @@ class RecipesDetailPage extends StatelessWidget {
         children: [
           SpeedDialChild(
             child: Icon(Icons.search),
-            label: 'Search Recipes',
+            label: 'Search Inventory Items',
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             onTap: () {
@@ -253,16 +252,16 @@ class RecipesDetailPage extends StatelessWidget {
           ),
           SpeedDialChild(
             child: Icon(Icons.add),
-            label: 'Add Recipe',
+            label: 'Add Inventory Item',
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             onTap: () {
-              _showAddRecipeDialog(context); // Show the add recipe dialog
+              _showAddInventoryDialog(context); // Show the add inventory dialog
             },
           ),
           SpeedDialChild(
             child: Icon(Icons.delete),
-            label: 'Delete Recipe',
+            label: 'Delete Inventory Item',
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             onTap: () {

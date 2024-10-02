@@ -4,8 +4,10 @@ import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'pages/registration.dart'; // Import the RegistrationPage
 import 'pages/login.dart';        // Import the LoginPage
+import 'pages/inventoryPage.dart'; //Import the Inventory Page
 import 'services/session_service.dart';
-import 'pages/recipePage.dart';
+import 'pages/recipePage.dart'; // Import the Recipes Page
+import 'pages/ingredientsPage.dart'; // Import the Ingredients Page
 
 void main() {
   debugPaintSizeEnabled = false; // Set to true for visual layout debugging
@@ -204,30 +206,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-
-
-// Ingredients Page
-class IngredientsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Ingredients')),
-      body: Center(child: Text('Ingredients Page')),
-    );
-  }
-}
-
-// Inventory Detail Page
-class InventoryDetailPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Inventory')),
-      body: Center(child: Text('Inventory Details Page')),
-    );
-  }
-}
-
 // Employees Page
 class EmployeesPage extends StatelessWidget {
   @override
@@ -288,7 +266,7 @@ class HomePage extends StatelessWidget {
             Icons.list,
             onTap: () {
               // Use the onPageTap function for navigation
-              onPageTap(IngredientsPage());
+              onPageTap(IngredientsDetailPage());
             },
           ),
         ],
