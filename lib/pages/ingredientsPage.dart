@@ -30,8 +30,8 @@ Future<void> getIngredients() async {
 
     for (var eachIngredient in jsonData) {
       final ingredient = Ingredient(
-        recipeID: eachIngredient['recipeID'],
-        inventoryID: eachIngredient['inventoryID'],
+        recipeId: eachIngredient['recipeId'],
+        inventoryId: eachIngredient['inventoryId'],
         name: eachIngredient['name'],
         quantity: eachIngredient['quantity'],
         minQuantity: eachIngredient['minQuantity'],
@@ -46,8 +46,8 @@ Future<void> getIngredients() async {
 }
 
 // Text editing controllers for user input
-final TextEditingController _recipeIDController = TextEditingController();
-final TextEditingController _inventoryIDController = TextEditingController();
+final TextEditingController _recipeIdController = TextEditingController();
+final TextEditingController _inventoryIdController = TextEditingController();
 final TextEditingController _nameController = TextEditingController();
 final TextEditingController _quantityController = TextEditingController();
 final TextEditingController _minQuantityController = TextEditingController();
@@ -55,15 +55,15 @@ final TextEditingController _unitController = TextEditingController();
 
 // Function to add an ingredient to the database
 Future<void> addIngredient() async {
-  var recipeID = _recipeIDController.text;
-  var inventoryID = _inventoryIDController.text;
+  var recipeId = _recipeIdController.text;
+  var inventoryId = _inventoryIdController.text;
   var name = _nameController.text;
   var quantity = int.tryParse(_quantityController.text) ?? 0;
   var minQuantity = int.tryParse(_minQuantityController.text) ?? 0;
   var unit = _unitController.text;
 
-  print('RecipeID: $recipeID');
-  print('InventoryID: $inventoryID');
+  print('RecipeID: $recipeId');
+  print('InventoryID: $inventoryId');
   print('Name: $name');
   print('Quantity: $quantity');
   print('Minimum Quantity: $minQuantity');
@@ -81,8 +81,8 @@ Future<void> addIngredient() async {
       //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
     body: jsonEncode({
-      'recipeID': recipeID,
-      'inventoryID': inventoryID,
+      'recipeID': recipeId,
+      'inventoryID': inventoryId,
       'name': name,
       'quantity': quantity,
       'minQuantity': minQuantity,
@@ -117,11 +117,11 @@ void _showAddIngredientDialog(BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextField(
-                controller: _recipeIDController,
+                controller: _recipeIdController,
                 decoration: InputDecoration(labelText: 'Recipe ID'),
               ),
               TextField(
-                controller: _inventoryIDController,
+                controller: _inventoryIdController,
                 decoration: InputDecoration(labelText: 'Inventory ID'),
               ),
               TextField(

@@ -2,7 +2,7 @@ class Inventory {
   final String name;
   final int quantity;
   final int purchaseQuantity;
-  final double costPerPurchaseUnit;
+  final int costPerPurchaseUnit;
   final String unit;
   final String notes;
 

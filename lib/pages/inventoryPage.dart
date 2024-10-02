@@ -58,7 +58,7 @@ Future<void> addInventoryItem() async {
   var name = _inventoryNameController.text;
   var quantity = int.tryParse(_quantityController.text) ?? 0;
   var purchaseQuantity = int.tryParse(_purchaseQuantityController.text) ?? 0;
-  var costPerPurchaseUnit = double.tryParse(_costPerPurchaseUnitController.text) ?? 0.0;
+  var costPerPurchaseUnit = int.tryParse(_costPerPurchaseUnitController.text) ?? 0;
   var unit = _unitController.text;
   var notes = _notesController.text;
 
