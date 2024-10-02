@@ -10,7 +10,7 @@ final SessionService sessionService = SessionService();
 List<Ingredient> ingredients = [];
 
 Future<void> getIngredients() async {
-  var url = Uri.https('bakery.permavite.com', 'api/ingredients');
+  var url = Uri.https('bakery.permavite.com', 'api/inventory');
 
   // Include the session ID in the headers
   var response = await http.get(
@@ -25,17 +25,17 @@ Future<void> getIngredients() async {
   var jsonData = jsonDecode(response.body);
 
   if (response.statusCode == 200) {
-    print('here');
     ingredients.clear(); // Clear the list to avoid duplicates
 
     for (var eachIngredient in jsonData) {
       final ingredient = Ingredient(
-        recipeId: eachIngredient['recipeId'],
-        inventoryId: eachIngredient['inventoryId'],
+        id: eachIngredient['id'],
         name: eachIngredient['name'],
         quantity: eachIngredient['quantity'],
-        minQuantity: eachIngredient['minQuantity'],
-        unit: eachIngredient['unit']
+        purchaseQuantity: eachIngredient['purchaseQuantity'],
+        costPerPurchaseUnit: eachIngredient['costPerPurchaseUnit'],
+        unit: eachIngredient['unit'],
+        notes: eachIngredient['notes']
         );
       ingredients.add(ingredient);
     }
@@ -48,29 +48,28 @@ Future<void> getIngredients() async {
 
 
 // Text editing controllers for user input
-final TextEditingController _recipeIdController = TextEditingController();
-final TextEditingController _inventoryIdController = TextEditingController();
 final TextEditingController _nameController = TextEditingController();
 final TextEditingController _quantityController = TextEditingController();
-final TextEditingController _minQuantityController = TextEditingController();
+final TextEditingController _purchaseQuantityController = TextEditingController();
+final TextEditingController _costPerPurchaseUnitController = TextEditingController();
 final TextEditingController _unitController = TextEditingController();
-
+final TextEditingController _notesController = TextEditingController();
 // Function to add an ingredient to the database
 Future<void> addIngredient() async {
-  var recipeId = _recipeIdController.text;
-  var inventoryId = _inventoryIdController.text;
   var name = _nameController.text;
   var quantity = int.tryParse(_quantityController.text) ?? 0;
-  var minQuantity = int.tryParse(_minQuantityController.text) ?? 0;
+  var purchaseQuantity = int.tryParse(_purchaseQuantityController.text) ?? 0;
+  //DOUBLE MAY BE INTEGER?????
+  var costPerPurchaseUnit = double.tryParse(_costPerPurchaseUnitController.text) ?? 0;
   var unit = _unitController.text;
-
-  print('RecipeID: $recipeId');
-  print('InventoryID: $inventoryId');
+  var notes = _notesController.text;
   print('Name: $name');
   print('Quantity: $quantity');
-  print('Minimum Quantity: $minQuantity');
+  print('Purchase Quantity: $purchaseQuantity');
+  print('costPerPurchaseUnit: $costPerPurchaseUnit');
   print('Unit: $unit');
-
+  print('Notes: $notes');
+  
   print ('Session ID: ${await sessionService.getSessionID()}');
 
    var url = Uri.parse('https://bakery.permavite.com/api/ingredients');
@@ -83,12 +82,12 @@ Future<void> addIngredient() async {
       //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
     body: jsonEncode({
-      'recipeID': recipeId,
-      'inventoryID': inventoryId,
       'name': name,
       'quantity': quantity,
-      'minQuantity': minQuantity,
+      'purchaseQuantity': purchaseQuantity,
+      'costPerPurchaseUnit': costPerPurchaseUnit,
       'unit': unit,
+      'notes' : notes,
     }),
   );
 
@@ -119,30 +118,32 @@ void _showAddIngredientDialog(BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextField(
-                controller: _recipeIdController,
-                decoration: InputDecoration(labelText: 'Recipe ID'),
-              ),
-              TextField(
-                controller: _inventoryIdController,
-                decoration: InputDecoration(labelText: 'Inventory ID'),
-              ),
-              TextField(
                 controller: _nameController,
                 decoration: InputDecoration(labelText: 'Ingredient Name'),
               ),
               TextField(
                 controller: _quantityController,
-                decoration: InputDecoration(labelText: 'Quantity)'),
+                decoration: InputDecoration(labelText: 'Quantity'),
               ),
               TextField(
-                controller: _minQuantityController,
+                controller: _purchaseQuantityController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Minimum Quantity'),
+                decoration: InputDecoration(labelText: 'Purchase Quantity'),
+              ),
+              TextField(
+                controller: _costPerPurchaseUnitController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Cost Per Purchase Unit'),
               ),
               TextField(
                 controller: _unitController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: 'Unit'),
+              ),
+              TextField(
+                controller: _notesController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Notes'),
               ),
             ],
           ),
