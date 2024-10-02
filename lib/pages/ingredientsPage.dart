@@ -17,34 +17,58 @@ Future<void> getIngredients() async {
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': '${await sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED 
-      //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+      'Authorization': '${await sessionService.getSessionID()}',
     },
   );
 
-  var jsonData = jsonDecode(response.body);
+  print('Response Status: ${response.statusCode}');
+  print('Response Body: ${response.body}');
 
   if (response.statusCode == 200) {
-    ingredients.clear(); // Clear the list to avoid duplicates
+    var jsonData = jsonDecode(response.body);
 
-    for (var eachIngredient in jsonData) {
-      final ingredient = Ingredient(
-        id: eachIngredient['id'],
-        name: eachIngredient['name'],
-        quantity: eachIngredient['quantity'],
-        purchaseQuantity: eachIngredient['purchaseQuantity'],
-        costPerPurchaseUnit: eachIngredient['costPerPurchaseUnit'],
-        unit: eachIngredient['unit'],
-        notes: eachIngredient['notes']
-        );
-      ingredients.add(ingredient);
+    // Check if the parsed data is a list
+    if (jsonData is List) {
+      ingredients.clear(); // Clear the list to avoid duplicates
+
+      for (var eachIngredient in jsonData) {
+        // Print each ingredient to ensure it has the expected fields
+        print('Processing ingredient: $eachIngredient');
+
+        if (eachIngredient.containsKey('id') &&
+            eachIngredient.containsKey('name') &&
+            eachIngredient.containsKey('quantity') &&
+            eachIngredient.containsKey('purchaseQuantity') &&
+            eachIngredient.containsKey('costPerPurchaseUnit') &&
+            eachIngredient.containsKey('unit') &&
+            eachIngredient.containsKey('notes')) {
+          
+          final ingredient = Ingredient(
+            id: eachIngredient['id'],
+            name: eachIngredient['name'],
+            quantity: (eachIngredient['quantity'] as num).toInt(), // Safely convert to int
+            purchaseQuantity: (eachIngredient['purchaseQuantity'] as num).toInt(), // Safely convert to int
+            costPerPurchaseUnit: (eachIngredient['costPerPurchaseUnit'] as num).toDouble(), // Safely convert to double
+            unit: eachIngredient['unit'],
+            notes: eachIngredient['notes'],
+          );
+
+          // Print to confirm that the ingredient object was created successfully
+          print('Adding ingredient: ${ingredient.name}');
+          ingredients.add(ingredient);
+        } else {
+          print('Ingredient data missing required fields: $eachIngredient');
+        }
+      }
+
+      print('Number of Ingredients loaded: ${ingredients.length}');
+    } else {
+      print('Unexpected JSON format. Expected a list but got: ${jsonData.runtimeType}');
     }
-    print('Number of Ingredients loaded: ${ingredients.length}');
   } else {
     print('Failed to load Ingredients: ${response.statusCode}');
   }
 }
-
 
 
 // Text editing controllers for user input
