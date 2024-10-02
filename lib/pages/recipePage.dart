@@ -24,7 +24,6 @@ Future<void> getRecipes() async {
   );
 
   var jsonData = jsonDecode(response.body);
-  print('Response: ${response.body}');
 
   if (response.statusCode == 200) {
     recipes.clear(); // Clear the list to avoid duplicates
@@ -501,8 +500,6 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
                       ),
                       onTap:() {
                         // Add navigation to the recipe detail page
-                        print('Tapped on recipe: ${recipes[index].id}');
-                        print('Tapped on recipe: ${recipes[index].name}');
 
                         // Show awesomeDialog to ask if user wants to delete recipe (for now should change the way to delete a recipe in the future but this is just for testing)
                         AwesomeDialog(
