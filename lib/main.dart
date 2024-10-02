@@ -8,6 +8,7 @@ import 'pages/inventoryPage.dart'; //Import the Inventory Page
 import 'services/session_service.dart';
 import 'pages/recipePage.dart'; // Import the Recipes Page
 import 'pages/ingredientsPage.dart'; // Import the Ingredients Page
+import 'services/cookie_service.dart'; // Import the cookie service
 
 void main() {
   debugPaintSizeEnabled = false; // Set to true for visual layout debugging
