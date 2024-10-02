@@ -10,7 +10,7 @@ final SessionService sessionService = SessionService();
 List<Recipe> recipes = [];
 
 Future<void> getRecipes() async {
-  var url = Uri.https('bakery.permavite.com', 'recipes');
+  var url = Uri.https('bakery.permavite.com', 'api/recipes');
 
   // Include the session ID in the headers
   var response = await http.get(
@@ -60,7 +60,7 @@ Future<void> addRecipe() async {
 
   print('Adding recipe: $name, $description, $prepUnit, $cookUnit, $rating, $prepTime, $cookTime');
 
-  var url = Uri.parse('https://bakery.permavite.com/recipes');
+  var url = Uri.parse('https://bakery.permavite.com/api/recipes');
   // POST request to add the recipe to the database
   var response = await http.post(
     url,
