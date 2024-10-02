@@ -24,12 +24,14 @@ Future<void> getRecipes() async {
   );
 
   var jsonData = jsonDecode(response.body);
+  print('Response: ${response.body}');
 
   if (response.statusCode == 200) {
     recipes.clear(); // Clear the list to avoid duplicates
 
     for (var eachRecipe in jsonData) {
       final recipe = Recipe(
+        id: eachRecipe['id'],
         name: eachRecipe['name'],
         description: eachRecipe['description'],
       );
@@ -79,7 +81,7 @@ Future<bool> addRecipe() async {
 
   print('Adding recipe: $name, $description, $prepUnit, $cookUnit, $rating, $prepTime, $cookTime');
 
-  var url = Uri.parse('https://bakery.permavite.com/api/recipes');
+  var url = Uri.https('https://bakery.permavite.com', 'api/recipes');
   // POST request to add the recipe to the database
   var response = await http.post(
     url,
@@ -408,7 +410,7 @@ void _showAddStepsDialog(BuildContext context) {
                         child: Text('Back'),
                       ),
                       TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           bool isValid = true;
                           for (int i = 0; i < _stepControllers.length; i++) {
                             if (_stepControllers[i].text.isEmpty) {
@@ -428,14 +430,16 @@ void _showAddStepsDialog(BuildContext context) {
                             ).show();
                           } else {
                             Navigator.of(context).pop();
-                      
+
+                            print (_recipeNameController.text);
+
                             // Delay before showing the next dialog
                             Future.delayed(Duration(milliseconds: 200), () {
                               _showAddStepsDialog(context); // Transition to the next dialog
                             });
                           }
                         },
-                        child: Text('Next'),
+                        child: Text('Add'),
                       ),
                     ],
                   ),
@@ -451,7 +455,12 @@ void _showAddStepsDialog(BuildContext context) {
 
 
 // Recipes Detail Page
-class RecipesDetailPage extends StatelessWidget {
+class RecipesDetailPage extends StatefulWidget {
+  @override
+  _RecipesDetailPageState createState() => _RecipesDetailPageState();
+}
+
+class _RecipesDetailPageState extends State<RecipesDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -490,6 +499,44 @@ class RecipesDetailPage extends StatelessWidget {
                           fontSize: 20,
                         ),
                       ),
+                      onTap:() {
+                        // Add navigation to the recipe detail page
+                        print('Tapped on recipe: ${recipes[index].id}');
+                        print('Tapped on recipe: ${recipes[index].name}');
+
+                        // Show awesomeDialog to ask if user wants to delete recipe (for now should change the way to delete a recipe in the future but this is just for testing)
+                        AwesomeDialog(
+                          context: context,
+                          dialogType: DialogType.warning,
+                          animType: AnimType.scale,
+                          title: 'Delete Recipe',
+                          desc: 'Are you sure you want to delete this recipe?',
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () {
+                            // Add delete recipe functionality here
+                            print('Deleting recipe: ${recipes[index].id}');
+                            final url = Uri.https('bakery.permavite.com', 'api/recipes/${recipes[index].id}');
+                            http.delete(
+                              url,
+                              headers: <String, String>{
+                                'Content-Type': 'application/json; charset=UTF-8',
+                                'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+                              },
+                            ).then((response) {
+                              if (response.statusCode == 200) {
+                                print('Recipe deleted successfully');
+                                
+                                // Reload the recipes after deleting one
+                                getRecipes().then((_) {
+                                  setState(() {});  // Trigger a UI refresh
+                                });
+                              } else {
+                                print('Failed to delete recipe: ${response.statusCode}');
+                              }
+                            });
+                          },
+                        ).show();
+                      },
                     ),
                   ),
                 );
@@ -548,6 +595,7 @@ class RecipesDetailPage extends StatelessWidget {
   }
 }
 
+
 void showSlidingGeneralDialog({
   required BuildContext context,
   required WidgetBuilder pageBuilder,
@@ -571,57 +619,4 @@ void showSlidingGeneralDialog({
       );
     },
   );
-}
-
-
-class AddIngredientsPage extends StatelessWidget {
-  final TextEditingController _ingredientController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Ingredients'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              controller: _ingredientController,
-              decoration: InputDecoration(labelText: 'Ingredient'),
-            ),
-            TextField(
-              controller: _quantityController,
-              decoration: InputDecoration(labelText: 'Quantity'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                // Add recipe logic here
-                if (_ingredientController.text.isEmpty || _quantityController.text.isEmpty) {
-                  AwesomeDialog(
-                    context: context,
-                    dialogType: DialogType.error,
-                    animType: AnimType.scale,
-                    title: 'Error',
-                    desc: 'Please add at least one ingredient and quantity.',
-                    btnOkOnPress: () {},
-                  ).show();
-                } else {
-                  // You can add the logic to save the recipe and ingredients here
-
-                  // Pop back to the previous page or show a success message
-                  Navigator.of(context).pop();
-                  getRecipes();
-                }
-              },
-              child: Text('Add Recipe'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
