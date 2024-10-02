@@ -17,12 +17,24 @@ dependencies:
   shared_preferences: ^2.3.2
   flutter_speed_dial: ^6.0.0
   awesome_dialog: ^3.2.1
+  workmanager: ^0.5.0 # Added workmanager package
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^2.0.0
+  
+
+  flutter_launcher_icons: ^0.13.1
+  
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/HippoTechnologiesLogo.jpg"
+
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/HippoTechnologiesLogo.png

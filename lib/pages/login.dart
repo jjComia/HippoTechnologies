@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../services/session_service.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'dart:async';  // Make sure to add this import at the top of your file
 
 
 class LoginPage extends StatelessWidget {
@@ -45,6 +46,7 @@ class LoginPage extends StatelessWidget {
     };
   
     var url = Uri.https('https://bakery.permavite.com', 'api/login');      //Username: HippoTechnologies Password: Mickey2024!
+
     try {
         var response = await http.post(
           url,
@@ -53,23 +55,39 @@ class LoginPage extends StatelessWidget {
           },
           body: jsonEncode(params),
         );
-
-      print ('Response: ${response.body}');
+      
+      print ('Response: ${response.statusCode}');
         
+
       // Handle the response
       if (response.statusCode == 201) {
         print('Login successful');
         sessionService.saveSession(jsonDecode(response.body)['id']);
         // Make a awesome dialog to show the success, then call onLoginSuccess
-        if (context.mounted){
-          AwesomeDialog(
+        if (context.mounted) {
+          AwesomeDialog dialog = AwesomeDialog(
             context: context,
             dialogType: DialogType.success,
             animType: AnimType.scale,
             title: 'Success',
             desc: 'Login successful',
-            btnOkOnPress: onLoginSuccess,
-          ).show();
+            showCloseIcon: false,
+            autoDismiss: false,  // Prevents the dialog from auto-dismiss
+            onDismissCallback: (DismissType type) {
+              print('Dialog dismissed with type: $type');
+            },
+          );
+
+          // Show the dialog
+          dialog.show();
+
+          // Delay of 1 second before dismissing the dialog and calling onLoginSuccess
+          Timer(Duration(seconds: 2), () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();  // Close the dialog manually
+              onLoginSuccess();  // Call your success handler
+            }
+          });
         }
       } else if (response.statusCode == 404) {
         print('Failed to Login: ${response.body}');
@@ -94,7 +112,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: Text('Login'), backgroundColor: Color.fromARGB(255, 249, 251, 250)),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -102,10 +120,24 @@ class LoginPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Image.asset(
+                'assets/images/HippoTechnologiesLogo.png',
+                height: 225.0, // Adjust the height as needed
+              ),
+              SizedBox(height: 24.0), // Space between image and text fields
               TextField(
                 controller: _usernameController,
                 decoration: InputDecoration(
                   labelText: 'Username',
+                  labelStyle: TextStyle(
+                    color: Colors.black,  // Default label color
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 2.0),       // Change the color of the border when focused
+                  ),
+                  floatingLabelStyle: TextStyle(
+                    color: Colors.blue,  // Label color when the field is focused
+                  ),
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -115,22 +147,62 @@ class LoginPage extends StatelessWidget {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
+                  labelStyle: TextStyle(
+                    color: Colors.black,  // Default label color
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 2.0),       // Change the color of the border when focused
+                  ),
+                  floatingLabelStyle: TextStyle(
+                    color: Colors.blue,  // Label color when the field is focused
+                  ),
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 24.0),
-              ElevatedButton(
-                onPressed: () {
-                  // Add login logic here
-                  print('Logging in with username: ${_usernameController.text}');
-                  loginUser(context);
-                },
-                child: Text('Login'),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    // Add forgot password logic here
+                    print('Forgot password');
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.blue, // Text color
+                  ),
+                  child: Text('Forgot password?'),
+                ),
               ),
-              SizedBox(height: 8.0),
-              OutlinedButton(
-                onPressed: onRegisterTap, // Go to registration page
-                child: Text('Register'),
+              SizedBox(height: 10.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Distributes the buttons evenly
+                children: [
+                  SizedBox(
+                    width: 150, // Set the desired width for the ElevatedButton
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Add login logic here
+                        print('Logging in with username: ${_usernameController.text}');
+                        loginUser(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue, // Background color
+                        foregroundColor: Colors.white, // Text color
+                      ),
+                      child: Text('Login'),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 150, // Set the desired width for the OutlinedButton
+                    child: OutlinedButton(
+                      onPressed: onRegisterTap, // Go to registration page
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.blue, // Text color
+                        side: BorderSide(color: Colors.blue), // Border color
+                      ),
+                      child: Text('Register'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
