@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:awesome_dialog/awesome_dialog.dart';
 import '../services/session_service.dart';
+import 'dart:async';  // Make sure to add this import at the top of your file
 
 class RegistrationPage extends StatefulWidget {
   final VoidCallback onBackToLogin;
@@ -93,14 +94,31 @@ class _RegistrationPageState extends State<RegistrationPage> {
       // Handle the response
       if (response.statusCode == 201) {
         widget.sessionService.saveSession(jsonDecode(response.body)['id']);
-        AwesomeDialog(
-          context: context,
-          dialogType: DialogType.success,
-          animType: AnimType.scale,
-          title: 'Success',
-          desc: 'Registration successful',
-          btnOkOnPress: widget.onRegisterSuccess,
-        ).show();
+        if (context.mounted) {
+          AwesomeDialog dialog = AwesomeDialog(
+            context: context,
+            dialogType: DialogType.success,
+            animType: AnimType.scale,
+            title: 'Success',
+            desc: 'Registration successful',
+            showCloseIcon: false,
+            autoDismiss: false,  // Prevents the dialog from auto-dismiss
+            onDismissCallback: (DismissType type) {
+              print('Dialog dismissed with type: $type');
+            },
+          );
+
+          // Show the dialog
+          dialog.show();
+
+          // Delay of 1 second before dismissing the dialog and calling onRegisterSuccess
+          Timer(Duration(seconds: 1), () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();  // Manually close the dialog
+              widget.onRegisterSuccess();  // Call your success handler
+            }
+          });
+        }
       } else {
         AwesomeDialog(
           context: context,
@@ -129,7 +147,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Register')),
+      appBar: AppBar(title: Text('Register'), backgroundColor: Color.fromARGB(255, 249, 251, 250)),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -137,10 +155,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Image.asset(
+                'assets/images/HippoTechnologiesLogo.png',
+                height: 225.0, // Adjust the height as needed
+              ),
               TextField(
                 controller: _firstNameController,
                 decoration: InputDecoration(
                   labelText: 'First Name',
+                  labelStyle: TextStyle(
+                    color: Colors.black,  // Default label color
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 2.0),       // Change the color of the border when focused
+                  ),
+                  floatingLabelStyle: TextStyle(
+                    color: Colors.blue,  // Label color when the field is focused
+                  ),
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -149,6 +180,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 controller: _lastNameController,
                 decoration: InputDecoration(
                   labelText: 'Last Name',
+                  labelStyle: TextStyle(
+                    color: Colors.black,  // Default label color
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 2.0),       // Change the color of the border when focused
+                  ),
+                  floatingLabelStyle: TextStyle(
+                    color: Colors.blue,  // Label color when the field is focused
+                  ),
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -157,6 +197,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 controller: _usernameController,
                 decoration: InputDecoration(
                   labelText: 'Username',
+                  labelStyle: TextStyle(
+                    color: Colors.black,  // Default label color
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 2.0),       // Change the color of the border when focused
+                  ),
+                  floatingLabelStyle: TextStyle(
+                    color: Colors.blue,  // Label color when the field is focused
+                  ),
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -166,8 +215,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
+                  floatingLabelStyle: TextStyle(
+                    color: !_passwordsMatch ? Colors.red : Colors.blue,  // Label color when the field is focused
+                  ),
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Colors.grey),
+                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Colors.blue),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Colors.blue),
@@ -188,8 +240,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Confirm Password',
+                  floatingLabelStyle: TextStyle(
+                    color: !_passwordsMatch ? Colors.red : Colors.blue,  // Label color when the field is focused
+                  ),
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Colors.grey),
+                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Colors.blue),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Colors.blue),
@@ -205,16 +260,29 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 onChanged: (value) => _checkPasswords(),
               ),
               SizedBox(height: 24.0),
-              ElevatedButton(
-                onPressed: () {
-                  registerUser(context); // Register user
-                },
-                child: Text('Register'),
-              ),
-              SizedBox(height: 8.0),
-              OutlinedButton(
-                onPressed: widget.onBackToLogin,
-                child: Text('Back to Login'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      registerUser(context); // Register user
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue, // Background color
+                        foregroundColor: Colors.white, // Text color
+                      ),
+                    child: Text('Register'),
+                  ),
+                  SizedBox(height: 8.0),
+                  OutlinedButton(
+                    onPressed: widget.onBackToLogin,
+                    style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.blue, // Text color
+                        side: BorderSide(color: Colors.blue), // Border color
+                      ),
+                    child: Text('Back to Login'),
+                  ),
+                ],
               ),
             ],
           ),

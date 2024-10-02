@@ -64,14 +64,19 @@ Future<void> addRecipe() async {
   var prepTime = double.tryParse(_prepTimeController.text) ?? 0.0;
   var cookTime = double.tryParse(_cookTimeController.text) ?? 0.0;
 
-   var url = Uri.parse('https://bakery.permavite.com/api/recipes');
+
+  print('Adding recipe: $name, $description, $prepUnit, $cookUnit, $rating, $prepTime, $cookTime');
+
+  var url = Uri.parse('https://bakery.permavite.com/api/recipes');
+
   // POST request to add the recipe to the database
   var response = await http.post(
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': '${sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
-      //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+
+      'Authorization': '${await sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
+
     },
     body: jsonEncode({
       'name': name,
@@ -177,7 +182,7 @@ class RecipesDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Recipes')),
+      appBar: AppBar(title: Text('Recipes'), backgroundColor: Color.fromARGB(255, 249, 251, 250)),
       body: FutureBuilder(
         future: getRecipes(),
         builder: (context, snapshot) {
