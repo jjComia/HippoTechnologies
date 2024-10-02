@@ -80,7 +80,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     };
 
     // Make API call to register user
-    var url = Uri.parse('https://bakery.permavite.com/register/user');
+    var url = Uri.parse('https://bakery.permavite.com/api/register/user');
     try {
       var response = await http.post(
         url,

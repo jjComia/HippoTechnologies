@@ -21,13 +21,11 @@ Future<void> getRecipes() async {
       //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
     },
   );
-  print('here');
-  print(response.statusCode);
+
   var jsonData = jsonDecode(response.body);
 
   if (response.statusCode == 200) {
     recipes.clear(); // Clear the list to avoid duplicates
-    print(response.body);
 
     for (var eachRecipe in jsonData) {
       final recipe = Recipe(

@@ -11,8 +11,8 @@ List<Inventory> inventoryItems = [];
 
 Future<void> getInventoryItems() async {
   var url = Uri.https('bakery.permavite.com', 'api/inventory');
-  print('here');
   print(await sessionService.getSessionID());
+
   // Include the session ID in the headers
   var response = await http.get(
     url,
@@ -26,15 +26,14 @@ Future<void> getInventoryItems() async {
   var jsonData = jsonDecode(response.body);
 
   if (response.statusCode == 200) {
-    print('here');
     inventoryItems.clear(); // Clear the list to avoid duplicates
 
     for (var eachInventory in jsonData) {
       final inventory = Inventory(
         name: eachInventory['name'],
         quantity: eachInventory['quantity'],
-        purchasequantity: eachInventory['purchaseQuantity'],
-        costperpurchaseunit: eachInventory['costPerPurchaseUnit'],
+        purchaseQuantity: eachInventory['purchaseQuantity'],
+        costPerPurchaseUnit: eachInventory['costPerPurchaseUnit'],
         unit: eachInventory['unit'],
         notes: eachInventory['notes']
       );
