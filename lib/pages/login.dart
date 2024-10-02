@@ -45,7 +45,8 @@ class LoginPage extends StatelessWidget {
       'password': password,
     };
   
-    var url = Uri.parse('https://bakery.permavite.com/api/login');      //Username: HippoTechnologies Password: Mickey2024!
+    var url = Uri.https('https://bakery.permavite.com', 'api/login');      //Username: HippoTechnologies Password: Mickey2024!
+
     try {
         var response = await http.post(
           url,

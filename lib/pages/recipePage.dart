@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../services/session_service.dart';
 import 'dart:convert';
 import '../models/recipe.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 final SessionService sessionService = SessionService();
@@ -17,8 +18,8 @@ Future<void> getRecipes() async {
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': '${await sessionService.getSessionID()}'
       //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+      'Authorization': '${await sessionService.getSessionID()}',
     },
   );
 
@@ -29,6 +30,7 @@ Future<void> getRecipes() async {
 
     for (var eachRecipe in jsonData) {
       final recipe = Recipe(
+        id: eachRecipe['id'],
         name: eachRecipe['name'],
         description: eachRecipe['description'],
         rating: eachRecipe['rating'],
@@ -54,8 +56,25 @@ final TextEditingController _ratingController = TextEditingController();
 final TextEditingController _prepTimeController = TextEditingController();
 final TextEditingController _cookTimeController = TextEditingController();
 
+// Function to check if parameters are valid
+bool checkRecipeParams() {
+  var name = _recipeNameController.text;
+  var description = _descriptionController.text;
+  var prepUnit = _prepUnitController.text;
+  var cookUnit = _cookUnitController.text;
+  var rating = double.tryParse(_ratingController.text) ?? 0.0;
+  var prepTime = double.tryParse(_prepTimeController.text) ?? 0.0;
+  var cookTime = double.tryParse(_cookTimeController.text) ?? 0.0;
+
+  if (name.isEmpty || description.isEmpty || prepUnit.isEmpty || cookUnit.isEmpty || rating < 0 || rating > 5 || prepTime < 0 || cookTime < 0) {
+    print('Please fill in all fields');
+    return false;
+  }
+  return true;
+}
+
 // Function to add a recipe to the database
-Future<void> addRecipe() async {
+Future<bool> addRecipe() async {
   var name = _recipeNameController.text;
   var description = _descriptionController.text;
   var prepUnit = _prepUnitController.text;
@@ -67,7 +86,7 @@ Future<void> addRecipe() async {
 
   print('Adding recipe: $name, $description, $prepUnit, $cookUnit, $rating, $prepTime, $cookTime');
 
-  var url = Uri.parse('https://bakery.permavite.com/api/recipes');
+  var url = Uri.https('https://bakery.permavite.com', 'api/recipes');
 
   // POST request to add the recipe to the database
   var response = await http.post(
@@ -92,22 +111,19 @@ Future<void> addRecipe() async {
   if (response.statusCode == 201) {
     print('Recipe added successfully');
     getRecipes(); // Reload the recipes after adding a new one
+    return true;
   } else {
     print('Failed to add recipe: ${response.statusCode}');
+    return false;
   }
 }
 
-// Function to show the add recipe dialog with a fade and scale transition
 void _showAddRecipeDialog(BuildContext context) {
-  showGeneralDialog(
+  showSlidingGeneralDialog(
     context: context,
-    barrierDismissible: true,
     barrierLabel: "Add Recipe",
-    barrierColor: Colors.black.withOpacity(0.5), // Darkens the background
-    transitionDuration: Duration(milliseconds: 300),
-    pageBuilder: (context, anim1, anim2) {
+    pageBuilder: (context) {
       return AlertDialog(
-        // backgroundColor:  Color.fromARGB(255, 162, 185, 188).withOpacity(1.0), COLOR FOR POPUP BG?
         title: Text('Add Recipe'),
         content: SingleChildScrollView(
           child: Column(
@@ -148,37 +164,311 @@ void _showAddRecipeDialog(BuildContext context) {
           ),
         ),
         actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              addRecipe(); // Add the recipe
-
-              Navigator.of(context).pop(); // Close the dialog after adding
-            },
-            child: Text('Add'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (checkRecipeParams() == false) {
+                    AwesomeDialog(
+                      context: context,
+                      dialogType: DialogType.error,
+                      animType: AnimType.scale,
+                      title: 'Error',
+                      desc: 'Not all fields populated.\nPlease fill in all fields.',
+                      btnOkOnPress: () {},
+                    ).show();
+                  } else {
+                    // Slide to the next dialog by first popping the current one
+                    Navigator.of(context).pop();
+              
+                    // Delay to ensure the first dialog closes completely before opening the next
+                    Future.delayed(Duration(milliseconds: 200), () {
+                      _showAddIngredientsDialog(context); // Show the next dialog for adding ingredients
+                    });
+                  }
+                },
+                child: Text('Next'),
+              ),
+            ],
           ),
         ],
-      );
-    },
-    transitionBuilder: (context, anim1, anim2, child) {
-      return FadeTransition(
-        opacity: anim1,
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 0.9, end: 1.0).animate(anim1),
-          child: child,
-        ),
       );
     },
   );
 }
 
+
+
+void _showAddIngredientsDialog(BuildContext context) {
+  List<TextEditingController> _ingredientControllers = [TextEditingController()];
+  List<TextEditingController> _quantityControllers = [TextEditingController()];
+
+  showSlidingGeneralDialog(
+    context: context,
+    barrierLabel: "Add Ingredients",
+    pageBuilder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text('Add Ingredients'),
+            content: Container(
+              width: 100,  // Set a fixed width
+              height: 392, // Set a fixed height
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    for (int i = 0; i < _ingredientControllers.length; i++) ...[
+                      TextField(
+                        controller: _ingredientControllers[i],
+                        decoration: InputDecoration(labelText: 'Ingredient ${i + 1}'),
+                      ),
+                      TextField(
+                        controller: _quantityControllers[i],
+                        decoration: InputDecoration(labelText: 'Quantity ${i + 1}'),
+                      ),
+                      SizedBox(height: 10),
+                    ],
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _ingredientControllers.add(TextEditingController());
+                          _quantityControllers.add(TextEditingController());
+                        });
+                      },
+                      child: Text('Add Another Ingredient'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              Center(
+                child: SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        if (_ingredientControllers.length > 1) {
+                          // Remove the last ingredient and quantity text fields
+                          _ingredientControllers.removeLast();
+                          _quantityControllers.removeLast();
+                        }
+                      });
+                    },
+                    child: Text('Remove Ingredient'),
+                  ),
+                )
+              ),
+              Center(
+                child: SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _ingredientControllers.add(TextEditingController());
+                      _quantityControllers.add(TextEditingController());
+                    });
+                  },
+                  child: Text('Add Another Ingredient'),
+                ),
+                )
+              ),
+              Center(
+                child: SizedBox(
+                  width: 300,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                      
+                            // Delay before showing the next dialog
+                            Future.delayed(Duration(milliseconds: 200), () {
+                              _showAddRecipeDialog(context); // Transition to the next dialog
+                            });
+                        },
+                        child: Text('Back'),
+                      ),
+                     TextButton(
+                        onPressed: () {
+                          bool isValid = true;
+                          for (int i = 0; i < _ingredientControllers.length; i++) {
+                            if (_ingredientControllers[i].text.isEmpty || _quantityControllers[i].text.isEmpty) {
+                              isValid = false;
+                              break;
+                            }
+                          }
+                      
+                          if (!isValid) {
+                            AwesomeDialog(
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.scale,
+                              title: 'Error',
+                              desc: 'Please add at least one ingredient and quantity.',
+                              btnOkOnPress: () {},
+                            ).show();
+                          } else {
+                            Navigator.of(context).pop();
+                      
+                            // Delay before showing the next dialog
+                            Future.delayed(Duration(milliseconds: 200), () {
+                              _showAddStepsDialog(context); // Transition to the next dialog
+                            });
+                          }
+                        },
+                        child: Text('Next'),
+                      ),
+                    ],
+                  ),
+                )
+              )
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+
+void _showAddStepsDialog(BuildContext context) {
+  List<TextEditingController> _stepControllers = [TextEditingController()];
+
+  showSlidingGeneralDialog(
+    context: context,
+    barrierLabel: "Add Steps",
+    pageBuilder: (context) {
+      return StatefulBuilder(
+        builder: (Context, setState) {
+          return AlertDialog(
+            title: Text('Add Steps'),
+            content: Container(
+              width: 100,  // Same fixed width as Add Ingredients dialog
+              height: 392, // Same fixed height as Add Ingredients dialog
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    for (int i = 0; i < _stepControllers.length; i++) ...[
+                      TextField(
+                        controller: _stepControllers[i],
+                        decoration: InputDecoration(labelText: 'Step ${i + 1}'),
+                      ),
+                      SizedBox(height: 10),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              Center(
+                child: SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        if (_stepControllers.length > 1) {
+                          // Remove the last ingredient and quantity text fields
+                          _stepControllers.removeLast();
+                        }
+                      });
+                    },
+                    child: Text('Remove Step'),
+                  ),
+                )
+              ),
+              Center(
+                child: SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _stepControllers.add(TextEditingController());
+                    });
+                  },
+                  child: Text('Add Another Step'),
+                ),
+                )
+              ),
+              Center(
+                child: SizedBox(
+                  width: 300,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                      
+                          // Delay before showing the next dialog
+                          Future.delayed(Duration(milliseconds: 200), () {
+                            _showAddIngredientsDialog(context); // Transition to the next dialog
+                          });
+                        },
+                        child: Text('Back'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          bool isValid = true;
+                          for (int i = 0; i < _stepControllers.length; i++) {
+                            if (_stepControllers[i].text.isEmpty) {
+                              isValid = false;
+                              break;
+                            }
+                          }
+                      
+                          if (!isValid) {
+                            AwesomeDialog(
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.scale,
+                              title: 'Error',
+                              desc: 'Please add at least one step',
+                              btnOkOnPress: () {},
+                            ).show();
+                          } else {
+                            Navigator.of(context).pop();
+
+                            print (_recipeNameController.text);
+
+                            // Delay before showing the next dialog
+                            Future.delayed(Duration(milliseconds: 200), () {
+                              _showAddStepsDialog(context); // Transition to the next dialog
+                            });
+                          }
+                        },
+                        child: Text('Add'),
+                      ),
+                    ],
+                  ),
+                )
+              )
+            ],
+          );
+        }
+      );
+    },
+  );
+}
+
+
 // Recipes Detail Page
-class RecipesDetailPage extends StatelessWidget {
+class RecipesDetailPage extends StatefulWidget {
+  @override
+  _RecipesDetailPageState createState() => _RecipesDetailPageState();
+}
+
+class _RecipesDetailPageState extends State<RecipesDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -217,6 +507,42 @@ class RecipesDetailPage extends StatelessWidget {
                           fontSize: 20,
                         ),
                       ),
+                      onTap:() {
+                        // Add navigation to the recipe detail page
+
+                        // Show awesomeDialog to ask if user wants to delete recipe (for now should change the way to delete a recipe in the future but this is just for testing)
+                        AwesomeDialog(
+                          context: context,
+                          dialogType: DialogType.warning,
+                          animType: AnimType.scale,
+                          title: 'Delete Recipe',
+                          desc: 'Are you sure you want to delete this recipe?',
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () {
+                            // Add delete recipe functionality here
+                            print('Deleting recipe: ${recipes[index].id}');
+                            final url = Uri.https('bakery.permavite.com', 'api/recipes/${recipes[index].id}');
+                            http.delete(
+                              url,
+                              headers: <String, String>{
+                                'Content-Type': 'application/json; charset=UTF-8',
+                                'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+                              },
+                            ).then((response) {
+                              if (response.statusCode == 200) {
+                                print('Recipe deleted successfully');
+                                
+                                // Reload the recipes after deleting one
+                                getRecipes().then((_) {
+                                  setState(() {});  // Trigger a UI refresh
+                                });
+                              } else {
+                                print('Failed to delete recipe: ${response.statusCode}');
+                              }
+                            });
+                          },
+                        ).show();
+                      },
                     ),
                   ),
                 );
@@ -273,4 +599,30 @@ class RecipesDetailPage extends StatelessWidget {
       ),
     );
   }
+}
+
+
+void showSlidingGeneralDialog({
+  required BuildContext context,
+  required WidgetBuilder pageBuilder,
+  Duration transitionDuration = const Duration(milliseconds: 300),
+  Color barrierColor = Colors.black54,
+  bool barrierDismissible = true,
+  String barrierLabel = '',
+}) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: barrierDismissible,
+    barrierLabel: barrierLabel,
+    barrierColor: barrierColor,
+    transitionDuration: transitionDuration,
+    pageBuilder: (context, anim1, anim2) => pageBuilder(context),
+    transitionBuilder: (context, anim1, anim2, child) {
+      final curvedAnimation = CurvedAnimation(parent: anim1, curve: Curves.easeInOut);
+      return SlideTransition(
+        position: Tween<Offset>(begin: Offset(1, 0), end: Offset.zero).animate(curvedAnimation),
+        child: child,
+      );
+    },
+  );
 }
