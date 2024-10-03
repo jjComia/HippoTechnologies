@@ -78,52 +78,74 @@ final TextEditingController _purchaseQuantityController = TextEditingController(
 final TextEditingController _costPerPurchaseUnitController = TextEditingController();
 final TextEditingController _unitController = TextEditingController();
 final TextEditingController _notesController = TextEditingController();
-// Function to add an ingredient to the database
 Future<void> addIngredient() async {
-  var name = _nameController.text;
-  var quantity = int.tryParse(_quantityController.text) ?? 0;
-  var purchaseQuantity = int.tryParse(_purchaseQuantityController.text) ?? 0;
-  //DOUBLE MAY BE INTEGER?????
-  var costPerPurchaseUnit = double.tryParse(_costPerPurchaseUnitController.text) ?? 0;
-  var unit = _unitController.text;
-  var notes = _notesController.text;
-  print('Name: $name');
-  print('Quantity: $quantity');
-  print('Purchase Quantity: $purchaseQuantity');
-  print('costPerPurchaseUnit: $costPerPurchaseUnit');
-  print('Unit: $unit');
-  print('Notes: $notes');
-  
-  print ('Session ID: ${await sessionService.getSessionID()}');
+  try {
+    // Parsing input fields
+    var name = _nameController.text.trim(); // Trim whitespace
+    var quantityStr = _quantityController.text.trim();
+    var purchaseQuantityStr = _purchaseQuantityController.text.trim();
+    var costPerPurchaseUnitStr = _costPerPurchaseUnitController.text.trim();
 
-   var url = Uri.parse('https://bakery.permavite.com/api/ingredients');
-  // POST request to add the ingredient to the database
-  var response = await http.post(
-    url,
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': '${await sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
-      //'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
-    },
-    body: jsonEncode({
-      'name': name,
-      'quantity': quantity,
-      'purchaseQuantity': purchaseQuantity,
-      'costPerPurchaseUnit': costPerPurchaseUnit,
-      'unit': unit,
-      'notes' : notes,
-    }),
-  );
+    // Convert quantity and purchaseQuantity to int
+    int quantity = int.tryParse(quantityStr) ?? 0;
+    int purchaseQuantity = int.tryParse(purchaseQuantityStr) ?? 0;
 
-  if (response.statusCode == 201) {
-    print('Ingredient added successfully');
-    getIngredients(); // Reload the ingredient page after adding a new one
-  } else {
-    print('Status Code: ${response.statusCode}');
-    print('Response Body: ${response.body}');
-    print('Failed to add Ingredient');
+    // Convert costPerPurchaseUnit to double
+    double costPerPurchaseUnit = double.tryParse(costPerPurchaseUnitStr) ?? 0.0;
+
+    // Print parsed values to debug
+    print('Adding Ingredient with:');
+    print('Name: $name');
+    print('Quantity: $quantity');
+    print('Purchase Quantity: $purchaseQuantity');
+    print('Cost Per Purchase Unit: $costPerPurchaseUnit');
+    print('Session ID: ${await sessionService.getSessionID()}');
+
+    // Ensure quantity and purchaseQuantity are integers without decimal points
+    if (quantityStr.contains('.') || purchaseQuantityStr.contains('.')) {
+      print('Error: Quantity and Purchase Quantity must be whole numbers.');
+      return; // Exit early if the input is not valid
+    }
+
+    var unit = _unitController.text.trim();
+    var notes = _notesController.text.trim();
+
+    var url = Uri.parse('https://bakery.permavite.com/api/inventory');
+
+    // POST request to add the ingredient to the database
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': '${await sessionService.getSessionID()}',
+      },
+      body: jsonEncode({
+        'name': name,
+        'quantity': quantity, // Send as int
+        'purchaseQuantity': purchaseQuantity, // Send as int
+        'costPerPurchaseUnit': costPerPurchaseUnit, // Send as double
+        'unit': unit,
+        'notes': notes,
+      }),
+    );
+
+    // Handle the response and print detailed logs
+    if (response.statusCode == 201) {
+      print('Ingredient added successfully');
+      await getIngredients(); // Reload the ingredient list after adding a new one
+    } else {
+      // Error handling: log details for troubleshooting
+      print('Failed to add Ingredient');
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+    }
+  } catch (e) {
+    // Catch any other unexpected errors and log them
+    print('Error while adding ingredient: $e');
   }
 }
+
+
 
 // Function to show the add ingredient dialog with a fade and scale transition
 void _showAddIngredientDialog(BuildContext context) {
@@ -166,7 +188,6 @@ void _showAddIngredientDialog(BuildContext context) {
               ),
               TextField(
                 controller: _notesController,
-                keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: 'Notes'),
               ),
             ],
