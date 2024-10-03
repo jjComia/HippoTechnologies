@@ -224,7 +224,32 @@ void _showAddIngredientDialog(BuildContext context) {
 }
 
 // Ingredient Detail Page
-class IngredientsDetailPage extends StatelessWidget {
+class IngredientsDetailPage extends StatefulWidget {
+  @override
+  _IngredientsDetailPageState createState() => _IngredientsDetailPageState();
+}
+
+class _IngredientsDetailPageState extends State<IngredientsDetailPage> {
+  TextEditingController searchController = TextEditingController();
+  List<Ingredient> filteredIngredients = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the filteredIngredients with the full list
+    filteredIngredients = ingredients;
+  }
+
+  void filterSearch(String query) {
+    List<Ingredient> tempList = ingredients.where((ingredient) {
+      return ingredient.name.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    setState(() {
+      filteredIngredients = tempList;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -239,35 +264,58 @@ class IngredientsDetailPage extends StatelessWidget {
                 child: Text('No Ingredient Items available'),
               );
             }
-            return ListView.builder(
-              itemCount: ingredients.length,
-              itemBuilder: (context, index) {
-                return Padding(
+
+            return Column(
+              children: [
+                Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: ListTile(
-                      title: Text(
-                        ingredients[index].name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                  child: TextField(
+                    controller: searchController,
+                    onSubmitted: (value) {
+                      filterSearch(value);
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Search Ingredients',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      textColor: const Color.fromARGB(255, 69, 145, 105),
-                      subtitle: Text(
-                        ingredients[index].quantity.toString() ?? 'No quantity available',
-                        style: const TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
+                      prefixIcon: Icon(Icons.search),
                     ),
                   ),
-                );
-              },
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: filteredIngredients.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              filteredIngredients[index].name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                            textColor: const Color.fromARGB(255, 69, 145, 105),
+                            subtitle: Text(
+                              filteredIngredients[index].quantity.toString() ?? 'No quantity available',
+                              style: const TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             );
           } else if (snapshot.hasError) {
             return Center(
@@ -294,7 +342,7 @@ class IngredientsDetailPage extends StatelessWidget {
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             onTap: () {
-              // Add search functionality here
+              // Scroll up or focus the search bar here, if desired
               print('Search button tapped');
             },
           ),
