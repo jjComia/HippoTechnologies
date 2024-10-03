@@ -337,16 +337,6 @@ class _IngredientsDetailPageState extends State<IngredientsDetailPage> {
         spaceBetweenChildren: 12,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.search),
-            label: 'Search Ingredient',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            onTap: () {
-              // Scroll up or focus the search bar here, if desired
-              print('Search button tapped');
-            },
-          ),
-          SpeedDialChild(
             child: Icon(Icons.add),
             label: 'Add Ingredient',
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
