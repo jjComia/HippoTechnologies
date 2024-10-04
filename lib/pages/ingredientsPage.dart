@@ -6,6 +6,7 @@ import '../services/session_service.dart';
 import 'dart:convert';
 import '../models/ingredients.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'ingredientDetails.dart';                                           //Import ingredietnsDetails.dart page file
 
 final SessionService sessionService = SessionService();
 List<Ingredient> ingredients = [];
@@ -310,7 +311,15 @@ class _IngredientsDetailPageState extends State<IngredientsDetailPage> {
                               ),
                             ),
                             onTap: () {
-                              showIngredientsDialog(context, filteredIngredients[index]);
+                              // Navigate to IngredientDetailsPage when the ListTile is tapped
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => IngredientDetailsPage(
+                                    ingredient: filteredIngredients[index],
+                                  ),
+                                ),
+                              );
                             },
                           ),
                         ),
@@ -361,91 +370,4 @@ class _IngredientsDetailPageState extends State<IngredientsDetailPage> {
       ),
     );
   }
-}
-
-void showIngredientsDialog(BuildContext context, Ingredient ingredient) {
-  showSlidingGeneralDialog(
-    context: context,
-    barrierLabel: 'Ingredient Details for ${ingredient.name}',
-    pageBuilder: (context) {
-      return AlertDialog(
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Ingredient Details for\n',
-                    style: TextStyle(
-                      color: Color.fromARGB(125, 0, 0, 0),
-                      fontSize: 22,
-                    ),
-                  ),
-                  TextSpan(
-                    text: '${ingredient.name}',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      height: 1.5, // Increase line height
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 12), // Add some space before the divider
-            Divider(
-              color: Colors.grey,
-              thickness: 1,
-              indent: 40,  // Add indent to make the divider shorter on the sides
-              endIndent: 40,
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Name: ${ingredient.name}', style: TextStyle(fontSize: 18)),
-            Text('Quantity: ${ingredient.quantity}', style: TextStyle(fontSize: 18)),
-            Text('Purchase Quantity: ${ingredient.purchaseQuantity}', style: TextStyle(fontSize: 18)),
-            Text('Cost Per Purchase Unit: ${ingredient.costPerPurchaseUnit}', style: TextStyle(fontSize: 18)),
-            Text('Unit: ${ingredient.unit}', style: TextStyle(fontSize: 18)),
-            Text('Notes: ${ingredient.notes}', style: TextStyle(fontSize: 18)),
-          ],
-        ),
-        actions: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  // Need to add functionality to order more of the ingredient
-                },
-                child: Text('Order More', style: TextStyle(fontSize: 16)),
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('Close', style: TextStyle(color: Color.fromARGB(175, 0, 0, 0), fontSize: 16)),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('Delete', style: TextStyle(color: Colors.red, fontSize: 16)),
-              ),
-            ],
-          ),
-        ],
-      );
-    }
-  );
 }
