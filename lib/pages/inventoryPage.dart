@@ -198,7 +198,7 @@ class InventoryDetailPage extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+                      color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.8),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: ListTile(
@@ -209,7 +209,7 @@ class InventoryDetailPage extends StatelessWidget {
                           fontSize: 20,
                         ),
                       ),
-                      textColor: const Color.fromARGB(255, 69, 145, 105),
+                      textColor: const Color.fromARGB(255, 0, 0, 0),
                       subtitle: Text(
                         inventoryItems[index].quantity.toString() ?? 'No quantity available',
                         style: const TextStyle(
@@ -234,36 +234,39 @@ class InventoryDetailPage extends StatelessWidget {
       ),
       floatingActionButton: SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: const Color.fromARGB(255, 162, 185, 188).withOpacity(0.8),
+        backgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
         overlayColor: Colors.black,
         overlayOpacity: 0.5,
         spacing: 12,
         spaceBetweenChildren: 12,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.search),
+            child: Icon(Icons.search, color:Colors.white),
             label: 'Search Inventory Items',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            labelBackgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
+            labelStyle: const TextStyle(color: Colors.white),
             onTap: () {
               // Add search functionality here
               print('Search button tapped');
             },
           ),
           SpeedDialChild(
-            child: Icon(Icons.add),
+            child: Icon(Icons.add, color:Colors.white),
             label: 'Add Inventory Item',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            labelBackgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
+            labelStyle: const TextStyle(color: Colors.white),
             onTap: () {
               _showAddInventoryDialog(context); // Show the add inventory dialog
             },
           ),
           SpeedDialChild(
-            child: Icon(Icons.delete),
+            child: Icon(Icons.delete, color:Colors.white),
             label: 'Delete Inventory Item',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            labelBackgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
+            labelStyle: const TextStyle(color: Colors.white),
             onTap: () {
               print('Delete button tapped');
             },
