@@ -39,6 +39,16 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   final SessionService sessionService = SessionService();
+  /*final ApiService apiService = ApiService();
+
+  //cookie login
+  final response = await apiService.login();
+  print('Login Resoonse: ${response.data}');
+
+  // fetch data
+  final dataResponse = await apiService.fetchData();
+  print('Fetched Data: ${dataResponse.data}');
+  */
   bool isLoggedIn = false; // Flag for login status
   bool showRegistrationPage = false; // Flag for registration page
 
