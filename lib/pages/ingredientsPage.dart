@@ -1,6 +1,7 @@
 // Importing dart:convert to use jsonDecode function
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:namer_app/pages/recipePage.dart';
 import '../services/session_service.dart';
 import 'dart:convert';
 import '../models/ingredients.dart';
@@ -264,7 +265,6 @@ class _IngredientsDetailPageState extends State<IngredientsDetailPage> {
                 child: Text('No Ingredient Items available'),
               );
             }
-
             return Column(
               children: [
                 Padding(
@@ -309,6 +309,9 @@ class _IngredientsDetailPageState extends State<IngredientsDetailPage> {
                                 fontSize: 20,
                               ),
                             ),
+                            onTap: () {
+                              showIngredientsDialog(context, filteredIngredients[index]);
+                            },
                           ),
                         ),
                       );
@@ -358,4 +361,35 @@ class _IngredientsDetailPageState extends State<IngredientsDetailPage> {
       ),
     );
   }
+}
+
+void showIngredientsDialog(BuildContext context, Ingredient ingredient) {
+  showSlidingGeneralDialog(
+    context: context,
+    barrierLabel: 'Ingredient Details for ${ingredient.name}',
+    pageBuilder: (context) {
+      return AlertDialog(
+        title: Text('Ingredient Details for ${ingredient.name}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Name: ${ingredient.name}'),
+            Text('Quantity: ${ingredient.quantity}'),
+            Text('Purchase Quantity: ${ingredient.purchaseQuantity}'),
+            Text('Cost Per Purchase Unit: ${ingredient.costPerPurchaseUnit}'),
+            Text('Unit: ${ingredient.unit}'),
+            Text('Notes: ${ingredient.notes}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Close'),
+          ),
+        ],
+      );
+    }
+  );
 }
