@@ -150,8 +150,8 @@ Future<void> addIngredient() async {
 
 
 // Function to show the add ingredient dialog with a fade and scale transition
-void _showAddIngredientDialog(BuildContext context) {
-  showGeneralDialog(
+Future<bool> _showAddIngredientDialog(BuildContext context) {
+  return showGeneralDialog(
     context: context,
     barrierDismissible: true,
     barrierLabel: "Add Ingredient",
@@ -159,7 +159,6 @@ void _showAddIngredientDialog(BuildContext context) {
     transitionDuration: Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
       return AlertDialog(
-        // backgroundColor:  Color.fromARGB(255, 162, 185, 188).withOpacity(1.0), COLOR FOR POPUP BG?
         title: Text('Add Ingredient'),
         content: SingleChildScrollView(
           child: Column(
@@ -174,6 +173,11 @@ void _showAddIngredientDialog(BuildContext context) {
                 decoration: InputDecoration(labelText: 'Quantity'),
               ),
               TextField(
+                controller: _unitController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Unit (e.g. kg, g, L, mL, etc.)'),
+              ),
+              TextField(
                 controller: _purchaseQuantityController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: 'Purchase Quantity'),
@@ -182,11 +186,6 @@ void _showAddIngredientDialog(BuildContext context) {
                 controller: _costPerPurchaseUnitController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: 'Cost Per Purchase Unit'),
-              ),
-              TextField(
-                controller: _unitController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Unit'),
               ),
               TextField(
                 controller: _notesController,
@@ -198,15 +197,15 @@ void _showAddIngredientDialog(BuildContext context) {
         actions: <Widget>[
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop(false); // Close without refresh
             },
             child: Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              addIngredient(); // Add the Ingredient Item
+            onPressed: () async {
+              await addIngredient(); // Add the Ingredient Item
 
-              Navigator.of(context).pop(); // Close the dialog after adding
+              Navigator.of(context).pop(true); // Close and trigger refresh
             },
             child: Text('Add'),
           ),
@@ -222,16 +221,16 @@ void _showAddIngredientDialog(BuildContext context) {
         ),
       );
     },
-  );
+  ).then((value) => value as bool? ?? false); // Ensure a bool is always returned
 }
 
 // Ingredient Detail Page
-class IngredientsDetailPage extends StatefulWidget {
+class IngredientsPage extends StatefulWidget {
   @override
-  _IngredientsDetailPageState createState() => _IngredientsDetailPageState();
+  _IngredientsPageState createState() => _IngredientsPageState();
 }
 
-class _IngredientsDetailPageState extends State<IngredientsDetailPage> {
+class _IngredientsPageState extends State<IngredientsPage> {
   TextEditingController searchController = TextEditingController();
   List<Ingredient> filteredIngredients = [];
 
@@ -311,15 +310,18 @@ class _IngredientsDetailPageState extends State<IngredientsDetailPage> {
                               ),
                             ),
                             onTap: () {
-                              // Navigate to IngredientDetailsPage when the ListTile is tapped
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => IngredientDetailsPage(
-                                    ingredient: filteredIngredients[index],
-                                  ),
+                                  builder: (context) => IngredientDetailsPage(ingredient: ingredients[index]),
                                 ),
-                              );
+                              ).then((shouldRefresh) {
+                                if (shouldRefresh == true) {
+                                  setState(() {
+                                    // Reload the data or refresh the page
+                                  });
+                                }
+                              });
                             },
                           ),
                         ),
@@ -354,7 +356,14 @@ class _IngredientsDetailPageState extends State<IngredientsDetailPage> {
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             onTap: () {
-              _showAddIngredientDialog(context); // Show the add ingredient dialog
+              _showAddIngredientDialog(context).then((shouldRefresh) {
+                if (shouldRefresh == true) {
+                  setState(() {
+                    // Reload the data or refresh the page
+                    getIngredients(); // Ensure you reload the ingredients after adding
+                  });
+                }
+              });
             },
           ),
           SpeedDialChild(

@@ -6,25 +6,7 @@ import '../services/session_service.dart';
 import 'dart:convert';
 import '../models/ingredients.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-
-String getCurrency(Ingredient ingredient) {
-  if (ingredient.unit == 'Dollars' || ingredient.unit == 'dollars') {
-    return '\$';
-  } else if (ingredient.unit == 'cents' || ingredient.unit == 'Cents') {
-    return '¢';
-  } else {
-    return ingredient.unit;
-  }
-}
-
-void showIngredientDetailsPage(BuildContext context, Ingredient ingredient) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => IngredientDetailsPage(ingredient: ingredient),
-    ),
-  );
-}
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 class IngredientDetailsPage extends StatelessWidget {
   final Ingredient ingredient;
@@ -152,7 +134,7 @@ class IngredientDetailsPage extends StatelessWidget {
                 Expanded(
                   flex: 1, // Reduce flex for the value
                   child: Text(
-                    '${ingredient.costPerPurchaseUnit} ${getCurrency(ingredient)}',
+                    '${ingredient.costPerPurchaseUnit} \$',
                     style: TextStyle(fontSize: 18),
                     textAlign: TextAlign.right,
                     softWrap: false,
@@ -181,6 +163,34 @@ class IngredientDetailsPage extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     // Add delete functionality
+                    // Delete the ingredient from the database using AwesomeDialogue
+                    AwesomeDialog(
+                      context: context,
+                      dialogType: DialogType.warning,
+                      animType: AnimType.scale,
+                      title: 'Delete Ingredient',
+                      desc: 'Are you sure you want to remove this ingredient?',
+                      btnCancelOnPress: () {},
+                      btnOkOnPress: () {
+                        // Add delete recipe functionality here
+                        print('Deleting Ingredient: ${ingredient.id}');
+                        final url = Uri.https('bakery.permavite.com', 'api/inventory/id/${ingredient.id}');
+                        http.delete(
+                          url,
+                          headers: <String, String>{
+                            'Content-Type': 'application/json; charset=UTF-8',
+                            'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+                          },
+                        ).then((response) {
+                          if (response.statusCode == 200) {
+                            print('Recipe deleted successfully');
+                            Navigator.of(context).pop(true);
+                          } else {
+                            print('Failed to delete recipe: ${response.statusCode}');
+                          }
+                        });
+                      },
+                    ).show();
                   },
                   child: Text('Delete', style: TextStyle(color: Colors.red, fontSize: 16)),
                 ),

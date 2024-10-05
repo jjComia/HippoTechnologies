@@ -266,7 +266,7 @@ class HomePage extends StatelessWidget {
             Icons.list,
             onTap: () {
               // Use the onPageTap function for navigation
-              onPageTap(IngredientsDetailPage());
+              onPageTap(IngredientsPage());
             },
           ),
         ],
