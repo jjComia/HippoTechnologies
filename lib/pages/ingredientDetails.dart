@@ -7,6 +7,22 @@ import 'dart:convert';
 import '../models/ingredients.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import '../functions/showSlidingGeneralDialog.dart';
+
+// Function that returns a string
+String getPrice(Ingredient ingredient) {
+  // Define a regular expression to match a number with one decimal place
+  RegExp regex = RegExp(r'^\d+\.\d$');
+  
+  // Check if the value matches the pattern
+  if (regex.hasMatch(ingredient.costPerPurchaseUnit.toString())) {
+    // Add a '0' after the single decimal digit
+    return '${ingredient.costPerPurchaseUnit}0';
+  }
+  
+  // Return the original value if it doesn't match the pattern
+  return ingredient.costPerPurchaseUnit.toString();
+}
 
 class IngredientDetailsPage extends StatelessWidget {
   final Ingredient ingredient;
@@ -19,7 +35,7 @@ class IngredientDetailsPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(height: 20),
             RichText(
@@ -52,103 +68,111 @@ class IngredientDetailsPage extends StatelessWidget {
               endIndent: 10,
             ),
             SizedBox(height: 32),
-            Row(
-              children: [
-                Expanded(
-                  flex: 2, // Increase flex for the label
-                  child: Text(
-                    'Name:',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.left,
+            // Your ingredient details go here
+            Expanded(
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          'Name:',
+                          style: TextStyle(fontSize: 18),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          ingredient.name,
+                          style: TextStyle(fontSize: 18),
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Expanded(
-                  flex: 1, // Reduce flex for the value to give more space to the label
-                  child: Text(
-                    ingredient.name,
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.right,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
+                  SizedBox(height: 20),
+                  DashedLine(height: 1, color: Colors.grey),
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          'In Stock:',
+                          style: TextStyle(fontSize: 18),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          '${ingredient.quantity} ${ingredient.unit}',
+                          style: TextStyle(fontSize: 18),
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  flex: 2, // Increase flex for the label
-                  child: Text(
-                    'In Stock:',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.left,
+                  SizedBox(height: 20),
+                  DashedLine(height: 1, color: Colors.grey),
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          'Purchase Quantity:',
+                          style: TextStyle(fontSize: 18),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          '${ingredient.purchaseQuantity} ${ingredient.unit}',
+                          style: TextStyle(fontSize: 18),
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Expanded(
-                  flex: 1, // Reduce flex for the value to give more space to the label
-                  child: Text(
-                    '${ingredient.quantity}',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.right,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
+                  SizedBox(height: 20),
+                  DashedLine(height: 1, color: Colors.grey),
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          'Cost Per Purchase:',
+                          style: TextStyle(fontSize: 18),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          '\$${getPrice(ingredient)} / ${ingredient.purchaseQuantity} ${ingredient.unit}',
+                          style: TextStyle(fontSize: 18),
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  flex: 2, // Increase flex for the label
-                  child: Text(
-                    'Purchase Quantity:',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-                Expanded(
-                  flex: 1, // Reduce flex for the value to give more space to the label
-                  child: Text(
-                    '${ingredient.purchaseQuantity}',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.right,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  flex: 2, // Increase flex for the label
-                  child: Text(
-                    'Cost Per Purchase Unit:',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-                Expanded(
-                  flex: 1, // Reduce flex for the value
-                  child: Text(
-                    '${ingredient.costPerPurchaseUnit} \$',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.right,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
             SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                // Add functionality to order more of the ingredient
-              },
-              child: Text('Order More', style: TextStyle(fontSize: 16)),
+            Align(
+              alignment: Alignment.center,
+              child: ElevatedButton(
+                onPressed: () {
+                  showOrderMoreDialogue(context, ingredient);
+                },
+                child: Text('Order More', style: TextStyle(fontSize: 16)),
+              ),
             ),
             SizedBox(height: 12),
             Row(
@@ -158,12 +182,17 @@ class IngredientDetailsPage extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text('Close', style: TextStyle(color: Color.fromARGB(175, 0, 0, 0), fontSize: 16)),
+                  child: Text(
+                    'Close',
+                    style: TextStyle(
+                      color: Color.fromARGB(175, 0, 0, 0),
+                      fontSize: 16,
+                    ),
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
-                    // Add delete functionality
-                    // Delete the ingredient from the database using AwesomeDialogue
+                    // Add delete functionality using AwesomeDialog
                     AwesomeDialog(
                       context: context,
                       dialogType: DialogType.warning,
@@ -172,7 +201,6 @@ class IngredientDetailsPage extends StatelessWidget {
                       desc: 'Are you sure you want to remove this ingredient?',
                       btnCancelOnPress: () {},
                       btnOkOnPress: () {
-                        // Add delete recipe functionality here
                         print('Deleting Ingredient: ${ingredient.id}');
                         final url = Uri.https('bakery.permavite.com', 'api/inventory/id/${ingredient.id}');
                         http.delete(
@@ -183,10 +211,10 @@ class IngredientDetailsPage extends StatelessWidget {
                           },
                         ).then((response) {
                           if (response.statusCode == 200) {
-                            print('Recipe deleted successfully');
+                            print('Ingredient deleted successfully');
                             Navigator.of(context).pop(true);
                           } else {
-                            print('Failed to delete recipe: ${response.statusCode}');
+                            print('Failed to delete ingredient: ${response.statusCode}');
                           }
                         });
                       },
@@ -196,9 +224,94 @@ class IngredientDetailsPage extends StatelessWidget {
                 ),
               ],
             ),
+            SizedBox(height: 24), // Adds a small padding at the bottom
           ],
         ),
       ),
     );
+  }
+}
+
+void showOrderMoreDialogue (context, ingredient) {
+  showSlidingGeneralDialog(
+    context: context,
+    barrierLabel: "Order More",
+    pageBuilder: (context) {
+      return AlertDialog(
+        title: Center(child: Text('Order More')),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text('Order more ${ingredient.name}?'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  //Add order more functionality here
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('Next'),
+              ),
+            ],
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+class DashedLine extends StatelessWidget {
+  final double height;
+  final Color color;
+
+  const DashedLine({this.height = 1, this.color = Colors.black});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size(double.infinity, height),
+      painter: DashedLinePainter(color: color, height: height),
+    );
+  }
+}
+
+class DashedLinePainter extends CustomPainter {
+  final Color color;
+  final double height;
+
+  DashedLinePainter({required this.color, required this.height});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = height;
+
+    const dashWidth = 5.0;
+    const dashSpace = 5.0;
+    double startX = 0;
+
+    while (startX < size.width) {
+      canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
+      startX += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
   }
 }
