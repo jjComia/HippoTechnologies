@@ -74,7 +74,7 @@ bool checkRecipeParams() {
 }
 
 // Function to add a recipe to the database
-Future<bool> addRecipe() async {
+Future<String?> addRecipe() async {
   var name = _recipeNameController.text;
   var description = _descriptionController.text;
   var prepUnit = _prepUnitController.text;
@@ -83,19 +83,16 @@ Future<bool> addRecipe() async {
   var prepTime = double.tryParse(_prepTimeController.text) ?? 0.0;
   var cookTime = double.tryParse(_cookTimeController.text) ?? 0.0;
 
-
   print('Adding recipe: $name, $description, $prepUnit, $cookUnit, $rating, $prepTime, $cookTime');
 
-  var url = Uri.https('https://bakery.permavite.com', 'api/recipes');
+  var url = Uri.https('bakery.permavite.com', 'api/recipes');
 
   // POST request to add the recipe to the database
   var response = await http.post(
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-
-      'Authorization': '${await sessionService.getSessionID()}', // USE WHEN SESSIONID FOR AUTH IS FIXED
-
+      'Authorization': '${await sessionService.getSessionID()}',
     },
     body: jsonEncode({
       'name': name,
@@ -110,13 +107,52 @@ Future<bool> addRecipe() async {
 
   if (response.statusCode == 201) {
     print('Recipe added successfully');
-    getRecipes(); // Reload the recipes after adding a new one
-    return true;
+    
+    // Decode the response to get the recipe ID
+    var responseData = jsonDecode(response.body);
+    String recipeId = responseData['id'];
+    
+    print('New Recipe ID: $recipeId');
+
+    // Return the new recipe ID
+    return recipeId;
   } else {
     print('Failed to add recipe: ${response.statusCode}');
-    return false;
+    return null;
   }
 }
+
+//Add steps function to handle api call for each cook step
+Future<void> addSteps(String recipeId, List<String> steps) async {
+  for (String step in steps) {
+    var url = Uri.https('bakery.permavite.com', 'api/cookstep');
+
+    // Create the request body
+    var requestBody = jsonEncode({
+      'description': step,
+      'recipeId': recipeId,
+    });
+
+    // POST request to add each step to the recipe
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': '${await sessionService.getSessionID()}',
+      },
+      body: requestBody,
+    );
+
+    if (response.statusCode == 201) {
+      print('Step added successfully: $step');
+    } else {
+      print('Failed to add step: $step');
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+    }
+  }
+}
+
 
 void _showAddRecipeDialog(BuildContext context) {
   showSlidingGeneralDialog(
@@ -420,13 +456,18 @@ void _showAddStepsDialog(BuildContext context) {
                       TextButton(
                         onPressed: () async {
                           bool isValid = true;
+                          List<String> steps = [];
+
+                          // Collect steps from all controllers
                           for (int i = 0; i < _stepControllers.length; i++) {
                             if (_stepControllers[i].text.isEmpty) {
                               isValid = false;
                               break;
+                            } else {
+                              steps.add(_stepControllers[i].text);
                             }
                           }
-                      
+
                           if (!isValid) {
                             AwesomeDialog(
                               context: context,
@@ -439,16 +480,29 @@ void _showAddStepsDialog(BuildContext context) {
                           } else {
                             Navigator.of(context).pop();
 
-                            print (_recipeNameController.text);
+                            // First, add the recipe and get the recipe ID
+                            String? recipeId = await addRecipe();
 
-                            // Delay before showing the next dialog
-                            Future.delayed(Duration(milliseconds: 200), () {
-                              _showAddStepsDialog(context); // Transition to the next dialog
-                            });
+                            if (recipeId != null) {
+                              // If recipe addition was successful, add the steps
+                              await addSteps(recipeId, steps);
+                              print('Steps added for Recipe ID: $recipeId');
+                            } else {
+                              // Handle recipe addition failure
+                              AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.error,
+                                animType: AnimType.scale,
+                                title: 'Error',
+                                desc: 'Failed to add recipe. Please try again.',
+                                btnOkOnPress: () {},
+                              ).show();
+                            }
                           }
                         },
                         child: Text('Add'),
-                      ),
+                      )
+
                     ],
                   ),
                 )
