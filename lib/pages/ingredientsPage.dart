@@ -319,6 +319,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                                 if (shouldRefresh == true) {
                                   setState(() {
                                     // Reload the data or refresh the page
+                                    getIngredients();
                                   });
                                 }
                               });

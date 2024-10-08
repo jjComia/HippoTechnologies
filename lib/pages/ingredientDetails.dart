@@ -9,6 +9,85 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import '../functions/showSlidingGeneralDialog.dart';
 
+final SessionService sessionService = SessionService();
+
+Future<void> addStock(ingredient, purchaseQuantity) async {
+  print('Adding stock for ${ingredient.name}');
+  var url = Uri.parse('https://bakery.permavite.com/api/inventory');
+
+  print(ingredient.name);
+
+  var params = {
+    'id': ingredient.id,
+    'name': ingredient.name,
+    'quantity': ingredient.quantity + purchaseQuantity,
+    'purchaseQuantity': ingredient.purchaseQuantity,
+    'costPerPurchaseUnit': ingredient.costPerPurchaseUnit,
+    'unit': ingredient.unit,
+    'notes': ingredient.notes,
+  };
+
+  print(params);
+
+  print(await sessionService.getSessionID());
+
+  try {
+    var response = await http.put(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': '${await sessionService.getSessionID()}',
+      },
+      body: jsonEncode(params),
+    );
+
+    if (response.statusCode == 200) {
+      print('Stock added successfully');
+    } else {
+      print('Failed to add stock: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Failed to add stock: $e');
+  }
+}
+
+Future<Ingredient> getUpdatedIngredient(ingredientID) {
+  print('Getting updated ingredient');
+  var url = Uri.parse('https://bakery.permavite.com/api/inventory/id/$ingredientID');
+
+  return http.get(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+    },
+  ).then((response) {
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return Ingredient(
+        id: data['id'],
+        name: data['name'],
+        quantity: data['quantity'],
+        purchaseQuantity: data['purchaseQuantity'],
+        costPerPurchaseUnit: data['costPerPurchaseUnit'],
+        unit: data['unit'],
+        notes: data['notes'],
+      );
+    } else {
+      print('Failed to get updated ingredient: ${response.statusCode}');
+      return Ingredient(
+        id: '',
+        name: '',
+        quantity: 0,
+        purchaseQuantity: 0,
+        costPerPurchaseUnit: 0,
+        unit: '',
+        notes: '',
+      );
+    }
+  });
+}
+
 // Function that returns a string
 String getPrice(Ingredient ingredient) {
   // Define a regular expression to match a number with one decimal place
@@ -24,10 +103,34 @@ String getPrice(Ingredient ingredient) {
   return ingredient.costPerPurchaseUnit.toString();
 }
 
-class IngredientDetailsPage extends StatelessWidget {
+class IngredientDetailsPage extends StatefulWidget {
   final Ingredient ingredient;
 
   IngredientDetailsPage({required this.ingredient});
+
+  @override
+  _IngredientDetailsPageState createState() => _IngredientDetailsPageState();
+}
+
+class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
+  late Ingredient ingredient;
+
+  @override
+  void initState() {
+    super.initState();
+    ingredient = widget.ingredient;
+  }
+
+  void refreshPage() async{
+    Ingredient updatedIngredient = await getUpdatedIngredient(ingredient.id);
+    print(updatedIngredient);
+    setState(() {
+      // If you're fetching the data again, you can refresh it here.
+      // For example, fetch updated ingredient data from the API.
+      ingredient = updatedIngredient;
+      print('Refreshing page');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +171,6 @@ class IngredientDetailsPage extends StatelessWidget {
               endIndent: 10,
             ),
             SizedBox(height: 32),
-            // Your ingredient details go here
             Expanded(
               child: Column(
                 children: [
@@ -169,7 +271,7 @@ class IngredientDetailsPage extends StatelessWidget {
               alignment: Alignment.center,
               child: ElevatedButton(
                 onPressed: () {
-                  showOrderMoreDialogue(context, ingredient);
+                  showOrderMoreDialogue(context, ingredient, refreshPage);
                 },
                 child: Text('Order More', style: TextStyle(fontSize: 16)),
               ),
@@ -180,7 +282,7 @@ class IngredientDetailsPage extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(true);
                   },
                   child: Text(
                     'Close',
@@ -192,7 +294,6 @@ class IngredientDetailsPage extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    // Add delete functionality using AwesomeDialog
                     AwesomeDialog(
                       context: context,
                       dialogType: DialogType.warning,
@@ -201,7 +302,6 @@ class IngredientDetailsPage extends StatelessWidget {
                       desc: 'Are you sure you want to remove this ingredient?',
                       btnCancelOnPress: () {},
                       btnOkOnPress: () {
-                        print('Deleting Ingredient: ${ingredient.id}');
                         final url = Uri.https('bakery.permavite.com', 'api/inventory/id/${ingredient.id}');
                         http.delete(
                           url,
@@ -211,7 +311,6 @@ class IngredientDetailsPage extends StatelessWidget {
                           },
                         ).then((response) {
                           if (response.statusCode == 200) {
-                            print('Ingredient deleted successfully');
                             Navigator.of(context).pop(true);
                           } else {
                             print('Failed to delete ingredient: ${response.statusCode}');
@@ -224,7 +323,7 @@ class IngredientDetailsPage extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 24), // Adds a small padding at the bottom
+            SizedBox(height: 24),
           ],
         ),
       ),
@@ -232,20 +331,105 @@ class IngredientDetailsPage extends StatelessWidget {
   }
 }
 
-void showOrderMoreDialogue (context, ingredient) {
+
+void showOrderMoreDialogue (context, ingredient, VoidCallback onOrderMore) {
+  int currentPurchaseQuantity = ingredient.purchaseQuantity; // Current quantity for the order
+  int ingredientPurchaseQuantity = ingredient.purchaseQuantity; // The Purchase Quantity of the ingredient
+  double currentCost = ingredient.costPerPurchaseUnit; // Current cost for the  order
+  double ingredientCost = ingredient.costPerPurchaseUnit; // The cost per purchase unit of the ingredient
+  
   showSlidingGeneralDialog(
     context: context,
     barrierLabel: "Order More",
     pageBuilder: (context) {
       return AlertDialog(
-        title: Center(child: Text('Order More')),
-        content: SingleChildScrollView(
+        title: Center(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min, // Centers the content
             children: <Widget>[
-              Text('Order more ${ingredient.name}?'),
+              Text(
+                'Order More', // First text
+                style: TextStyle(
+                  color: Colors.black, // Style for "Order More"
+                  fontSize: 16,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                '${ingredient.name}?', // Second text
+                style: TextStyle(
+                  color: Colors.blue, // Style for ingredient name
+                  fontSize: 20,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
+        ),
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          if (currentPurchaseQuantity > ingredientPurchaseQuantity) {
+                            setState(() {
+                              currentPurchaseQuantity = currentPurchaseQuantity - ingredientPurchaseQuantity; // Decrease quantity
+                              currentCost = currentCost - ingredientCost; // Update cost
+                            });
+                          }
+                        },
+                        child: Text('-'),
+                      ),
+                      Text(
+                        '$currentPurchaseQuantity ${ingredient.unit}', // Display updated quantity and unit
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold
+                          ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            currentPurchaseQuantity = currentPurchaseQuantity + ingredientPurchaseQuantity; // Increase quantity
+                            currentCost = currentCost + ingredientCost; // Update cost
+                          });
+                        },
+                        child: Text('+'),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        'Total Cost:', // Display cost
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.values[3]
+                        ),
+                      ),
+                      Text(
+                        '\$${currentCost.toStringAsFixed(2)}', // Display updated cost
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
         ),
         actions: <Widget>[
           Row(
@@ -255,14 +439,20 @@ void showOrderMoreDialogue (context, ingredient) {
                 onPressed: () {
                   Navigator.of(context).pop(); // Close the dialog
                 },
-                child: Text('Cancel'),
+                child: Text('Cancel', style: TextStyle(color: Colors.grey) ),
               ),
               TextButton(
-                onPressed: () {
-                  //Add order more functionality here
-                  Navigator.of(context).pop(); // Close the dialog
+                onPressed: () async{
+                  // You can pass the updated `purchaseQuantity` here to update the order logic
+                  print('Ordering $currentPurchaseQuantity ${ingredient.unit}');
+                  print(currentPurchaseQuantity);
+                  await addStock(ingredient, currentPurchaseQuantity);
+                  onOrderMore(); // Trigger page refresh
+                  if(context.mounted) {
+                    Navigator.of(context).pop(true); // Close the dialog
+                  }
                 },
-                child: Text('Next'),
+                child: Text('Confirm Order', style: TextStyle(color: Colors.blue)),
               ),
             ],
           ),
@@ -271,6 +461,7 @@ void showOrderMoreDialogue (context, ingredient) {
     },
   );
 }
+
 
 
 class DashedLine extends StatelessWidget {
