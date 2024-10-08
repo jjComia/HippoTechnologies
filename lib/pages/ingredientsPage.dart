@@ -304,7 +304,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                             ),
                             textColor: const Color.fromARGB(255, 69, 145, 105),
                             subtitle: Text(
-                              filteredIngredients[index].quantity.toString() ?? 'No quantity available',
+                              'In stock: ${filteredIngredients[index].quantity.toString()} ${filteredIngredients[index].unit}' ?? 'No quantity available',
                               style: const TextStyle(
                                 fontSize: 20,
                               ),
@@ -365,15 +365,6 @@ class _IngredientsPageState extends State<IngredientsPage> {
                   });
                 }
               });
-            },
-          ),
-          SpeedDialChild(
-            child: Icon(Icons.delete),
-            label: 'Delete Ingredient',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            onTap: () {
-              print('Delete button tapped');
             },
           ),
         ],
