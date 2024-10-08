@@ -7,10 +7,6 @@ class Recipe {
   final String prepUnit;
   final int cookTime;
   final String cookUnit;
-  //generic comment here 
 
   Recipe({required this.id, required this.name, required this.description, required this.rating, required this.prepTime, required this.prepUnit, required this.cookTime, required this.cookUnit});
-
-
-
 }
