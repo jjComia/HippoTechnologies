@@ -26,8 +26,8 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Namer App',
             theme: appState.isDarkMode 
-              ? ThemeData.dark().copyWith(colorScheme: ColorScheme.dark().copyWith(secondary: const Color.fromARGB(255, 26,67,131))) 
-              : ThemeData.light().copyWith(scaffoldBackgroundColor: Color.fromARGB(255, 26,67,131), colorScheme: ColorScheme.light().copyWith(secondary: Color.fromARGB(255,246, 232, 177))),
+              ? ThemeData.dark().copyWith(colorScheme: ColorScheme.dark().copyWith(secondary: const Color.fromARGB(255, 167,41,47))) 
+              : ThemeData.light().copyWith(scaffoldBackgroundColor: Color.fromARGB(255, 167,41,47), colorScheme: ColorScheme.light().copyWith(secondary: Color.fromARGB(255,246, 232, 177))),
             home: MyHomePage(),
           );
         },
