@@ -88,6 +88,38 @@ Future<Ingredient> getUpdatedIngredient(ingredientID) {
   });
 }
 
+Future<void> editIngredient(ingredient, editQuantity, editUnit, editPurchaseQuantity, editCostPerPurchaseUnit, editNotes) {
+  print('Editing ingredient');
+  var url = Uri.parse('https://bakery.permavite.com/api/inventory');
+
+  var params = {
+    'id': ingredient.id,
+    'name': ingredient.name,
+    'quantity': int.parse(editQuantity),
+    'purchaseQuantity': int.parse(editPurchaseQuantity),
+    'costPerPurchaseUnit': double.parse(editCostPerPurchaseUnit),
+    'unit': editUnit,
+    'notes': editNotes,
+  };
+
+  print(params);
+
+  return http.put(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+    },
+    body: jsonEncode(params),
+  ).then((response) {
+    if (response.statusCode == 200) {
+      print('Ingredient edited successfully');
+    } else {
+      print('Failed to edit ingredient: ${response.statusCode}');
+    }
+  });
+}
+
 // Function that returns a string
 String getPrice(Ingredient ingredient) {
   // Define a regular expression to match a number with one decimal place
@@ -121,27 +153,24 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
     ingredient = widget.ingredient;
   }
 
-  void refreshPage() async{
+  void refreshPage() async {
     Ingredient updatedIngredient = await getUpdatedIngredient(ingredient.id);
-    print(updatedIngredient);
     setState(() {
-      // If you're fetching the data again, you can refresh it here.
-      // For example, fetch updated ingredient data from the API.
       ingredient = updatedIngredient;
-      print('Refreshing page');
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: 20),
-            RichText(
+      resizeToAvoidBottomInset: false,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space between content and buttons
+        children: [
+          // Non-scrollable RichText at the top
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
                 children: [
@@ -164,16 +193,21 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                 ],
               ),
             ),
-            Divider(
-              color: Colors.grey,
-              thickness: 1,
-              indent: 10,
-              endIndent: 10,
-            ),
-            SizedBox(height: 32),
-            Expanded(
+          ),
+          Divider(
+            color: Colors.grey,
+            thickness: 1,
+            indent: 10,
+            endIndent: 10,
+          ),
+
+          // Scrollable content in the middle
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
+                  SizedBox(height: 32),
                   Row(
                     children: [
                       Expanded(
@@ -266,71 +300,87 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                 ],
               ),
             ),
-            SizedBox(height: 24),
-            Align(
-              alignment: Alignment.center,
-              child: ElevatedButton(
-                onPressed: () {
-                  showOrderMoreDialogue(context, ingredient, refreshPage);
-                },
-                child: Text('Order More', style: TextStyle(fontSize: 16)),
-              ),
-            ),
-            SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          ),
+
+          // Buttons at the bottom
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
               children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(true);
-                  },
-                  child: Text(
-                    'Close',
-                    style: TextStyle(
-                      color: Color.fromARGB(175, 0, 0, 0),
-                      fontSize: 16,
-                    ),
+                Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showEditDialogue(context, ingredient, refreshPage);
+                    },
+                    child: Text('Edit Ingredient Details', style: TextStyle(fontSize: 16)),
                   ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    AwesomeDialog(
-                      context: context,
-                      dialogType: DialogType.warning,
-                      animType: AnimType.scale,
-                      title: 'Delete Ingredient',
-                      desc: 'Are you sure you want to remove this ingredient?',
-                      btnCancelOnPress: () {},
-                      btnOkOnPress: () {
-                        final url = Uri.https('bakery.permavite.com', 'api/inventory/id/${ingredient.id}');
-                        http.delete(
-                          url,
-                          headers: <String, String>{
-                            'Content-Type': 'application/json; charset=UTF-8',
-                            'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
-                          },
-                        ).then((response) {
-                          if (response.statusCode == 200) {
-                            Navigator.of(context).pop(true);
-                          } else {
-                            print('Failed to delete ingredient: ${response.statusCode}');
-                          }
-                        });
+                SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showOrderMoreDialogue(context, ingredient, refreshPage);
+                    },
+                    child: Text('Order More', style: TextStyle(fontSize: 16)),
+                  ),
+                ),
+                SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(true);
                       },
-                    ).show();
-                  },
-                  child: Text('Delete', style: TextStyle(color: Colors.red, fontSize: 16)),
+                      child: Text(
+                        'Close',
+                        style: TextStyle(
+                          color: Color.fromARGB(175, 0, 0, 0),
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        AwesomeDialog(
+                          context: context,
+                          dialogType: DialogType.warning,
+                          animType: AnimType.scale,
+                          title: 'Delete Ingredient',
+                          desc: 'Are you sure you want to remove this ingredient?',
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () {
+                            final url = Uri.https('bakery.permavite.com', 'api/inventory/id/${ingredient.id}');
+                            http.delete(
+                              url,
+                              headers: <String, String>{
+                                'Content-Type': 'application/json; charset=UTF-8',
+                                'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+                              },
+                            ).then((response) {
+                              if (response.statusCode == 200) {
+                                Navigator.of(context).pop(true);
+                              } else {
+                                print('Failed to delete ingredient: ${response.statusCode}');
+                              }
+                            });
+                          },
+                        ).show();
+                      },
+                      child: Text('Delete', style: TextStyle(color: Colors.red, fontSize: 16)),
+                    ),
+                  ],
                 ),
               ],
             ),
-            SizedBox(height: 24),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
-
 
 void showOrderMoreDialogue (context, ingredient, VoidCallback onOrderMore) {
   int currentPurchaseQuantity = ingredient.purchaseQuantity; // Current quantity for the order
@@ -449,10 +499,111 @@ void showOrderMoreDialogue (context, ingredient, VoidCallback onOrderMore) {
                   await addStock(ingredient, currentPurchaseQuantity);
                   onOrderMore(); // Trigger page refresh
                   if(context.mounted) {
-                    Navigator.of(context).pop(true); // Close the dialog
+                    Navigator.of(context).pop(); // Close the dialog
                   }
                 },
                 child: Text('Confirm Order', style: TextStyle(color: Colors.blue)),
+              ),
+            ],
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void showEditDialogue(context, ingredient, VoidCallback onEdit) {
+  final TextEditingController _editQuantityController = TextEditingController(text: ingredient.quantity.toString());
+  final TextEditingController _editUnitController = TextEditingController(text: ingredient.unit);
+  final TextEditingController _editPurchaseQuantityController = TextEditingController(text: ingredient.purchaseQuantity.toString());
+  final TextEditingController _editCostPerPurchaseUnitController = TextEditingController(text: ingredient.costPerPurchaseUnit.toString());
+  final TextEditingController _editNotesController = TextEditingController(text: ingredient.notes);
+
+  showSlidingGeneralDialog(
+    context: context,
+    barrierLabel: "Order More",
+    pageBuilder: (context) {
+      return AlertDialog(
+        title: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Centers the content
+            children: <Widget>[
+              Text(
+                'Edit Details For', // First text
+                style: TextStyle(
+                  color: Colors.black, // Style for "Order More"
+                  fontSize: 16,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                '${ingredient.name}?', // Second text
+                style: TextStyle(
+                  color: Colors.blue, // Style for ingredient name
+                  fontSize: 20,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _editQuantityController,
+                    decoration: InputDecoration(labelText: 'Quantity'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextField(
+                    controller: _editUnitController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(labelText: 'Unit (e.g. kg, g, L, mL, etc.)'),
+                  ),
+                  TextField(
+                    controller: _editPurchaseQuantityController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(labelText: 'Purchase Quantity'),
+                  ),
+                  TextField(
+                    controller: _editCostPerPurchaseUnitController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(labelText: 'Cost Per Purchase Unit'),
+                  ),
+                  TextField(
+                    maxLines: null,
+                    controller: _editNotesController,
+                    decoration: InputDecoration(labelText: 'Notes'),
+                    keyboardType: TextInputType.multiline,
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+        actions: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },  
+                child: Text('Cancel', style: TextStyle(color: Colors.grey) ),
+              ),
+              TextButton(
+                onPressed: () async{
+                  print('Editing ingredient details');
+                  await editIngredient(ingredient, _editQuantityController.text, _editUnitController.text, _editPurchaseQuantityController.text, _editCostPerPurchaseUnitController.text, _editNotesController.text);
+                  onEdit(); // Trigger page refresh
+                  if(context.mounted) {
+                    Navigator.of(context).pop(); // Close the dialog
+                  }
+                },
+                child: Text('Finish Edit', style: TextStyle(color: Colors.blue)),
               ),
             ],
           ),
