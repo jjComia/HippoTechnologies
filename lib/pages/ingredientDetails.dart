@@ -88,6 +88,17 @@ Future<Ingredient> getUpdatedIngredient(ingredientID) {
   });
 }
 
+void displayEditError(context) {
+  AwesomeDialog(
+    context: context,
+    dialogType: DialogType.error,
+    animType: AnimType.scale,
+    title: 'Error',
+    desc: 'Please fill in all fields',
+    btnOkOnPress: () {},
+  ).show();
+}
+
 Future<void> editIngredient(ingredient, editQuantity, editUnit, editPurchaseQuantity, editCostPerPurchaseUnit, editNotes) {
   print('Editing ingredient');
   var url = Uri.parse('https://bakery.permavite.com/api/inventory');
@@ -596,6 +607,13 @@ void showEditDialogue(context, ingredient, VoidCallback onEdit) {
               ),
               TextButton(
                 onPressed: () async{
+                  // Check to make sure the fields are not empty
+                  if (_editQuantityController.text.isEmpty || _editUnitController.text.isEmpty || _editPurchaseQuantityController.text.isEmpty || _editCostPerPurchaseUnitController.text.isEmpty) {
+                    print('Please fill in all fields');
+                    displayEditError(context);
+                    return;
+                  }
+
                   print('Editing ingredient details');
                   await editIngredient(ingredient, _editQuantityController.text, _editUnitController.text, _editPurchaseQuantityController.text, _editCostPerPurchaseUnitController.text, _editNotesController.text);
                   onEdit(); // Trigger page refresh
