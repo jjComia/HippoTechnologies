@@ -55,6 +55,8 @@ final TextEditingController _cookUnitController = TextEditingController();
 final TextEditingController _ratingController = TextEditingController();
 final TextEditingController _prepTimeController = TextEditingController();
 final TextEditingController _cookTimeController = TextEditingController();
+List<TextEditingController> ingredientControllers = [TextEditingController()];
+List<TextEditingController> quantityControllers = [TextEditingController()];
 
 // Function to check if parameters are valid
 bool checkRecipeParams() {
@@ -153,6 +155,75 @@ Future<void> addSteps(String recipeId, List<String> steps) async {
   }
 }
 
+//Function to search for inv. item name and return inv. item id, quanitity, and unit
+Future<Map<String, dynamic>?> searchInventoryByName(String ingredientName) async {
+  var url = Uri.https('bakery.permavite.com', 'api/inventory/name/$ingredientName');
+
+  // GET request to fetch ingredient by name
+  var response = await http.get(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '${await sessionService.getSessionID()}',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    var jsonData = jsonDecode(response.body);
+
+    // Extract required fields (id, quantity, unit)
+    var ingredientData = {
+      'id': jsonData['id'],
+      'quantity': jsonData['quantity'],
+      'unit': jsonData['unit'],
+    };
+
+    print('Found ingredient: ${jsonData['name']} with ID: ${jsonData['id']}');
+    return ingredientData;
+  } else if (response.statusCode == 404) {
+    print('Ingredient not found: $ingredientName');
+    return null;
+  } else {
+    print('Failed to load ingredient: ${response.statusCode}');
+    return null;
+  }
+}
+
+//Function to add Ingredients to database
+Future<void> addIngredientToRecipe({
+  required String recipeId,
+  required String inventoryId,
+  required String name,
+  required int quantity,
+  required String unit,
+  int minQuantity = 0, // Default value for minQuantity
+}) async {
+  var url = Uri.https('bakery.permavite.com', 'api/ingredients');
+
+  // POST request to link the ingredient to the recipe
+  var response = await http.post(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '${await sessionService.getSessionID()}',
+    },
+    body: jsonEncode({
+      'recipeId': recipeId,
+      'inventoryId': inventoryId,
+      'name': name,
+      'quantity': quantity,
+      'minQuantity': minQuantity,
+      'unit': unit,
+    }),
+  );
+
+  if (response.statusCode == 201) {
+    print('Ingredient added to recipe successfully: $name');
+  } else {
+    print('Failed to add ingredient to recipe: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+  }
+}
 
 void _showAddRecipeDialog(BuildContext context) {
   showSlidingGeneralDialog(
@@ -243,9 +314,6 @@ void _showAddRecipeDialog(BuildContext context) {
 
 
 void _showAddIngredientsDialog(BuildContext context) {
-  List<TextEditingController> _ingredientControllers = [TextEditingController()];
-  List<TextEditingController> _quantityControllers = [TextEditingController()];
-
   showSlidingGeneralDialog(
     context: context,
     barrierLabel: "Add Ingredients",
@@ -254,20 +322,20 @@ void _showAddIngredientsDialog(BuildContext context) {
         builder: (context, setState) {
           return AlertDialog(
             title: Text('Add Ingredients'),
-            content: Container(
+            content: SizedBox(
               width: 100,  // Set a fixed width
               height: 392, // Set a fixed height
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    for (int i = 0; i < _ingredientControllers.length; i++) ...[
+                    for (int i = 0; i < ingredientControllers.length; i++) ...[
                       TextField(
-                        controller: _ingredientControllers[i],
+                        controller: ingredientControllers[i],
                         decoration: InputDecoration(labelText: 'Ingredient ${i + 1}'),
                       ),
                       TextField(
-                        controller: _quantityControllers[i],
+                        controller: quantityControllers[i],
                         decoration: InputDecoration(labelText: 'Quantity ${i + 1}'),
                       ),
                       SizedBox(height: 10),
@@ -275,8 +343,8 @@ void _showAddIngredientsDialog(BuildContext context) {
                     TextButton(
                       onPressed: () {
                         setState(() {
-                          _ingredientControllers.add(TextEditingController());
-                          _quantityControllers.add(TextEditingController());
+                          ingredientControllers.add(TextEditingController());
+                          quantityControllers.add(TextEditingController());
                         });
                       },
                       child: Text('Add Another Ingredient'),
@@ -292,10 +360,10 @@ void _showAddIngredientsDialog(BuildContext context) {
                   child: ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        if (_ingredientControllers.length > 1) {
+                        if (ingredientControllers.length > 1) {
                           // Remove the last ingredient and quantity text fields
-                          _ingredientControllers.removeLast();
-                          _quantityControllers.removeLast();
+                          ingredientControllers.removeLast();
+                          quantityControllers.removeLast();
                         }
                       });
                     },
@@ -309,8 +377,8 @@ void _showAddIngredientsDialog(BuildContext context) {
                   child: ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      _ingredientControllers.add(TextEditingController());
-                      _quantityControllers.add(TextEditingController());
+                      ingredientControllers.add(TextEditingController());
+                      quantityControllers.add(TextEditingController());
                     });
                   },
                   child: Text('Add Another Ingredient'),
@@ -337,8 +405,8 @@ void _showAddIngredientsDialog(BuildContext context) {
                      TextButton(
                         onPressed: () {
                           bool isValid = true;
-                          for (int i = 0; i < _ingredientControllers.length; i++) {
-                            if (_ingredientControllers[i].text.isEmpty || _quantityControllers[i].text.isEmpty) {
+                          for (int i = 0; i < ingredientControllers.length; i++) {
+                            if (ingredientControllers[i].text.isEmpty || quantityControllers[i].text.isEmpty) {
                               isValid = false;
                               break;
                             }
@@ -378,7 +446,7 @@ void _showAddIngredientsDialog(BuildContext context) {
 
 
 void _showAddStepsDialog(BuildContext context) {
-  List<TextEditingController> _stepControllers = [TextEditingController()];
+  List<TextEditingController> stepControllers = [TextEditingController()];
 
   showSlidingGeneralDialog(
     context: context,
@@ -388,16 +456,16 @@ void _showAddStepsDialog(BuildContext context) {
         builder: (Context, setState) {
           return AlertDialog(
             title: Text('Add Steps'),
-            content: Container(
+            content: SizedBox(
               width: 100,  // Same fixed width as Add Ingredients dialog
               height: 392, // Same fixed height as Add Ingredients dialog
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    for (int i = 0; i < _stepControllers.length; i++) ...[
+                    for (int i = 0; i < stepControllers.length; i++) ...[
                       TextField(
-                        controller: _stepControllers[i],
+                        controller: stepControllers[i],
                         decoration: InputDecoration(labelText: 'Step ${i + 1}'),
                       ),
                       SizedBox(height: 10),
@@ -413,9 +481,9 @@ void _showAddStepsDialog(BuildContext context) {
                   child: ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        if (_stepControllers.length > 1) {
+                        if (stepControllers.length > 1) {
                           // Remove the last ingredient and quantity text fields
-                          _stepControllers.removeLast();
+                          stepControllers.removeLast();
                         }
                       });
                     },
@@ -429,7 +497,7 @@ void _showAddStepsDialog(BuildContext context) {
                   child: ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      _stepControllers.add(TextEditingController());
+                      stepControllers.add(TextEditingController());
                     });
                   },
                   child: Text('Add Another Step'),
@@ -456,52 +524,121 @@ void _showAddStepsDialog(BuildContext context) {
                       TextButton(
                         onPressed: () async {
                           bool isValid = true;
+                          List<Map<String, String>> ingredientsToAdd = [];
                           List<String> steps = [];
 
-                          // Collect steps from all controllers
-                          for (int i = 0; i < _stepControllers.length; i++) {
-                            if (_stepControllers[i].text.isEmpty) {
+                          // Capture context and other UI-related variables
+                          final localContext = context;  // Store context for later use
+
+                          // Collect cook steps from user input
+                          for (int i = 0; i < stepControllers.length; i++) {
+                            String step = stepControllers[i].text;
+                            if (step.isEmpty) {
                               isValid = false;
                               break;
                             } else {
-                              steps.add(_stepControllers[i].text);
+                              steps.add(step);
                             }
                           }
 
+                          // Collect ingredients and quantities from user input
+                          for (int i = 0; i < ingredientControllers.length; i++) {
+                            String ingredientName = ingredientControllers[i].text;
+                            String quantity = quantityControllers[i].text;  // User-entered quantity
+
+                            if (ingredientName.isEmpty || quantity.isEmpty) {
+                              isValid = false;
+                              break;
+                            } else {
+                              ingredientsToAdd.add({
+                                'name': ingredientName,
+                                'quantity': quantity,
+                              });
+                            }
+                          }
+
+                          // Check if valid
                           if (!isValid) {
                             AwesomeDialog(
-                              context: context,
+                              context: localContext,
                               dialogType: DialogType.error,
                               animType: AnimType.scale,
                               title: 'Error',
-                              desc: 'Please add at least one step',
+                              desc: 'Please add at least one step, ingredient, and quantity.',
                               btnOkOnPress: () {},
                             ).show();
                           } else {
-                            Navigator.of(context).pop();
+                            Navigator.of(localContext).pop(); // Use stored context
 
                             // First, add the recipe and get the recipe ID
                             String? recipeId = await addRecipe();
 
                             if (recipeId != null) {
-                              // If recipe addition was successful, add the steps
+                              // After recipe is added, we proceed with cook steps
                               await addSteps(recipeId, steps);
                               print('Steps added for Recipe ID: $recipeId');
+
+                              // Now, we proceed with adding the ingredients after cook steps
+                              for (var ingredient in ingredientsToAdd) {
+                                String ingredientName = ingredient['name']!;
+                                String quantity = ingredient['quantity']!;
+
+                                // Search for the ingredient in the inventory
+                                Map<String, dynamic>? ingredientData = await searchInventoryByName(ingredientName);
+
+                                if (ingredientData != null) {
+                                  // If found, add it to the recipe
+                                  await addIngredientToRecipe(
+                                    recipeId: recipeId,
+                                    inventoryId: ingredientData['id'],
+                                    name: ingredientName,
+                                    quantity: int.parse(quantity),  // Use user-entered quantity
+                                    unit: ingredientData['unit'],
+                                  );
+                                } else {
+                                  // Handle ingredient not found
+                                  AwesomeDialog(
+                                    context: localContext,
+                                    dialogType: DialogType.error,
+                                    animType: AnimType.scale,
+                                    title: 'Error',
+                                    desc: 'Ingredient not found: $ingredientName. Please add it to the inventory first.',
+                                    btnOkOnPress: () {},
+                                  ).show();
+                                }
+                              }
+
+                              // Reload the recipes after adding a new one
+                              await getRecipes();
+
+                              
+                              // Optionally, you can display a success message when all operations are done
+                              // AwesomeDialog(
+                              //   context: localContext,
+                              //   dialogType: DialogType.success,
+                              //   animType: AnimType.scale,
+                              //   title: 'Success',
+                              //   desc: 'Recipe, Cook Steps, and Ingredients added successfully!',
+                              //   btnOkOnPress: () {},
+                              // ).show();
+
                             } else {
                               // Handle recipe addition failure
-                              AwesomeDialog(
-                                context: context,
-                                dialogType: DialogType.error,
-                                animType: AnimType.scale,
-                                title: 'Error',
-                                desc: 'Failed to add recipe. Please try again.',
-                                btnOkOnPress: () {},
-                              ).show();
+                              // AwesomeDialog(
+                              //   context: localContext,
+                              //   dialogType: DialogType.error,
+                              //   animType: AnimType.scale,
+                              //   title: 'Error',
+                              //   desc: 'Failed to add recipe. Please try again.',
+                              //   btnOkOnPress: () {},
+                              // ).show();
                             }
                           }
                         },
                         child: Text('Add'),
                       )
+
+
 
                     ],
                   ),
@@ -561,41 +698,8 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
                           fontSize: 20,
                         ),
                       ),
-                      onTap:() {
-                        // Add navigation to the recipe detail page
-
-                        // Show awesomeDialog to ask if user wants to delete recipe (for now should change the way to delete a recipe in the future but this is just for testing)
-                        AwesomeDialog(
-                          context: context,
-                          dialogType: DialogType.warning,
-                          animType: AnimType.scale,
-                          title: 'Delete Recipe',
-                          desc: 'Are you sure you want to delete this recipe?',
-                          btnCancelOnPress: () {},
-                          btnOkOnPress: () {
-                            // Add delete recipe functionality here
-                            print('Deleting recipe: ${recipes[index].id}');
-                            final url = Uri.https('bakery.permavite.com', 'api/recipes/${recipes[index].id}');
-                            http.delete(
-                              url,
-                              headers: <String, String>{
-                                'Content-Type': 'application/json; charset=UTF-8',
-                                'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
-                              },
-                            ).then((response) {
-                              if (response.statusCode == 200) {
-                                print('Recipe deleted successfully');
-                                
-                                // Reload the recipes after deleting one
-                                getRecipes().then((_) {
-                                  setState(() {});  // Trigger a UI refresh
-                                });
-                              } else {
-                                print('Failed to delete recipe: ${response.statusCode}');
-                              }
-                            });
-                          },
-                        ).show();
+                      onTap: () {
+                        // Navigate to recipe details
                       },
                     ),
                   ),
