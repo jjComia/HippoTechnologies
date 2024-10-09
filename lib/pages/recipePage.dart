@@ -484,23 +484,25 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
               );
             }
             return ListView.builder(
-              itemCount: recipes.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: ListTile(
-                      title: Text(
-                        recipes[index].name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
+            itemCount: recipes.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(
+                          recipes[index].name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
                         ),
-                      ),
                       textColor: const Color.fromARGB(255, 69, 145, 105),
                       subtitle: Text(
                         recipes[index].description ?? 'No description available',
@@ -508,47 +510,71 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
                           fontSize: 20,
                         ),
                       ),
-                      onTap:() {
+                      onTap: () {
                         // Add navigation to the recipe detail page
 
                         // Show awesomeDialog to ask if user wants to delete recipe (for now should change the way to delete a recipe in the future but this is just for testing)
-                        AwesomeDialog(
-                          context: context,
-                          dialogType: DialogType.warning,
-                          animType: AnimType.scale,
-                          title: 'Delete Recipe',
-                          desc: 'Are you sure you want to delete this recipe?',
-                          btnCancelOnPress: () {},
-                          btnOkOnPress: () {
-                            // Add delete recipe functionality here
-                            print('Deleting recipe: ${recipes[index].id}');
-                            final url = Uri.https('bakery.permavite.com', 'api/recipes/${recipes[index].id}');
-                            http.delete(
-                              url,
-                              headers: <String, String>{
-                                'Content-Type': 'application/json; charset=UTF-8',
-                                'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
-                              },
-                            ).then((response) {
-                              if (response.statusCode == 200) {
-                                print('Recipe deleted successfully');
-                                
-                                // Reload the recipes after deleting one
-                                getRecipes().then((_) {
-                                  setState(() {});  // Trigger a UI refresh
-                                });
-                              } else {
-                                print('Failed to delete recipe: ${response.statusCode}');
-                              }
-                            });
-                          },
-                        ).show();
-                      },
-                    ),
+                          AwesomeDialog(
+                            context: context,
+                            dialogType: DialogType.warning,
+                            animType: AnimType.scale,
+                            title: 'Delete Recipe',
+                            desc: 'Are you sure you want to delete this recipe?',
+                            btnCancelOnPress: () {},
+                            btnOkOnPress: () {
+                              // Add delete recipe functionality here
+                              print('Deleting recipe: ${recipes[index].id}');
+                              final url = Uri.https(
+                                  'bakery.permavite.com', 'api/recipes/${recipes[index].id}');
+                              http.delete(
+                                url,
+                                headers: <String, String>{
+                                  'Content-Type': 'application/json; charset=UTF-8',
+                                  'Authorization':
+                                      '24201287-A54D-4D16-9CC3-5920A823FF12',
+                                },
+                              ).then((response) {
+                                if (response.statusCode == 200) {
+                                  print('Recipe deleted successfully');
+
+                                  // Reload the recipes after deleting one
+                                  getRecipes().then((_) {
+                                    setState(() {}); // Trigger a UI refresh
+                                  });
+                                } else {
+                                  print('Failed to delete recipe: ${response.statusCode}');
+                                }
+                              });
+                            },
+                          ).show();
+                        },
+                      ),
+
+                      // Row containing the new Cook and Delete buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // Cook Button
+                          ElevatedButton(
+                            onPressed: () {
+                              cookRecipe(recipes[index].id); // Call cookRecipe function
+                            },
+                            child: Text('Cook'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Optionally implement any other functionality here
+                            },
+                            child: Text('Delete'),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                );
-              },
-            );
+                ),
+              );
+            },
+          );
           } else if (snapshot.hasError) {
             return Center(
               child: Text('Error: ${snapshot.error}'),
@@ -558,24 +584,24 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
               child: CircularProgressIndicator(),
             );
           }
-        },
-      ),
-      floatingActionButton: SpeedDial(
-        animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: const Color.fromARGB(255, 162, 185, 188).withOpacity(0.8),
-        overlayColor: Colors.black,
-        overlayOpacity: 0.5,
-        spacing: 12,
-        spaceBetweenChildren: 12,
-        children: [
-          SpeedDialChild(
-            child: Icon(Icons.search),
-            label: 'Search Recipes',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            onTap: () {
-              // Add search functionality here
-              print('Search button tapped');
+          },
+          ),
+          floatingActionButton: SpeedDial(
+            animatedIcon: AnimatedIcons.menu_close,
+            backgroundColor: const Color.fromARGB(255, 162, 185, 188).withOpacity(0.8),
+            overlayColor: Colors.black,
+            overlayOpacity: 0.5,
+            spacing: 12,
+            spaceBetweenChildren: 12,
+            children: [
+              SpeedDialChild(
+                child: Icon(Icons.search),
+                label: 'Search Recipes',
+                labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+                backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+                onTap: () {
+                  // Add search functionality here
+                  print('Search button tapped');
             },
           ),
           SpeedDialChild(
@@ -584,15 +610,15 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
             labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
             onTap: () {
-              _showAddRecipeDialog(context); // Show the add recipe dialog
-            },
+            _showAddRecipeDialog(context); // Show the add recipe dialog
+          },
           ),
-          SpeedDialChild(
-            child: Icon(Icons.delete),
-            label: 'Delete Recipe',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            onTap: () {
+            SpeedDialChild(
+              child: Icon(Icons.delete),
+              label: 'Delete Recipe',
+              labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+              backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+              onTap: () {
               print('Delete button tapped');
             },
           ),
