@@ -524,11 +524,11 @@ void showOrderMoreDialogue (context, ingredient, VoidCallback onOrderMore) {
 }
 
 void showEditDialogue(context, ingredient, VoidCallback onEdit) {
-  final TextEditingController _editQuantityController = TextEditingController(text: ingredient.quantity.toString());
-  final TextEditingController _editUnitController = TextEditingController(text: ingredient.unit);
-  final TextEditingController _editPurchaseQuantityController = TextEditingController(text: ingredient.purchaseQuantity.toString());
-  final TextEditingController _editCostPerPurchaseUnitController = TextEditingController(text: ingredient.costPerPurchaseUnit.toString());
-  final TextEditingController _editNotesController = TextEditingController(text: ingredient.notes);
+  final TextEditingController editQuantityController = TextEditingController(text: ingredient.quantity.toString());
+  final TextEditingController editUnitController = TextEditingController(text: ingredient.unit);
+  final TextEditingController editPurchaseQuantityController = TextEditingController(text: ingredient.purchaseQuantity.toString());
+  final TextEditingController editCostPerPurchaseUnitController = TextEditingController(text: ingredient.costPerPurchaseUnit.toString());
+  final TextEditingController editNotesController = TextEditingController(text: ingredient.notes);
 
   showSlidingGeneralDialog(
     context: context,
@@ -565,28 +565,28 @@ void showEditDialogue(context, ingredient, VoidCallback onEdit) {
               child: Column(
                 children: [
                   TextField(
-                    controller: _editQuantityController,
+                    controller: editQuantityController,
                     decoration: InputDecoration(labelText: 'Quantity'),
                     keyboardType: TextInputType.number,
                   ),
                   TextField(
-                    controller: _editUnitController,
+                    controller: editUnitController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(labelText: 'Unit (e.g. kg, g, L, mL, etc.)'),
                   ),
                   TextField(
-                    controller: _editPurchaseQuantityController,
+                    controller: editPurchaseQuantityController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(labelText: 'Purchase Quantity'),
                   ),
                   TextField(
-                    controller: _editCostPerPurchaseUnitController,
+                    controller: editCostPerPurchaseUnitController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(labelText: 'Cost Per Purchase Unit'),
                   ),
                   TextField(
                     maxLines: null,
-                    controller: _editNotesController,
+                    controller: editNotesController,
                     decoration: InputDecoration(labelText: 'Notes'),
                     keyboardType: TextInputType.multiline,
                   ),
@@ -608,14 +608,14 @@ void showEditDialogue(context, ingredient, VoidCallback onEdit) {
               TextButton(
                 onPressed: () async{
                   // Check to make sure the fields are not empty
-                  if (_editQuantityController.text.isEmpty || _editUnitController.text.isEmpty || _editPurchaseQuantityController.text.isEmpty || _editCostPerPurchaseUnitController.text.isEmpty) {
+                  if (editQuantityController.text.isEmpty || editUnitController.text.isEmpty || editPurchaseQuantityController.text.isEmpty || editCostPerPurchaseUnitController.text.isEmpty) {
                     print('Please fill in all fields');
                     displayEditError(context);
                     return;
                   }
 
                   print('Editing ingredient details');
-                  await editIngredient(ingredient, _editQuantityController.text, _editUnitController.text, _editPurchaseQuantityController.text, _editCostPerPurchaseUnitController.text, _editNotesController.text);
+                  await editIngredient(ingredient, editQuantityController.text, editUnitController.text, editPurchaseQuantityController.text, editCostPerPurchaseUnitController.text, editNotesController.text);
                   onEdit(); // Trigger page refresh
                   if(context.mounted) {
                     Navigator.of(context).pop(); // Close the dialog

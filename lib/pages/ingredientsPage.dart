@@ -1,7 +1,6 @@
 // Importing dart:convert to use jsonDecode function
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:namer_app/pages/recipePage.dart';
 import '../services/session_service.dart';
 import 'dart:convert';
 import '../models/ingredients.dart';
