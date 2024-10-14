@@ -664,7 +664,13 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Recipes'), backgroundColor: Color.fromARGB(255, 249, 251, 250)),
+      appBar: AppBar(
+        title: Text(
+          'Recipes',
+        style: TextStyle(color: Color.fromARGB(255, 37, 3, 3)),  // Set the text color to black
+      ),
+      backgroundColor: Color.fromARGB(255, 255,253,241),
+    ),
       body: FutureBuilder(
         future: getRecipes(),
         builder: (context, snapshot) {
@@ -681,7 +687,7 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+                      color: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: ListTile(
@@ -692,7 +698,7 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
                           fontSize: 20,
                         ),
                       ),
-                      textColor: const Color.fromARGB(255, 69, 145, 105),
+                      textColor: const Color.fromARGB(255, 37, 3, 3),
                       subtitle: Text(
                         recipes[index].description ?? 'No description available',
                         style: const TextStyle(
@@ -720,36 +726,40 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
       ),
       floatingActionButton: SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: const Color.fromARGB(255, 162, 185, 188).withOpacity(0.8),
-        overlayColor: Colors.black,
+        foregroundColor: const Color.fromARGB(255, 37, 3, 3),
+        backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+        overlayColor: Color.fromARGB(255, 37, 3, 3),
         overlayOpacity: 0.5,
         spacing: 12,
         spaceBetweenChildren: 12,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.search),
+            child: Icon(Icons.search, color:Color.fromARGB(255, 37,3, 3)),
             label: 'Search Recipes',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            labelStyle: const TextStyle(color: Color.fromARGB(255, 37,3, 3)),
             onTap: () {
               // Add search functionality here
               print('Search button tapped');
             },
           ),
           SpeedDialChild(
-            child: Icon(Icons.add),
+            child: Icon(Icons.add, color:Color.fromARGB(255, 37,3, 3)),
             label: 'Add Recipe',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            labelStyle: const TextStyle(color: Color.fromARGB(255, 37,3, 3)),
             onTap: () {
               _showAddRecipeDialog(context); // Show the add recipe dialog
             },
           ),
           SpeedDialChild(
-            child: Icon(Icons.delete),
+            child: Icon(Icons.delete, color:Color.fromARGB(255, 37,3, 3)),
             label: 'Delete Recipe',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            labelStyle: const TextStyle(color: Color.fromARGB(255, 37,3, 3)),
             onTap: () {
               print('Delete button tapped');
             },
