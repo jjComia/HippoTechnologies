@@ -6,7 +6,7 @@ import '../services/session_service.dart';
 import 'dart:convert';
 import '../models/ingredients.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'ingredientDetails.dart';                                           //Import ingredietnsDetails.dart page file
+import 'ingredientDetails.dart'; // Import ingredientDetails.dart page file
 
 final SessionService sessionService = SessionService();
 List<Ingredient> ingredients = [];
@@ -44,7 +44,6 @@ Future<void> getIngredients() async {
             eachIngredient.containsKey('costPerPurchaseUnit') &&
             eachIngredient.containsKey('unit') &&
             eachIngredient.containsKey('notes')) {
-          
           final ingredient = Ingredient(
             id: eachIngredient['id'],
             name: eachIngredient['name'],
@@ -72,7 +71,6 @@ Future<void> getIngredients() async {
   }
 }
 
-
 // Text editing controllers for user input
 final TextEditingController _nameController = TextEditingController();
 final TextEditingController _quantityController = TextEditingController();
@@ -80,6 +78,7 @@ final TextEditingController _purchaseQuantityController = TextEditingController(
 final TextEditingController _costPerPurchaseUnitController = TextEditingController();
 final TextEditingController _unitController = TextEditingController();
 final TextEditingController _notesController = TextEditingController();
+
 Future<void> addIngredient() async {
   try {
     // Parsing input fields
@@ -147,15 +146,13 @@ Future<void> addIngredient() async {
   }
 }
 
-
-
 // Function to show the add ingredient dialog with a fade and scale transition
 Future<bool> _showAddIngredientDialog(BuildContext context) {
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
     barrierLabel: "Add Ingredient",
-    barrierColor: Colors.black.withOpacity(0.5), // Darkens the background
+    barrierColor: Color.fromARGB(255, 37, 3, 3).withOpacity(0.5), // Darkens the background
     transitionDuration: Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
       return AlertDialog(
@@ -254,21 +251,32 @@ class _IngredientsPageState extends State<IngredientsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Ingredient')),
-      body: FutureBuilder(
-        future: getIngredients(),
-        builder: (context, snapshot) {
-          print('Ingredients: $ingredients');
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (ingredients.isEmpty) {
-              return Center(
-                child: Text('No Ingredient Items available'),
-              );
-            }
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+      appBar: AppBar(
+        title: Text(
+          'Ingredients',
+        style: TextStyle(color: Color.fromARGB(255, 37, 3, 3)),  // Set the text color to black
+      ),
+      backgroundColor: Color.fromARGB(255, 255, 253, 241),
+    ),
+    body: FutureBuilder(
+      future: getIngredients(),
+      builder: (context, snapshot) {
+        print('Ingredients: $ingredients');
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (ingredients.isEmpty) {
+            return Center(
+              child: Text('No Ingredient Items available'),
+            );
+          }
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: TextField(
                     controller: searchController,
                     onSubmitted: (value) {
@@ -283,92 +291,88 @@ class _IngredientsPageState extends State<IngredientsPage> {
                     ),
                   ),
                 ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: filteredIngredients.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: ListTile(
-                            title: Text(
-                              filteredIngredients[index].name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                            textColor: const Color.fromARGB(255, 69, 145, 105),
-                            subtitle: Text(
-                              'In stock: ${filteredIngredients[index].quantity.toString()} ${filteredIngredients[index].unit}' ?? 'No quantity available',
-                              style: const TextStyle(
-                                fontSize: 20,
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => IngredientDetailsPage(ingredient: ingredients[index]),
-                                ),
-                              ).then((shouldRefresh) {
-                                if (shouldRefresh == true) {
-                                  setState(() {
-                                    // Reload the data or refresh the page
-                                    getIngredients();
-                                  });
-                                }
-                              });
-                            },
-                          ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: filteredIngredients.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                      );
-                    },
-                  ),
+                        child: ListTile(
+                          title: Text(
+                            filteredIngredients[index].name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                          textColor: const Color.fromARGB(255, 69, 145, 105),
+                          subtitle: Text(
+                            'In stock: ${filteredIngredients[index].quantity.toString()} ${filteredIngredients[index].unit}' ?? 'No quantity available',
+                            style: const TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => IngredientDetailsPage(ingredient: ingredients[index]),
+                              ),
+                            ).then((shouldRefresh) {
+                              if (shouldRefresh == true) {
+                                setState(() {
+                                  // Reload the data or refresh the page
+                                  getIngredients();
+                                });
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              ],
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
-      ),
-      floatingActionButton: SpeedDial(
-        animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: const Color.fromARGB(255, 162, 185, 188).withOpacity(0.8),
-        overlayColor: Colors.black,
-        overlayOpacity: 0.5,
-        spacing: 12,
-        spaceBetweenChildren: 12,
-        children: [
-          SpeedDialChild(
-            child: Icon(Icons.add),
-            label: 'Add Ingredient',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            onTap: () {
-              _showAddIngredientDialog(context).then((shouldRefresh) {
-                if (shouldRefresh == true) {
-                  setState(() {
-                    // Reload the data or refresh the page
-                    getIngredients(); // Ensure you reload the ingredients after adding
-                  });
-                }
-              });
-            },
-          ),
-        ],
-      ),
-    );
+              ),
+            ],
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
+        } else {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
+    ),
+    floatingActionButton: SpeedDial(
+      animatedIcon: AnimatedIcons.menu_close,
+      foregroundColor: const Color.fromARGB(255, 37, 3, 3),
+      backgroundColor: const Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
+      overlayColor: Color.fromARGB(255, 37, 3, 3),
+      overlayOpacity: 0.5,
+      spacing: 12,
+      spaceBetweenChildren: 12,
+      children: [
+        SpeedDialChild(
+          child: Icon(Icons.add),
+          label: 'Add Ingredient',
+          labelBackgroundColor: const Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
+          backgroundColor: const Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
+          labelStyle: const TextStyle(color: Color.fromARGB(255, 37, 3, 3)),
+          onTap: () {
+            _showAddIngredientDialog(context); // Show the add ingredient dialog
+          },
+        ),
+      ],
+    ),
+  );
   }
 }

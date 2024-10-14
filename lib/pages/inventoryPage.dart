@@ -106,7 +106,7 @@ void _showAddInventoryDialog(BuildContext context) {
     context: context,
     barrierDismissible: true,
     barrierLabel: "Add Inventory Item",
-    barrierColor: Colors.black.withOpacity(0.5), // Darkens the background
+    barrierColor: Color.fromARGB(255, 37, 3, 3).withOpacity(0.5), // Darkens the background
     transitionDuration: Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
       return AlertDialog(
@@ -180,7 +180,13 @@ class InventoryDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Inventory')),
+      appBar: AppBar(
+        title: Text(
+          'Inventory',
+        style: TextStyle(color: Color.fromARGB(255, 37, 3, 3)),  // Set the text color to black
+      ),
+      backgroundColor: Color.fromARGB(255, 255,253,241),
+    ),
       body: FutureBuilder(
         future: getInventoryItems(),
         builder: (context, snapshot) {
@@ -198,7 +204,7 @@ class InventoryDetailPage extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+                      color: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: ListTile(
@@ -209,7 +215,7 @@ class InventoryDetailPage extends StatelessWidget {
                           fontSize: 20,
                         ),
                       ),
-                      textColor: const Color.fromARGB(255, 69, 145, 105),
+                      textColor: const Color.fromARGB(255, 37,3,3),
                       subtitle: Text(
                         inventoryItems[index].quantity.toString() ?? 'No quantity available',
                         style: const TextStyle(
@@ -234,36 +240,40 @@ class InventoryDetailPage extends StatelessWidget {
       ),
       floatingActionButton: SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: const Color.fromARGB(255, 162, 185, 188).withOpacity(0.8),
-        overlayColor: Colors.black,
+        backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+        foregroundColor: const Color.fromARGB(255, 37, 3, 3),
+        overlayColor: Color.fromARGB(255, 37, 3, 3),
         overlayOpacity: 0.5,
         spacing: 12,
         spaceBetweenChildren: 12,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.search),
+            child: Icon(Icons.search, color:Color.fromARGB(255, 37, 3, 3)),
             label: 'Search Inventory Items',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            labelStyle: const TextStyle(color: Color.fromARGB(255, 37, 3, 3)),
             onTap: () {
               // Add search functionality here
               print('Search button tapped');
             },
           ),
           SpeedDialChild(
-            child: Icon(Icons.add),
+            child: Icon(Icons.add, color:Color.fromARGB(255, 37, 3, 3)),
             label: 'Add Inventory Item',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            labelStyle: const TextStyle(color: Color.fromARGB(255, 37, 3, 3)),
             onTap: () {
               _showAddInventoryDialog(context); // Show the add inventory dialog
             },
           ),
           SpeedDialChild(
-            child: Icon(Icons.delete),
+            child: Icon(Icons.delete, color:Color.fromARGB(255, 37, 3, 3)),
             label: 'Delete Inventory Item',
-            labelBackgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            labelStyle: const TextStyle(color: Color.fromARGB(255, 37, 3, 3)),
             onTap: () {
               print('Delete button tapped');
             },

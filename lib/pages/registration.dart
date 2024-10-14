@@ -192,10 +192,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     color: Colors.black,  // Default label color
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),       // Change the color of the border when focused
+                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 108, 244), width: 2.0),       // Change the color of the border when focused
                   ),
                   floatingLabelStyle: TextStyle(
-                    color: Colors.blue,  // Label color when the field is focused
+                    color: Color.fromARGB(255, 49, 108, 244),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(),
                 ),
@@ -209,10 +209,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     color: Colors.black,  // Default label color
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),       // Change the color of the border when focused
+                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 108, 244), width: 2.0),       // Change the color of the border when focused
                   ),
                   floatingLabelStyle: TextStyle(
-                    color: Colors.blue,  // Label color when the field is focused
+                    color: Color.fromARGB(255, 49, 108, 244),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(),
                 ),
@@ -226,10 +226,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     color: Colors.black,  // Default label color
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),       // Change the color of the border when focused
+                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 108, 244), width: 2.0),       // Change the color of the border when focused
                   ),
                   floatingLabelStyle: TextStyle(
-                    color: Colors.blue,  // Label color when the field is focused
+                    color: Color.fromARGB(255, 49, 108, 244),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(),
                 ),
@@ -259,13 +259,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 decoration: InputDecoration(
                   labelText: 'Confirm Password',
                   floatingLabelStyle: TextStyle(
-                    color: !_passwordsMatch ? Colors.red : Colors.blue,  // Label color when the field is focused
+                    color: !_passwordsMatch ? Colors.red : Color.fromARGB(255, 49, 108, 244),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Colors.blue),
+                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Color.fromARGB(255, 49, 108, 244)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Colors.blue),
+                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Color.fromARGB(255, 49, 108, 244)),
                   ),
                   errorBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.red, width: 1.0),
@@ -284,8 +284,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   OutlinedButton(
                     onPressed: widget.onBackToLogin,
                     style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.blue, // Text color
-                        side: BorderSide(color: Colors.blue), // Border color
+                        foregroundColor: Color.fromARGB(255, 49, 108, 244), // Text color
+                        side: BorderSide(color: Color.fromARGB(255, 49, 108, 244)), // Border color
                       ),
                     child: Text('Back to Login'),
                   ),

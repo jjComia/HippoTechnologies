@@ -137,7 +137,7 @@ class LoginPage extends StatelessWidget {
                     color: Colors.black,  // Default label color
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),       // Change the color of the border when focused
+                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 108, 244), width: 2.0),       // Change the color of the border when focused
                   ),
                   floatingLabelStyle: TextStyle(
                     color: Colors.blue,  // Label color when the field is focused
@@ -155,10 +155,10 @@ class LoginPage extends StatelessWidget {
                     color: Colors.black,  // Default label color
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),       // Change the color of the border when focused
+                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 108, 244), width: 2.0),       // Change the color of the border when focused
                   ),
                   floatingLabelStyle: TextStyle(
-                    color: Colors.blue,  // Label color when the field is focused
+                    color: Color.fromARGB(255, 49, 108, 244),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(),
                 ),
@@ -171,7 +171,7 @@ class LoginPage extends StatelessWidget {
                     print('Forgot password');
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: Colors.blue, // Text color
+                    foregroundColor: Color.fromARGB(255, 49, 108, 244), // Text color
                   ),
                   child: Text('Forgot password?'),
                 ),
@@ -189,8 +189,8 @@ class LoginPage extends StatelessWidget {
                         loginUser(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue, // Background color
-                        foregroundColor: Colors.white, // Text color
+                        backgroundColor: Color.fromARGB(255, 49, 108, 244), // Background color
+                        foregroundColor: Color.fromARGB(255, 255, 255, 255), // Text color
                       ),
                       child: Text('Login'),
                     ),
@@ -200,8 +200,8 @@ class LoginPage extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: onRegisterTap, // Go to registration page
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.blue, // Text color
-                        side: BorderSide(color: Colors.blue), // Border color
+                        foregroundColor: Color.fromARGB(255, 49, 108, 244), // Text color
+                        side: BorderSide(color: Color.fromARGB(255, 49, 108, 244)), // Border color
                       ),
                       child: Text('Register'),
                     ),
