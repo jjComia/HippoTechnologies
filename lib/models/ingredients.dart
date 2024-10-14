@@ -1,11 +1,13 @@
 class Ingredient 
 {
-  final String recipeId;
-  final String inventoryId;
+  final String id;
   final String name;
   final int quantity;
-  final int minQuantity;
+  final int purchaseQuantity;
+  //doesnt work if double??
+  final double costPerPurchaseUnit;
   final String unit;
+  final String notes;
 
-  Ingredient({required this.recipeId, required this.inventoryId, required this.name, required this.quantity, required this.minQuantity, required this.unit});
+  Ingredient({required this.id, required this.name, required this.quantity, required this.purchaseQuantity, required this.costPerPurchaseUnit, required this.unit, required this.notes});
 }
