@@ -26,8 +26,8 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Namer App',
             theme: appState.isDarkMode 
-              ? ThemeData.dark().copyWith(colorScheme: ColorScheme.dark().copyWith(secondary: const Color.fromARGB(255, 167,41,47))) 
-              : ThemeData.light().copyWith(scaffoldBackgroundColor: Color.fromARGB(255, 167,41,47), colorScheme: ColorScheme.light().copyWith(secondary: Color.fromARGB(255,246, 232, 177))),
+              ? ThemeData.dark().copyWith(colorScheme: ColorScheme.dark().copyWith(secondary: const Color.fromARGB(200, 154,51,52))) 
+              : ThemeData.light().copyWith(scaffoldBackgroundColor: Color.fromARGB(200, 154,51,52), colorScheme: ColorScheme.light().copyWith(secondary: Color.fromARGB(255,255,253,241))),
             home: MyHomePage(),
           );
         },
@@ -153,9 +153,9 @@ class _MyHomePageState extends State<MyHomePage> {
             selectedPage = null; // Reset selectedPage when tapping bottom nav items
           });
         },
-        selectedItemColor: Color.fromARGB(255, 26,67,131),
-        unselectedItemColor: Color.fromARGB(255, 0,0,0),
-        backgroundColor: Color.fromARGB(255, 213,172,76),
+        selectedItemColor: Color.fromARGB(255, 154,51,52),
+        unselectedItemColor: Color.fromARGB(255, 37,3, 3),
+        backgroundColor: Color.fromARGB(255, 255,253,241),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -274,37 +274,38 @@ class HomePage extends StatelessWidget {
     );
   }
 
-//Updated Button builder, rounded corners and has icons
- Widget _buildRoundedButton(BuildContext context, String text, IconData icon, {required VoidCallback onTap}) {
+Widget _buildRoundedButton(BuildContext context, String text, IconData icon, {required VoidCallback onTap}) {
   return ElevatedButton(
     onPressed: onTap,
     style: ElevatedButton.styleFrom(
-      padding: const EdgeInsets.all(16.0),
+      fixedSize: Size(200, 200),  // Set the fixed size here
+      padding: const EdgeInsets.all(18.0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24.0),  // Rounded corners
       ),
-      backgroundColor: const Color.fromARGB(255,213,172,76),  // Soft background color
-      elevation: 0.0,  // Slight elevation for softer shadow
+      backgroundColor: const Color.fromARGB(255, 255, 253, 241),  // Background color
+      elevation: 0.0,  // Shadow elevation
     ),
-    child: Row(  // Icon and text side by side
+    child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(
           icon,
-          color: Color.fromARGB(255, 0,0,0),  // Icon color to match text
+          size: 40.0,  // Adjust icon size
+          color: const Color.fromARGB(255, 37, 3, 3),  // Icon color
         ),
-        SizedBox(width: 8.0),  // Space between icon and text
+        const SizedBox(height: 8.0),
         Text(
           text,
-          style: TextStyle(
-            fontSize: 18,
-            color: Color.fromARGB(255, 0,0,0),  // White text color
+          style: const TextStyle(
+            fontSize: 16,
+            color: Color.fromARGB(255, 37, 3, 3),
           ),
         ),
       ],
     ),
   );
- }
+}
 }
 
 class ProfileSettingsPage extends StatelessWidget {

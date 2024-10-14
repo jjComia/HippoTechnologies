@@ -106,7 +106,7 @@ void _showAddIngredientDialog(BuildContext context) {
     context: context,
     barrierDismissible: true,
     barrierLabel: "Add Ingredient",
-    barrierColor: Colors.black.withOpacity(0.5), // Darkens the background
+    barrierColor: Color.fromARGB(255, 37, 3, 3).withOpacity(0.5), // Darkens the background
     transitionDuration: Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
       return AlertDialog(
@@ -180,7 +180,13 @@ class IngredientsDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Ingredient')),
+      appBar: AppBar(
+        title: Text(
+          'Ingredients',
+        style: TextStyle(color: Color.fromARGB(255, 37, 3, 3)),  // Set the text color to black
+      ),
+      backgroundColor: Color.fromARGB(255, 255,253,241),
+    ),
       body: FutureBuilder(
         future: getIngredients(),
         builder: (context, snapshot) {
@@ -198,7 +204,7 @@ class IngredientsDetailPage extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.8),
+                      color: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: ListTile(
@@ -209,7 +215,7 @@ class IngredientsDetailPage extends StatelessWidget {
                           fontSize: 20,
                         ),
                       ),
-                      textColor: const Color.fromARGB(255, 0, 0, 0),
+                      textColor: const Color.fromARGB(255, 37,3,3),
                       subtitle: Text(
                         ingredients[index].quantity.toString() ?? 'No quantity available',
                         style: const TextStyle(
@@ -234,39 +240,40 @@ class IngredientsDetailPage extends StatelessWidget {
       ),
       floatingActionButton: SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
-        overlayColor: Colors.black,
+        foregroundColor: const Color.fromARGB(255, 37, 3, 3),
+        backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+        overlayColor: Color.fromARGB(255, 37, 3, 3),
         overlayOpacity: 0.5,
         spacing: 12,
         spaceBetweenChildren: 12,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.search, color:Colors.white),
+            child: Icon(Icons.search, color:Color.fromARGB(255, 37,3, 3)),
             label: 'Search Ingredient',
-            labelBackgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
-            labelStyle: const TextStyle(color: Colors.white),
+            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            labelStyle: const TextStyle(color: Color.fromARGB(255, 37,3, 3)),
             onTap: () {
               // Add search functionality here
               print('Search button tapped');
             },
           ),
           SpeedDialChild(
-            child: Icon(Icons.add, color:Colors.white),
+            child: Icon(Icons.add, color: Color.fromARGB(255, 37,3, 3)),
             label: 'Add Ingredient',
-            labelBackgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
-            labelStyle: const TextStyle(color: Colors.white),
+            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255,255,253,241).withOpacity(0.8),
+            labelStyle: const TextStyle(color: Color.fromARGB(255, 37,3, 3)),
             onTap: () {
               _showAddIngredientDialog(context); // Show the add ingredient dialog
             },
           ),
           SpeedDialChild(
-            child: Icon(Icons.delete, color:Colors.white),
+            child: Icon(Icons.delete, color:Color.fromARGB(255, 37,3, 3)),
             label: 'Delete Ingredient',
-            labelBackgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 49, 108, 244).withOpacity(0.8),
-            labelStyle: const TextStyle(color: Colors.white),
+            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+            labelStyle: const TextStyle(color: Color.fromARGB(255, 37,3, 3)),
             onTap: () {
               print('Delete button tapped');
             },
