@@ -24,10 +24,27 @@ class MyApp extends StatelessWidget {
       child: Consumer<MyAppState>(
         builder: (context, appState, child) {
           return MaterialApp(
-            title: 'Namer App',
+            title: 'Bakery App',
             theme: appState.isDarkMode 
-              ? ThemeData.dark().copyWith(colorScheme: ColorScheme.dark().copyWith(secondary: const Color.fromARGB(200, 154,51,52))) 
-              : ThemeData.light().copyWith(scaffoldBackgroundColor: Color.fromARGB(200, 154,51,52), colorScheme: ColorScheme.light().copyWith(secondary: Color.fromARGB(255,255,253,241))),
+              ? ThemeData.dark().copyWith(
+                colorScheme: ColorScheme.dark().copyWith(
+                    primary: const Color.fromARGB(200, 154, 51, 52),
+                    secondary: const Color.fromARGB(255, 255,253,241)
+                ),
+                progressIndicatorTheme: ProgressIndicatorThemeData(
+                    color: const Color.fromARGB(255, 255, 253, 241)
+                ),
+              )
+              : ThemeData.light().copyWith(
+                scaffoldBackgroundColor: Color.fromARGB(200, 154,51,52), 
+                colorScheme: ColorScheme.light().copyWith(
+                    primary: const Color.fromARGB(255, 154, 51, 52),
+                    secondary: Color.fromARGB(255,255,253,241)
+                ),
+                progressIndicatorTheme: ProgressIndicatorThemeData(
+                    color: const Color.fromARGB(255, 255, 253, 241)
+                ),
+            ),
             home: MyHomePage(),
           );
         },
@@ -220,7 +237,7 @@ class EmployeesPage extends StatelessWidget {
 
 //Home Page on nav bar. Contains subpages of inventory, recipes, ingredients and employees
 class HomePage extends StatelessWidget {
-  final Function(Widget) onPageTap;   // Function to hangle page navigation
+  final Function(Widget) onPageTap;
 
   const HomePage({required this.onPageTap});
   
@@ -228,46 +245,58 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(20.0),
-      child: GridView.count(
-        crossAxisCount: 2,  // 2 buttons per row
-        mainAxisSpacing: 20.0,  // Vertical spacing between buttons
-        crossAxisSpacing: 20.0,  // Horizontal spacing between buttons
+      child: Column(
         children: [
-          _buildRoundedButton(
-            context,
-            'Inventory',
-            Icons.inventory,
-            onTap: () {
-              // Use the onPageTap function for navigation
-              onPageTap(InventoryDetailPage());
-            },
+          // Add the image from assets at the top
+          Image.asset(
+            'assets/images/clearhippo.png', // Path to your image in the assets folder
+            width: 150,
+            height: 150,
+            fit: BoxFit.cover,
           ),
-          _buildRoundedButton(
-            context,
-            'Employees',
-            Icons.person,
-            onTap: () {
-              // Use the onPageTap function for navigation
-              onPageTap(EmployeesPage());
-            },
-          ),
-          _buildRoundedButton(
-            context,
-            'Recipes',
-            Icons.local_dining,
-            onTap: () {
-              // Use the onPageTap function for navigation
-              onPageTap(RecipesDetailPage());
-            },
-          ),
-          _buildRoundedButton(
-            context,
-            'Ingredients',
-            Icons.list,
-            onTap: () {
-              // Use the onPageTap function for navigation
-              onPageTap(IngredientsDetailPage());
-            },
+          SizedBox(height: 20), // Add some spacing between the image and grid
+
+          // Grid layout for buttons
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 2,  // 2 buttons per row
+              mainAxisSpacing: 20.0,  // Vertical spacing between buttons
+              crossAxisSpacing: 20.0,  // Horizontal spacing between buttons
+              children: [
+                _buildRoundedButton(
+                  context,
+                  'Inventory',
+                  Icons.inventory,
+                  onTap: () {
+                    onPageTap(InventoryDetailPage());
+                  },
+                ),
+                _buildRoundedButton(
+                  context,
+                  'Employees',
+                  Icons.person,
+                  onTap: () {
+                    onPageTap(EmployeesPage());
+                  },
+                ),
+                _buildRoundedButton(
+                  context,
+                  'Recipes',
+                  Icons.local_dining,
+                  onTap: () {
+                    onPageTap(RecipesDetailPage());
+                  },
+                ),
+                _buildRoundedButton(
+                  context,
+                  'Ingredients',
+                  Icons.list,
+                  onTap: () {
+                    onPageTap(IngredientsDetailPage());
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -335,26 +364,48 @@ class AccountSettingsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             ListTile(
-              title: Text(
-                'LOGOUT',
-                style: TextStyle(
-                 color: Colors.red, // Change this to any color you like
+            Container(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 255,253,241),  // White background color
+                borderRadius: BorderRadius.circular(8.0),  // Rounded corners
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),  // Slight shadow for elevation effect
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),  // Offset to add a shadow below the button
+                  ),
+                ],
+              ),
+              child: InkWell(
+                onTap: () {
+                  appState.logout();  // Call the logout method
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,  // Center text horizontally
+                    children: [
+                      Text(
+                        'LOGOUT',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 154,51,52),  // Red text color
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,  // Bold text
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-
-              onTap: () {
-                appState.logout();
-              },
             ),
-              
-          
-          ]
-        )
-      )
+          ],
+        ),
+      ),
     );
   }
 }
+
 
 class SettingsPage extends StatefulWidget {
   final Function(Widget) onPageTap;

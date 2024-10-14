@@ -241,6 +241,7 @@ class InventoryDetailPage extends StatelessWidget {
       floatingActionButton: SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
         backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+        foregroundColor: const Color.fromARGB(255, 37, 3, 3),
         overlayColor: Color.fromARGB(255, 37, 3, 3),
         overlayOpacity: 0.5,
         spacing: 12,
