@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'pages/registration.dart'; // Import the RegistrationPage
+import 'pages/registerEmailAndPhone.dart'; // Import the RegisterEmailAndPhone Page
 import 'pages/login.dart';        // Import the LoginPage
 import 'pages/inventoryPage.dart'; //Import the Inventory Page
 import 'services/session_service.dart';
@@ -58,8 +59,15 @@ class MyAppState extends ChangeNotifier {
   final SessionService sessionService = SessionService();
   bool isLoggedIn = false; // Flag for login status
   bool showRegistrationPage = false; // Flag for registration page
+  bool showNextPage = false; // Flag for next registration page
 
   bool isDarkMode = false; // Flag for Dark Mode
+
+  // Variables to store user data
+  String firstName = '';
+  String lastName = '';
+  String username = '';
+  String password = '';
 
   // Nullable Type Function - Can be null or have function reference - Used to reset navigation  
   Function? resetNavigation;
@@ -84,8 +92,21 @@ class MyAppState extends ChangeNotifier {
 
   void showLoginPage() {
     showRegistrationPage = false; // Show login page
+    showNextPage = false; // Hide next registration page
     notifyListeners();
   }
+
+  void showNextRegisterPage(String firstName, String lastName, String username, String password) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.username = username;
+    this.password = password;
+
+    showRegistrationPage = false;
+    showNextPage = true;
+    notifyListeners();
+  }
+
 
   void toggleDarkMode(bool value) {
     isDarkMode = value; // Toggle Dark Mode
@@ -142,6 +163,21 @@ class _MyHomePageState extends State<MyHomePage> {
         return RegistrationPage(
           onBackToLogin: () {
             appState.showLoginPage(); // Go back to login page
+          },
+          onRegisterNext: (String firstName, String lastName, String username, String password) {
+            // Pass the parameters to the next page
+            appState.showNextRegisterPage(firstName, lastName, username, password);
+          },
+        );
+      } else if (appState.showNextPage) {
+        // Pass the stored values to the next page
+        return RegisterEmailAndPhone(
+          firstName: appState.firstName,
+          lastName: appState.lastName,
+          username: appState.username,
+          password: appState.password,
+          onCancelTap: () {
+            appState.showLoginPage(); // Go back to registration page
           },
           onRegisterSuccess: () {
             appState.login(); // Mark as logged in

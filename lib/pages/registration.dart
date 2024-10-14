@@ -4,17 +4,21 @@ import 'package:http/http.dart' as http;
 import 'package:awesome_dialog/awesome_dialog.dart';
 import '../services/session_service.dart';
 import 'dart:async';  // Make sure to add this import at the top of your file
+import 'registerEmailAndPhone.dart';  // Import the RegisterEmailAndPhone page
+
+typedef RegisterNextCallback = void Function(String firstName, String lastName, String username, String password);
 
 class RegistrationPage extends StatefulWidget {
   final VoidCallback onBackToLogin;
-  final VoidCallback onRegisterSuccess;
+  final RegisterNextCallback onRegisterNext; // Updated to pass parameters
   final SessionService sessionService = SessionService();
 
-  RegistrationPage({required this.onRegisterSuccess, required this.onBackToLogin});
+  RegistrationPage({required this.onRegisterNext, required this.onBackToLogin});
 
   @override
   _RegistrationPageState createState() => _RegistrationPageState();
 }
+
 
 class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController _firstNameController = TextEditingController();
@@ -31,7 +35,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     });
   }
 
-  Future<void> registerUser(BuildContext context) async {
+  Future<void> nextRegisterPage(BuildContext context) async {
     var firstName = _firstNameController.text;
     var lastName = _lastNameController.text;
     var username = _usernameController.text;
@@ -68,8 +72,25 @@ class _RegistrationPageState extends State<RegistrationPage> {
         btnOkOnPress: () {},
       ).show();
       return;
+    } else {
+      widget.onRegisterNext(firstName, lastName, username, password);  // Call the next registration page
+      /*// Navigate to the next registration page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RegisterEmailAndPhone(
+            firstName: firstName,
+            lastName: lastName,
+            username: username,
+            password: password,
+          ),
+        ),
+      );*/
     }
-
+  }
+  
+  /*
+  Future<void> registerUser(BuildContext context) async {
     // Prepare the request body
     var params = {
       'firstName': firstName,
@@ -133,7 +154,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       print('Error occurred: $e');
     }
   }
-
+*/
   @override
   void dispose() {
     _firstNameController.dispose();
@@ -147,7 +168,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Register'), backgroundColor: Color.fromARGB(255, 249, 251, 250)),
+      appBar: AppBar(
+        title: Text('Register', style: TextStyle(fontSize: 25),),
+        backgroundColor: Color.fromARGB(255, 249, 251, 250),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -216,21 +241,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 decoration: InputDecoration(
                   labelText: 'Password',
                   floatingLabelStyle: TextStyle(
-                    color: !_passwordsMatch ? Colors.red : Color.fromARGB(255, 49, 108, 244),  // Label color when the field is focused
+                    color:Colors.blue,  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Color.fromARGB(255, 49, 108, 244)),
+                    borderSide: BorderSide(color: Colors.blue),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Color.fromARGB(255, 49, 108, 244)),
+                    borderSide: BorderSide(color:Colors.blue),
                   ),
-                  errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 1.0),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 1.0),
-                  ),
-                  errorText: !_passwordsMatch ? 'Passwords do not match' : null,
                 ),
                 onChanged: (value) => _checkPasswords(),
               ),
@@ -263,17 +281,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      registerUser(context); // Register user
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 49, 108, 244), // Background color
-                        foregroundColor: Colors.white, // Text color
-                      ),
-                    child: Text('Register'),
-                  ),
-                  SizedBox(height: 8.0),
                   OutlinedButton(
                     onPressed: widget.onBackToLogin,
                     style: OutlinedButton.styleFrom(
@@ -281,6 +288,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         side: BorderSide(color: Color.fromARGB(255, 49, 108, 244)), // Border color
                       ),
                     child: Text('Back to Login'),
+                  ),
+                  SizedBox(height: 8.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      nextRegisterPage(context); // Register user
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue, // Background color
+                        foregroundColor: Colors.white, // Text color
+                      ),
+                    child: Text('Next'),
                   ),
                 ],
               ),

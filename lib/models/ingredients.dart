@@ -2,7 +2,7 @@ class Ingredient
 {
   final String id;
   final String name;
-  final int quantity;
+  final double quantity;
   final int purchaseQuantity;
   //doesnt work if double??
   final double costPerPurchaseUnit;

@@ -112,7 +112,11 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login'), backgroundColor: Color.fromARGB(255, 255, 255, 255)),
+      appBar: AppBar(
+        title: Text('Login', style: TextStyle(fontSize: 25),),
+        backgroundColor: Color.fromARGB(255, 249, 251, 250),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
