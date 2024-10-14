@@ -48,7 +48,7 @@ Future<void> getIngredients() async {
           final ingredient = Ingredient(
             id: eachIngredient['id'],
             name: eachIngredient['name'],
-            quantity: (eachIngredient['quantity'] as num).toInt(), // Safely convert to int
+            quantity: (eachIngredient['quantity'] as num).toDouble(), // Safely convert to int
             purchaseQuantity: (eachIngredient['purchaseQuantity'] as num).toInt(), // Safely convert to int
             costPerPurchaseUnit: (eachIngredient['costPerPurchaseUnit'] as num).toDouble(), // Safely convert to double
             unit: eachIngredient['unit'],
@@ -89,7 +89,7 @@ Future<void> addIngredient() async {
     var costPerPurchaseUnitStr = _costPerPurchaseUnitController.text.trim();
 
     // Convert quantity and purchaseQuantity to int
-    int quantity = int.tryParse(quantityStr) ?? 0;
+    double quantity = double.tryParse(quantityStr) ?? 0;
     int purchaseQuantity = int.tryParse(purchaseQuantityStr) ?? 0;
 
     // Convert costPerPurchaseUnit to double
@@ -104,7 +104,7 @@ Future<void> addIngredient() async {
     print('Session ID: ${await sessionService.getSessionID()}');
 
     // Ensure quantity and purchaseQuantity are integers without decimal points
-    if (quantityStr.contains('.') || purchaseQuantityStr.contains('.')) {
+    if (purchaseQuantityStr.contains('.')) {
       print('Error: Quantity and Purchase Quantity must be whole numbers.');
       return; // Exit early if the input is not valid
     }
