@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:namer_app/pages/ingredientsPage.dart';
-import 'package:namer_app/pages/recipePage.dart';
 import '../services/session_service.dart';
 import 'dart:convert';
 import '../models/ingredients.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import '../functions/showSlidingGeneralDialog.dart';
 
@@ -254,7 +251,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                         ),
                       ),
                       Expanded(
-                        flex: 1,
+                        flex: 2,
                         child: Text(
                           '${ingredient.quantity} ${ingredient.unit}',
                           style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204,198,159)),
@@ -300,7 +297,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                         ),
                       ),
                       Expanded(
-                        flex: 1,
+                        flex: 2,
                         child: Text(
                           '\$${getPrice(ingredient)} / ${ingredient.purchaseQuantity} ${ingredient.unit}',
                           style: TextStyle(fontSize: 20, color: Color.fromARGB( 255, 204,198,159)),

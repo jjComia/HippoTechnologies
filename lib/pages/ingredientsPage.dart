@@ -1,7 +1,6 @@
 // Importing dart:convert to use jsonDecode function
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:namer_app/pages/recipePage.dart';
 import '../services/session_service.dart';
 import 'dart:convert';
 import '../models/ingredients.dart';
@@ -313,7 +312,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                           ),
                           textColor: const Color.fromARGB(255, 32, 3, 3),
                           subtitle: Text(
-                            'In stock: ${filteredIngredients[index].quantity.toString()} ${filteredIngredients[index].unit}' ?? 'No quantity available',
+                            'In stock: ${filteredIngredients[index].quantity.toString()} ${filteredIngredients[index].unit}',
                             style: const TextStyle(
                               fontSize: 20,
                             ),

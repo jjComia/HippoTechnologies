@@ -217,7 +217,7 @@ class InventoryDetailPage extends StatelessWidget {
                       ),
                       textColor: const Color.fromARGB(255, 37,3,3),
                       subtitle: Text(
-                        inventoryItems[index].quantity.toString() ?? 'No quantity available',
+                        inventoryItems[index].quantity.toString(),
                         style: const TextStyle(
                           fontSize: 20,
                         ),

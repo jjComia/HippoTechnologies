@@ -700,7 +700,7 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
                       ),
                       textColor: const Color.fromARGB(255, 37, 3, 3),
                       subtitle: Text(
-                        recipes[index].description ?? 'No description available',
+                        recipes[index].description,
                         style: const TextStyle(
                           fontSize: 20,
                         ),
