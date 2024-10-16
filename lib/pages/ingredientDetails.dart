@@ -187,19 +187,19 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: 'Ingredient Details for\n',
+                    text: 'Ingredient Details:\n',
                     style: TextStyle(
-                      color: Color.fromARGB(255, 204,198,159),
-                      fontSize: 22,
+                      color: Color.fromARGB(180, 204,198,159),
+                      fontSize: 30,
                     ),
                   ),
                   TextSpan(
                     text: ingredient.name,
                     style: TextStyle(
-                      color: Color.fromARGB(255, 37, 3, 3),
-                      fontSize: 28,
+                      color: Color.fromARGB(255,204,198,159),
+                      fontSize: 45,
                       fontWeight: FontWeight.bold,
-                      height: 1.5,
+                      height: 1.2,
                     ),
                   ),
                 ],
@@ -219,29 +219,29 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  SizedBox(height: 32),
+                  SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
                         flex: 2,
                         child: Text(
                           'Name:',
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204,198,159)),
                           textAlign: TextAlign.left,
                         ),
                       ),
                       Expanded(
-                        flex: 1,
+                        flex: 2,
                         child: Text(
                           ingredient.name,
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204,198,159)),
                           textAlign: TextAlign.right,
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 20),
-                  DashedLine(height: 1, color: Color.fromARGB( 255, 204,198,159)),
+                  DashedLine(height: 2, color: Color.fromARGB( 255, 204,198,159)),
                   SizedBox(height: 20),
                   Row(
                     children: [
@@ -249,7 +249,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                         flex: 2,
                         child: Text(
                           'In Stock:',
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 20,color: Color.fromARGB(255, 204,198,159)),
                           textAlign: TextAlign.left,
                         ),
                       ),
@@ -257,14 +257,14 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                         flex: 1,
                         child: Text(
                           '${ingredient.quantity} ${ingredient.unit}',
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204,198,159)),
                           textAlign: TextAlign.right,
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 20),
-                  DashedLine(height: 1, color: Color.fromARGB( 255, 204,198,159)),
+                  DashedLine(height: 2, color: Color.fromARGB( 255, 204,198,159)),
                   SizedBox(height: 20),
                   Row(
                     children: [
@@ -272,7 +272,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                         flex: 2,
                         child: Text(
                           'Purchase Quantity:',
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 20, color: Color.fromARGB( 255, 204,198,159)),
                           textAlign: TextAlign.left,
                         ),
                       ),
@@ -280,14 +280,14 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                         flex: 1,
                         child: Text(
                           '${ingredient.purchaseQuantity} ${ingredient.unit}',
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 20, color: Color.fromARGB( 255, 204,198,159)),
                           textAlign: TextAlign.right,
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 20),
-                  DashedLine(height: 1, color: Color.fromARGB( 255, 204,198,159)),
+                  DashedLine(height: 2, color: Color.fromARGB( 255, 204,198,159)),
                   SizedBox(height: 20),
                   Row(
                     children: [
@@ -295,7 +295,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                         flex: 2,
                         child: Text(
                           'Cost Per Purchase:',
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 20, color: Color.fromARGB( 255, 204,198,159)),
                           textAlign: TextAlign.left,
                         ),
                       ),
@@ -303,7 +303,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                         flex: 1,
                         child: Text(
                           '\$${getPrice(ingredient)} / ${ingredient.purchaseQuantity} ${ingredient.unit}',
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 20, color: Color.fromARGB( 255, 204,198,159)),
                           textAlign: TextAlign.right,
                         ),
                       ),
