@@ -300,7 +300,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 198, 255, 196).withOpacity(0.8),
+                          color: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: ListTile(
@@ -311,7 +311,7 @@ class _IngredientsPageState extends State<IngredientsPage> {
                               fontSize: 20,
                             ),
                           ),
-                          textColor: const Color.fromARGB(255, 69, 145, 105),
+                          textColor: const Color.fromARGB(255, 32, 3, 3),
                           subtitle: Text(
                             'In stock: ${filteredIngredients[index].quantity.toString()} ${filteredIngredients[index].unit}' ?? 'No quantity available',
                             style: const TextStyle(

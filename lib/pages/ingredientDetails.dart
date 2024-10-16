@@ -179,6 +179,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space between content and buttons
         children: [
           // Non-scrollable RichText at the top
+          SizedBox(height: 50),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: RichText(
@@ -188,14 +189,14 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                   TextSpan(
                     text: 'Ingredient Details for\n',
                     style: TextStyle(
-                      color: Color.fromARGB(125, 0, 0, 0),
+                      color: Color.fromARGB(255, 204,198,159),
                       fontSize: 22,
                     ),
                   ),
                   TextSpan(
                     text: ingredient.name,
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Color.fromARGB(255, 37, 3, 3),
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       height: 1.5,
@@ -206,7 +207,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
             ),
           ),
           Divider(
-            color: Colors.grey,
+            color: Color.fromARGB(255, 204,198,159),
             thickness: 1,
             indent: 10,
             endIndent: 10,
@@ -240,7 +241,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                     ],
                   ),
                   SizedBox(height: 20),
-                  DashedLine(height: 1, color: Colors.grey),
+                  DashedLine(height: 1, color: Color.fromARGB( 255, 204,198,159)),
                   SizedBox(height: 20),
                   Row(
                     children: [
@@ -263,7 +264,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                     ],
                   ),
                   SizedBox(height: 20),
-                  DashedLine(height: 1, color: Colors.grey),
+                  DashedLine(height: 1, color: Color.fromARGB( 255, 204,198,159)),
                   SizedBox(height: 20),
                   Row(
                     children: [
@@ -286,7 +287,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                     ],
                   ),
                   SizedBox(height: 20),
-                  DashedLine(height: 1, color: Colors.grey),
+                  DashedLine(height: 1, color: Color.fromARGB( 255, 204,198,159)),
                   SizedBox(height: 20),
                   Row(
                     children: [
@@ -324,7 +325,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                     onPressed: () {
                       showEditDialogue(context, ingredient, refreshPage);
                     },
-                    child: Text('Edit Ingredient Details', style: TextStyle(fontSize: 16)),
+                    child: Text('Edit Ingredient Details', style: TextStyle(fontSize: 20,color: Color.fromARGB(255, 37, 3, 3))),
                   ),
                 ),
                 SizedBox(height: 12),
@@ -334,7 +335,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                     onPressed: () {
                       showOrderMoreDialogue(context, ingredient, refreshPage);
                     },
-                    child: Text('Order More', style: TextStyle(fontSize: 16)),
+                    child: Text('Order More', style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 37, 3, 3))),
                   ),
                 ),
                 SizedBox(height: 12),
@@ -345,13 +346,10 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                       onPressed: () {
                         Navigator.of(context).pop(true);
                       },
-                      child: Text(
-                        'Close',
-                        style: TextStyle(
-                          color: Color.fromARGB(175, 0, 0, 0),
-                          fontSize: 16,
-                        ),
-                      ),
+                      child: Icon(
+                        Icons.arrow_back,
+                        size: 52,
+                        color: Color.fromARGB(255,204,198,159)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -380,7 +378,10 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                           },
                         ).show();
                       },
-                      child: Text('Delete', style: TextStyle(color: Colors.red, fontSize: 16)),
+                      child: Icon(
+                        Icons.delete_forever,
+                        size: 60,
+                        color: Color.fromARGB(255,204,198,159)),
                     ),
                   ],
                 ),
@@ -411,7 +412,7 @@ void showOrderMoreDialogue (context, ingredient, VoidCallback onOrderMore) {
               Text(
                 'Order More', // First text
                 style: TextStyle(
-                  color: Colors.black, // Style for "Order More"
+                  color: Color.fromARGB(255, 37, 3, 3), // Style for "Order More"
                   fontSize: 16,
                 ),
               ),
@@ -500,7 +501,7 @@ void showOrderMoreDialogue (context, ingredient, VoidCallback onOrderMore) {
                 onPressed: () {
                   Navigator.of(context).pop(); // Close the dialog
                 },
-                child: Text('Cancel', style: TextStyle(color: Colors.grey) ),
+                child: Text('Cancel', style: TextStyle(color: Color.fromARGB(255, 37, 3, 3)) ),
               ),
               TextButton(
                 onPressed: () async{
@@ -542,7 +543,7 @@ void showEditDialogue(context, ingredient, VoidCallback onEdit) {
               Text(
                 'Edit Details For', // First text
                 style: TextStyle(
-                  color: Colors.black, // Style for "Order More"
+                  color: Color.fromARGB(255, 37, 3, 3), // Style for "Order More"
                   fontSize: 16,
                 ),
               ),
