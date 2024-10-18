@@ -191,13 +191,14 @@ Future<Map<String, dynamic>?> searchInventoryByName(String ingredientName) async
 }
 
 //Function to add Ingredients to database
+// Function to add Ingredients to database with double quantity
 Future<void> addIngredientToRecipe({
   required String recipeId,
   required String inventoryId,
   required String name,
-  required int quantity,
+  required double quantity, // Update to double
   required String unit,
-  int minQuantity = 0, // Default value for minQuantity
+  double minQuantity = 0.0, // Update to double with a default value
 }) async {
   var url = Uri.https('bakery.permavite.com', 'api/ingredients');
 
@@ -212,8 +213,8 @@ Future<void> addIngredientToRecipe({
       'recipeId': recipeId,
       'inventoryId': inventoryId,
       'name': name,
-      'quantity': quantity,
-      'minQuantity': minQuantity,
+      'quantity': quantity, // Send as double
+      'minQuantity': minQuantity, // Send as double
       'unit': unit,
     }),
   );
@@ -580,21 +581,32 @@ void _showAddStepsDialog(BuildContext context) {
                               print('Steps added for Recipe ID: $recipeId');
 
                               // Now, we proceed with adding the ingredients after cook steps
+                              // Collect ingredient details from user input and convert quantity and minQuantity to double
                               for (var ingredient in ingredientsToAdd) {
                                 String ingredientName = ingredient['name']!;
-                                String quantity = ingredient['quantity']!;
+                                String quantityStr = ingredient['quantity']!;
+
+                                // Convert user-entered quantity to double
+                                double quantity = double.tryParse(quantityStr) ?? 0.0;
+
+                                if (quantity == 0.0) {
+                                  // Handle case where the quantity is invalid or zero
+                                  print("Error: Invalid quantity for ingredient $ingredientName");
+                                  continue; // Skip this ingredient if quantity is invalid
+                                }
 
                                 // Search for the ingredient in the inventory
                                 Map<String, dynamic>? ingredientData = await searchInventoryByName(ingredientName);
 
                                 if (ingredientData != null) {
-                                  // If found, add it to the recipe
+                                  // If found, add it to the recipe with double quantity
                                   await addIngredientToRecipe(
                                     recipeId: recipeId,
                                     inventoryId: ingredientData['id'],
                                     name: ingredientName,
-                                    quantity: int.parse(quantity),  // Use user-entered quantity
+                                    quantity: quantity, // Use user-entered double quantity
                                     unit: ingredientData['unit'],
+                                    minQuantity: 0.0, // Optional minQuantity, set as double
                                   );
                                 } else {
                                   // Handle ingredient not found
