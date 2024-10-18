@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../services/session_service.dart';
 import 'dart:convert';
-import '../models/recipe.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../functions/showSlidingGeneralDialog.dart';
+import '../models/recipe.dart';
+import '../models/recipeIngredient.dart';
+import '../models/cookStep.dart';
+import 'recipeDetailsPage.dart';
 
 final SessionService sessionService = SessionService();
 List<Recipe> recipes = [];
@@ -762,8 +765,38 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
                                 fontSize: 20,
                               ),
                             ),
-                            onTap: () {
-                              // Navigate to recipe details
+                            onTap: () async {
+                             try {
+                              // Get ingredients for the selected recipe
+                              List<RecipeIngredient> ingredients = await getIngredientsForRecipe(filteredRecipes[index].id);
+
+                              // Get the cook steps for the selected recipe
+                              List<CookStep> cookSteps = await getCookStepsForRecipe(filteredRecipes[index].id);
+
+                              // If ingredients are successfully fetched, navigate to the details page
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RecipeDetailsPage(recipe: recipes[index], recipeIngredients: ingredients, steps: cookSteps),  // Pass ingredients to the details page
+                                ),
+                              ).then((shouldRefresh) {
+                                if (shouldRefresh == true) {
+                                  setState(() {
+                                    // Reload the data or refresh the page
+                                    getRecipes();
+                                  });
+                                }
+                              });
+                            } catch (e) {
+                              // Handle the error (show a dialog or a snackbar)
+                              print('Error: $e');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to load ingredients. Please try again later.'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
                             },
                           ),
                         ),
@@ -806,5 +839,95 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
         ],
       ),
     );
+  }
+}
+
+Future<List<RecipeIngredient>> getIngredientsForRecipe(String recipeID) async {
+  try {
+    // Create the URL for the GET request
+    var url = Uri.https('bakery.permavite.com', 'api/ingredients/recipeid/$recipeID');
+
+    // Include the session ID in the headers
+    var response = await http.get(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': '${await sessionService.getSessionID()}',
+      },
+    );
+
+    // Check if response is successful
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+
+      // Create a new List of RecipeIngredients
+      List<RecipeIngredient> ingredients = [];
+
+      // Iterate through the JSON data adding each ingredient to the list
+      for (var eachIngredient in jsonData) {
+        final ingredient = RecipeIngredient(
+          id: eachIngredient['id'],
+          recipeID: eachIngredient['recipeId'],
+          inventoryID: eachIngredient['inventoryId'],
+          name: eachIngredient['name'],
+          quantity: eachIngredient['quantity'],
+          minQuantity: eachIngredient['minQuantity'],
+          unit: eachIngredient['unit'],
+        );
+        ingredients.add(ingredient);
+      }
+
+      // Print the number of ingredients loaded
+      print('Number of ingredients loaded: ${ingredients.length}');
+      return ingredients;
+    } else {
+      throw Exception('Failed to load ingredients: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error occurred while fetching ingredients: $e');
+    throw Exception('Error fetching ingredients: $e');
+  }
+}
+
+Future<List<CookStep>> getCookStepsForRecipe(String recipeID) async {
+  try {
+    // Create the URL for the GET request
+    var url = Uri.https('bakery.permavite.com', 'api/cookstep/recipeid/$recipeID');
+
+    // Include the session ID in the headers
+    var response = await http.get(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': '${await sessionService.getSessionID()}',
+      },
+    );
+
+    // Check if response is successful
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+
+      // Create a new List of CookSteps
+      List<CookStep> steps = [];
+
+      // Iterate through the JSON data adding each step to the list
+      for (var eachStep in jsonData) {
+        final step = CookStep(
+          id: eachStep['id'],
+          recipeID: eachStep['recipeId'],
+          description: eachStep['description'],
+        );
+        steps.add(step);
+      }
+
+      // Print the number of steps loaded
+      print('Number of steps loaded: ${steps.length}');
+      return steps;
+    } else {
+      throw Exception('Failed to load steps: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error occurred while fetching steps: $e');
+    throw Exception('Error fetching steps: $e');
   }
 }

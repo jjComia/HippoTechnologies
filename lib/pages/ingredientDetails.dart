@@ -357,13 +357,13 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                           title: 'Delete Ingredient',
                           desc: 'Are you sure you want to remove this ingredient?',
                           btnCancelOnPress: () {},
-                          btnOkOnPress: () {
+                          btnOkOnPress: () async {
                             final url = Uri.https('bakery.permavite.com', 'api/inventory/id/${ingredient.id}');
                             http.delete(
                               url,
                               headers: <String, String>{
                                 'Content-Type': 'application/json; charset=UTF-8',
-                                'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+                                'Authorization': '${await sessionService.getSessionID()}',
                               },
                             ).then((response) {
                               if (response.statusCode == 200) {
