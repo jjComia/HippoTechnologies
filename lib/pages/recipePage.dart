@@ -673,16 +673,36 @@ class RecipesDetailPage extends StatefulWidget {
 }
 
 class _RecipesDetailPageState extends State<RecipesDetailPage> {
+  TextEditingController searchController = TextEditingController();
+  List<Recipe> filteredRecipes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the filteredRecipes with the full list of recipes
+    filteredRecipes = recipes;
+  }
+
+  void filterSearch(String query) {
+    List<Recipe> tempList = recipes.where((recipe) {
+      return recipe.name.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    setState(() {
+      filteredRecipes = tempList;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Recipes',
-        style: TextStyle(color: Color.fromARGB(255, 37, 3, 3)),  // Set the text color to black
+          style: TextStyle(color: Color.fromARGB(255, 37, 3, 3)), // Set the text color to black
+        ),
+        backgroundColor: Color.fromARGB(255, 255,253,241),
       ),
-      backgroundColor: Color.fromARGB(255, 255,253,241),
-    ),
       body: FutureBuilder(
         future: getRecipes(),
         builder: (context, snapshot) {
@@ -692,38 +712,66 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
                 child: Text('No recipes available'),
               );
             }
-            return ListView.builder(
-              itemCount: recipes.length,
-              itemBuilder: (context, index) {
-                return Padding(
+            return Column(
+              children: [
+                Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+                      color: const Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: ListTile(
-                      title: Text(
-                        recipes[index].name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
-                      textColor: const Color.fromARGB(255, 37, 3, 3),
-                      subtitle: Text(
-                        recipes[index].description,
-                        style: const TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      onTap: () {
-                        // Navigate to recipe details
+                    child: TextField(
+                      controller: searchController,
+                      onSubmitted: (value) {
+                        filterSearch(value);
                       },
+                      decoration: InputDecoration(
+                        labelText: 'Search Recipes',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        prefixIcon: Icon(Icons.search),
+                      ),
                     ),
                   ),
-                );
-              },
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: filteredRecipes.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              filteredRecipes[index].name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                            textColor: const Color.fromARGB(255, 37, 3, 3),
+                            subtitle: Text(
+                              filteredRecipes[index].description,
+                              style: const TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                            onTap: () {
+                              // Navigate to recipe details
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             );
           } else if (snapshot.hasError) {
             return Center(
@@ -746,17 +794,6 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
         spaceBetweenChildren: 12,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.search, color:Color.fromARGB(255, 37,3, 3)),
-            label: 'Search Recipes',
-            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
-            labelStyle: const TextStyle(color: Color.fromARGB(255, 37,3, 3)),
-            onTap: () {
-              // Add search functionality here
-              print('Search button tapped');
-            },
-          ),
-          SpeedDialChild(
             child: Icon(Icons.add, color:Color.fromARGB(255, 37,3, 3)),
             label: 'Add Recipe',
             labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
@@ -764,16 +801,6 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
             labelStyle: const TextStyle(color: Color.fromARGB(255, 37,3, 3)),
             onTap: () {
               _showAddRecipeDialog(context); // Show the add recipe dialog
-            },
-          ),
-          SpeedDialChild(
-            child: Icon(Icons.delete, color:Color.fromARGB(255, 37,3, 3)),
-            label: 'Delete Recipe',
-            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
-            labelStyle: const TextStyle(color: Color.fromARGB(255, 37,3, 3)),
-            onTap: () {
-              print('Delete button tapped');
             },
           ),
         ],
