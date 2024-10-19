@@ -9,6 +9,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../functions/showSlidingGeneralDialog.dart';
 
+
 final SessionService sessionService = SessionService();
 
 class RecipeDetailsPage extends StatefulWidget {
@@ -16,13 +17,17 @@ class RecipeDetailsPage extends StatefulWidget {
   final List<RecipeIngredient> recipeIngredients;
   final List<CookStep> steps;
 
-  RecipeDetailsPage({required this.recipe, required this.recipeIngredients, required this.steps});
+  RecipeDetailsPage({
+    required this.recipe,
+    required this.recipeIngredients,
+    required this.steps,
+  });
 
   @override
-  _RecipedetailspageState createState() => _RecipedetailspageState();
+  _RecipeDetailsPageState createState() => _RecipeDetailsPageState();
 }
 
-class _RecipedetailspageState extends State<RecipeDetailsPage> {
+class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
   late Recipe recipe;
   late List<RecipeIngredient> recipeIngredients;
   late List<CookStep> steps;
@@ -52,17 +57,16 @@ class _RecipedetailspageState extends State<RecipeDetailsPage> {
                   TextSpan(
                     text: recipe.name,
                     style: TextStyle(
-                      color: Color.fromARGB(255, 204,198,159),
+                      color: Color.fromARGB(255, 204, 198, 159),
                       fontSize: 30,
                     ),
                   ),
-                  
                 ],
               ),
             ),
           ),
           Divider(
-            color: Color.fromARGB(255, 204,198,159),
+            color: Color.fromARGB(255, 204, 198, 159),
             thickness: 1,
             indent: 10,
             endIndent: 10,
@@ -80,7 +84,7 @@ class _RecipedetailspageState extends State<RecipeDetailsPage> {
                         flex: 2,
                         child: Text(
                           'Prep Time:\n${recipe.prepTime} ${recipe.prepUnit}',
-                          style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204,198,159)),
+                          style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
                           textAlign: TextAlign.left,
                         ),
                       ),
@@ -88,54 +92,93 @@ class _RecipedetailspageState extends State<RecipeDetailsPage> {
                         flex: 2,
                         child: Text(
                           'CookTime:\n${recipe.cookTime} ${recipe.cookUnit}',
-                          style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204,198,159)),
+                          style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
                           textAlign: TextAlign.right,
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 20),
-                  DashedLine(height: 2, color: Color.fromARGB( 255, 204,198,159)),
+                  DashedLine(height: 2, color: Color.fromARGB(255, 204, 198, 159)),
                   SizedBox(height: 20),
                   Column(
                     children: [
                       Text(
                         'Description:',
-                        style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204,198,159)),
+                        style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 8), // Add some space between the title and description
                       Text(
                         recipe.description,
-                        style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204,198,159)),
+                        style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
                         textAlign: TextAlign.center,  // Align to the left (optional)
                       ),
                     ],
                   ),
                   SizedBox(height: 20),
-                  DashedLine(height: 2, color: Color.fromARGB( 255, 204,198,159)),
+                  DashedLine(height: 2, color: Color.fromARGB(255, 204, 198, 159)),
                   SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          'Rating',
-                          style: TextStyle(fontSize: 20, color: Color.fromARGB( 255, 204,198,159)),
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          recipe.rating.toString(),
-                          style: TextStyle(fontSize: 20, color: Color.fromARGB( 255, 204,198,159)),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ],
+                  // Ingredients Section
+                  // Ingredients Section with Bullet Points
+                  Text(
+                    'Ingredients',
+                    style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
                   ),
-                  SizedBox(height: 12),
+                  SizedBox(height: 8),
+                  ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: recipeIngredients.length,
+                    itemBuilder: (context, index) {
+                      final ingredient = recipeIngredients[index];
+                      return ListTile(
+                        leading: Text(
+                          '\u2022',  // Unicode for bullet point
+                          style: TextStyle(fontSize: 24, color: Color.fromARGB(255, 204, 198, 159)),
+                        ),
+                        title: Text(
+                          '${ingredient.name} - ${ingredient.quantity} ${ingredient.unit}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Color.fromARGB(255, 204, 198, 159),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                    // Divider(
+                    //   color: Color.fromARGB(255, 204, 198, 159),
+                    //   thickness: 1,
+                    //   indent: 10,
+                    //   endIndent: 10,
+                    // ),
+                  DashedLine(height: 2, color: Color.fromARGB(255, 204, 198, 159)),
+                  SizedBox(height: 20),
+                  // Cook Steps Section
+                  Text(
+                    'Cook Steps',
+                    style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
+                  ),
+                  SizedBox(height: 8),
+                  ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: steps.length,
+                    itemBuilder: (context, index) {
+                      final step = steps[index];
+                      return ListTile(
+                        title: Text(
+                          'Step ${index + 1}: ${step.description}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Color.fromARGB(255, 204, 198, 159),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -151,7 +194,8 @@ class _RecipedetailspageState extends State<RecipeDetailsPage> {
                 child: Icon(
                   Icons.arrow_back,
                   size: 52,
-                  color: Color.fromARGB(255,204,198,159)),
+                  color: Color.fromARGB(255, 204, 198, 159),
+                ),
               ),
               TextButton(
                 onPressed: () {
@@ -159,7 +203,7 @@ class _RecipedetailspageState extends State<RecipeDetailsPage> {
                     context: context,
                     dialogType: DialogType.warning,
                     animType: AnimType.scale,
-                    title: 'Delete Ingredient',
+                    title: 'Delete Recipe',
                     desc: 'Are you sure you want to remove this recipe?',
                     btnCancelOnPress: () {},
                     btnOkOnPress: () async {
@@ -183,7 +227,8 @@ class _RecipedetailspageState extends State<RecipeDetailsPage> {
                 child: Icon(
                   Icons.delete_forever,
                   size: 60,
-                  color: Color.fromARGB(255,204,198,159)),
+                  color: Color.fromARGB(255, 204, 198, 159),
+                ),
               ),
             ],
           ),
