@@ -110,8 +110,6 @@ Future<void> editIngredient(ingredient, editQuantity, editUnit, editPurchaseQuan
     'notes': editNotes,
   };
 
-  print(params);
-
   return http.put(
     url,
     headers: <String, String>{
@@ -569,23 +567,24 @@ void showEditDialogue(context, ingredient, VoidCallback onEdit) {
                   ),
                   TextField(
                     controller: editUnitController,
-                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(labelText: 'Unit (e.g. kg, g, L, mL, etc.)'),
+                    maxLines: null,
+                    keyboardType: TextInputType.multiline,
                   ),
                   TextField(
                     controller: editPurchaseQuantityController,
-                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(labelText: 'Purchase Quantity'),
+                    keyboardType: TextInputType.number,
                   ),
                   TextField(
                     controller: editCostPerPurchaseUnitController,
-                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(labelText: 'Cost Per Purchase Unit'),
+                    keyboardType: TextInputType.number,
                   ),
                   TextField(
-                    maxLines: null,
                     controller: editNotesController,
                     decoration: InputDecoration(labelText: 'Notes'),
+                    maxLines: null,
                     keyboardType: TextInputType.multiline,
                   ),
                 ],
@@ -628,8 +627,6 @@ void showEditDialogue(context, ingredient, VoidCallback onEdit) {
     },
   );
 }
-
-
 
 class DashedLine extends StatelessWidget {
   final double height;

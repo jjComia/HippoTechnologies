@@ -163,6 +163,8 @@ Future<bool> _showAddIngredientDialog(BuildContext context) {
               TextField(
                 controller: _nameController,
                 decoration: InputDecoration(labelText: 'Ingredient Name'),
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
               ),
               TextField(
                 controller: _quantityController,
@@ -170,8 +172,9 @@ Future<bool> _showAddIngredientDialog(BuildContext context) {
               ),
               TextField(
                 controller: _unitController,
-                keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: 'Unit (e.g. kg, g, L, mL, etc.)'),
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
               ),
               TextField(
                 controller: _purchaseQuantityController,
@@ -186,6 +189,8 @@ Future<bool> _showAddIngredientDialog(BuildContext context) {
               TextField(
                 controller: _notesController,
                 decoration: InputDecoration(labelText: 'Notes'),
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
               ),
             ],
           ),

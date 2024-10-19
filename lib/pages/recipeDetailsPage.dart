@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:namer_app/models/recipeIngredient.dart';
 import '../services/session_service.dart';
@@ -11,6 +12,17 @@ import '../functions/showSlidingGeneralDialog.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 final SessionService sessionService = SessionService();
+
+void displayEditError(context) {
+  AwesomeDialog(
+    context: context,
+    dialogType: DialogType.error,
+    animType: AnimType.scale,
+    title: 'Error',
+    desc: 'Please fill in all fields',
+    btnOkOnPress: () {},
+  ).show();
+}
 
 class RecipeDetailsPage extends StatefulWidget {
   final Recipe recipe;
@@ -31,6 +43,13 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
   late Recipe recipe;
   late List<RecipeIngredient> recipeIngredients;
   late List<CookStep> steps;
+
+  void refreshPage() async {
+    Recipe updatedRecipe = await getUpdatedRecipe(recipe.id);
+    setState(() {
+      recipe = updatedRecipe;
+    });
+  }
 
   @override
   void initState() {
@@ -75,7 +94,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
             itemCount: 5,
             itemSize: 40.0,
             direction: Axis.horizontal,
-                  ),
+          ),
           Divider(
             color: Color.fromARGB(255, 204, 198, 159),
             thickness: 1,
@@ -200,58 +219,282 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
             ),
           ),
           // Buttons at the bottom
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: Icon(
-                  Icons.arrow_back,
-                  size: 52,
-                  color: Color.fromARGB(255, 204, 198, 159),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  AwesomeDialog(
-                    context: context,
-                    dialogType: DialogType.warning,
-                    animType: AnimType.scale,
-                    title: 'Delete Recipe',
-                    desc: 'Are you sure you want to remove this recipe?',
-                    btnCancelOnPress: () {},
-                    btnOkOnPress: () async {
-                      final url = Uri.https('bakery.permavite.com', 'api/recipes/${recipe.id}');
-                      http.delete(
-                        url,
-                        headers: <String, String>{
-                          'Content-Type': 'application/json; charset=UTF-8',
-                          'Authorization': '${await sessionService.getSessionID()}',
-                        },
-                      ).then((response) {
-                        if (response.statusCode == 200) {
-                          Navigator.of(context).pop(true);
-                        } else {
-                          print('Failed to delete recipe: ${response.statusCode}');
-                        }
-                      });
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Add functionality here to edit the recipe
+                      showEditDialogue(context, recipe, refreshPage);
                     },
-                  ).show();
-                },
-                child: Icon(
-                  Icons.delete_forever,
-                  size: 60,
-                  color: Color.fromARGB(255, 204, 198, 159),
+                    child: Text('Edit Recipe', style: TextStyle(fontSize: 20,color: Color.fromARGB(255, 37, 3, 3))),
+                  ),
                 ),
-              ),
-            ],
+                SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Add functionality here to start baking
+                    },
+                    child: Text('Start Baking!', style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 37, 3, 3))),
+                  ),
+                ),
+                SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(true);
+                      },
+                      child: Icon(
+                        Icons.arrow_back,
+                        size: 52,
+                        color: Color.fromARGB(255, 204, 198, 159),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        AwesomeDialog(
+                          context: context,
+                          dialogType: DialogType.warning,
+                          animType: AnimType.scale,
+                          title: 'Delete Recipe',
+                          desc: 'Are you sure you want to remove this recipe?',
+                          btnCancelOnPress: () {},
+                          btnOkOnPress: () async {
+                            final url = Uri.https('bakery.permavite.com', 'api/recipes/${recipe.id}');
+                            http.delete(
+                              url,
+                              headers: <String, String>{
+                                'Content-Type': 'application/json; charset=UTF-8',
+                                'Authorization': '${await sessionService.getSessionID()}',
+                              },
+                            ).then((response) {
+                              if (response.statusCode == 200) {
+                                Navigator.of(context).pop(true);
+                              } else {
+                                print('Failed to delete recipe: ${response.statusCode}');
+                              }
+                            });
+                          },
+                        ).show();
+                      },
+                      child: Icon(
+                        Icons.delete_forever,
+                        size: 60,
+                        color: Color.fromARGB(255, 204, 198, 159),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+void showEditDialogue(context, recipe, VoidCallback onEdit) {
+  final TextEditingController editNameController = TextEditingController(text: recipe.name);
+  final TextEditingController editDescriptionController = TextEditingController(text: recipe.description);
+  final TextEditingController editPrepUnitController = TextEditingController(text: recipe.prepUnit);
+  final TextEditingController editCookUnitController = TextEditingController(text: recipe.cookUnit);
+  final TextEditingController editPrepTimeController = TextEditingController(text: recipe.prepTime.toString());
+  final TextEditingController editCookTimeController = TextEditingController(text: recipe.cookTime.toString());
+  final TextEditingController editRatingController = TextEditingController(text: recipe.rating.toString());
+
+  showSlidingGeneralDialog(
+    context: context,
+    barrierLabel: "Edit Recipe",
+    pageBuilder: (context) {
+      return AlertDialog(
+        title: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Centers the content
+            children: <Widget>[
+              Text(
+                'Edit Details For', // First text
+                style: TextStyle(
+                  color: Color.fromARGB(255, 37, 3, 3), // Style for "Order More"
+                  fontSize: 16,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                '${recipe.name}?', // Second text
+                style: TextStyle(
+                  color: Colors.blue, // Style for ingredient name
+                  fontSize: 20,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: editNameController,
+                    decoration: InputDecoration(labelText: 'Recipe Name'),
+                    keyboardType: TextInputType.multiline,
+                  ),
+                  TextField(
+                    controller: editDescriptionController,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(labelText: 'Description'),
+                  ),
+                  TextField(
+                    maxLines: null,
+                    controller: editPrepTimeController,
+                    decoration: InputDecoration(labelText: 'Prep Time (e.g. 15 for 15 minutes)'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextField(
+                    controller: editPrepUnitController,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(labelText: 'Prep Unit'),
+                  ),
+                  TextField(
+                    maxLines: null,
+                    controller: editCookTimeController,
+                    decoration: InputDecoration(labelText: 'Cook Time (e.g. 15 for 15 minutes)'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextField(
+                    controller: editCookUnitController,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(labelText: 'Cook Unit'),
+                  ),
+                  TextField(
+                    controller: editRatingController,
+                    decoration: InputDecoration(labelText: 'Rating (0-5)'),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-5]')),  // Filters out anything that is not a digit (0-9)
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+        actions: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },  
+                child: Text('Cancel', style: TextStyle(color: Colors.grey) ),
+              ),
+              TextButton(
+                onPressed: () async{
+                  // Check to make sure the fields are not empty
+                  if (editNameController.text.isEmpty || editDescriptionController.text.isEmpty || editPrepUnitController.text.isEmpty || editCookUnitController.text.isEmpty || editPrepTimeController.text.isEmpty || editCookTimeController.text.isEmpty || editRatingController.text.isEmpty) {
+                    print('Please fill in all fields');
+                    displayEditError(context);
+                    return;
+                  }
+
+                  print('Editing Recipe');
+                  await editRecipe(recipe, editNameController.text, editDescriptionController.text, editPrepUnitController.text, editCookUnitController.text, editPrepTimeController.text, editCookTimeController.text, editRatingController.text);
+                  onEdit(); // Trigger page refresh
+                  if(context.mounted) {
+                    Navigator.of(context).pop(); // Close the dialog
+                  }
+                },
+                child: Text('Finish Edit', style: TextStyle(color: Colors.blue)),
+              ),
+            ],
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> editRecipe(recipe, editName, editDescription, editPrepUnit, editCookUnit, editPrepTime, editCookTime, editRating) async {
+  print('Editing ingredient');
+  var url = Uri.parse('https://bakery.permavite.com/api/recipes');
+
+  var params = {
+    'id': recipe.id,
+    'name': editName,
+    'description': editDescription,
+    'prepUnit': editPrepUnit,
+    'cookUnit': editCookUnit,
+    'prepTime': editPrepTime,
+    'cookTime': editCookTime,
+    'rating': editRating,
+  };
+
+  print(params);
+
+  return http.put(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '${await sessionService.getSessionID()}',
+    },
+    body: jsonEncode(params),
+  ).then((response) {
+    if (response.statusCode == 200) {
+      print('Recipe edited successfully');
+    } else {
+      print('Failed to edit Recipe: ${response.statusCode}');
+    }
+  });
+}
+
+Future<Recipe> getUpdatedRecipe(recipeID) {
+  print('Getting updated ingredient');
+  var url = Uri.parse('https://bakery.permavite.com/api/recipes/id/$recipeID');
+
+  return http.get(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+    },
+  ).then((response) {
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return Recipe(
+        id: data['id'],
+        name: data['name'],
+        description: data['description'],
+        rating: data['rating'],
+        prepTime: data['prepTime'],
+        prepUnit: data['prepUnit'],
+        cookTime: data['cookTime'],
+        cookUnit: data['cookUnit'],
+      );
+    } else {
+      print('Failed to get updated ingredient: ${response.statusCode}');
+      return Recipe(
+        id: '',
+        name: '',
+        description: '',
+        rating: 0,
+        prepTime: 0,
+        prepUnit: '',
+        cookTime: 0,
+        cookUnit: '',
+      );
+    }
+  });
 }
 
 class DashedLine extends StatelessWidget {
