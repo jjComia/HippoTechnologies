@@ -8,7 +8,7 @@ import '../models/cookStep.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../functions/showSlidingGeneralDialog.dart';
-
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 final SessionService sessionService = SessionService();
 
@@ -119,8 +119,26 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                   SizedBox(height: 20),
                   DashedLine(height: 2, color: Color.fromARGB(255, 204, 198, 159)),
                   SizedBox(height: 20),
+                  // Star Rating Section
+                  Text(
+                    'Rating',
+                    style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
+                  ),
+                  SizedBox(height: 8),
+                   RatingBarIndicator(
+                  rating: (recipe.rating ?? 0).toDouble(), // Display the recipe's current rating
+                  itemBuilder: (context, index) => Icon(
+                    Icons.star,
+                    color: Color.fromARGB(255, 204, 198, 159),
+                  ),
+                  itemCount: 5,
+                  itemSize: 40.0,
+                  direction: Axis.horizontal,
+                ),
+                  SizedBox(height: 20),
+                  DashedLine(height: 2, color: Color.fromARGB(255, 204, 198, 159)),
+                  SizedBox(height: 20),
                   // Ingredients Section
-                  // Ingredients Section with Bullet Points
                   Text(
                     'Ingredients',
                     style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
@@ -132,28 +150,36 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                     itemCount: recipeIngredients.length,
                     itemBuilder: (context, index) {
                       final ingredient = recipeIngredients[index];
-                      return ListTile(
-                        leading: Text(
-                          '\u2022',  // Unicode for bullet point
-                          style: TextStyle(fontSize: 24, color: Color.fromARGB(255, 204, 198, 159)),
-                        ),
-                        title: Text(
-                          '${ingredient.name} - ${ingredient.quantity} ${ingredient.unit}',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Color.fromARGB(255, 204, 198, 159),
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Baseline(
+                            baselineType: TextBaseline.alphabetic,
+                            baseline: 18.0, // Adjust to match the text's baseline
+                            child: Text(
+                              '•',  // Unicode for bullet point
+                              style: TextStyle(fontSize: 24, color: Color.fromARGB(255, 204, 198, 159)),
+                            ),
                           ),
-                        ),
+                          SizedBox(width: 4),  // Adjust the space between bullet and text
+                          Expanded(
+                            child: Baseline(
+                              baselineType: TextBaseline.alphabetic,
+                              baseline: 18.0, // Same value as above for proper alignment
+                              child: Text(
+                                '${ingredient.name} - ${ingredient.quantity} ${ingredient.unit}',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Color.fromARGB(255, 204, 198, 159),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       );
                     },
                   ),
-
-                    // Divider(
-                    //   color: Color.fromARGB(255, 204, 198, 159),
-                    //   thickness: 1,
-                    //   indent: 10,
-                    //   endIndent: 10,
-                    // ),
+       
                   DashedLine(height: 2, color: Color.fromARGB(255, 204, 198, 159)),
                   SizedBox(height: 20),
                   // Cook Steps Section
