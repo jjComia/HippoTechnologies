@@ -239,6 +239,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       // Add functionality here to start baking
+                      showStartBakingDialogue(context, recipe, recipeIngredients, steps);
                     },
                     child: Text('Start Baking!', style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 37, 3, 3))),
                   ),
@@ -322,7 +323,7 @@ void showEditDialogue(context, recipe, VoidCallback onEdit) {
               Text(
                 'Edit Details For', // First text
                 style: TextStyle(
-                  color: Color.fromARGB(255, 37, 3, 3), // Style for "Order More"
+                  color: Color.fromARGB(255, 37, 3, 3), // Style for "Edit Details For"
                   fontSize: 16,
                 ),
               ),
@@ -330,7 +331,7 @@ void showEditDialogue(context, recipe, VoidCallback onEdit) {
               Text(
                 '${recipe.name}?', // Second text
                 style: TextStyle(
-                  color: Colors.blue, // Style for ingredient name
+                  color: Colors.blue, // Style for recipe name
                   fontSize: 20,
                   fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.bold,
@@ -495,6 +496,133 @@ Future<Recipe> getUpdatedRecipe(recipeID) {
       );
     }
   });
+}
+
+void showStartBakingDialogue(context, recipe, RecipeIngredients, steps) {
+  // Initialize the quantity to 1
+  int currentQuantity = 1;
+  
+  showSlidingGeneralDialog(
+    context: context,
+    barrierLabel: "Start Baking",
+    pageBuilder: (context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return AlertDialog(
+            title: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min, // Centers the content
+                children: <Widget>[
+                  Text(
+                    'Start Baking', // First text
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 37, 3, 3), // Style for "Start Baking"
+                      fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    '${recipe.name}?', // Second text
+                    style: TextStyle(
+                      color: Colors.blue, // Style for recipe name
+                      fontSize: 20,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ingredients Required:',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  // Display each ingredient in the list
+                  ...RecipeIngredients.map<Widget>((ingredient) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Text(
+                        '- ${ingredient.quantity} ${ingredient.unit} ${ingredient.name}', // Display quantity, unit, and ingredient name
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    );
+                  }).toList(),
+                ],
+              ),
+            ),
+            actions: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            if (currentQuantity > 1) {
+                              currentQuantity--; // Decrease quantity
+                            }
+                          });
+                        },
+                        child: Text('-'),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          '$currentQuantity', // Display updated quantity
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            currentQuantity++; // Increase quantity
+                            print(currentQuantity);
+                          });
+                        },
+                        child: Text('+'),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Evenly space the buttons
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // Add your logic to start baking here, using `currentQuantity` if needed
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text('Start Baking'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }
 
 class DashedLine extends StatelessWidget {
