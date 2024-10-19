@@ -58,13 +58,24 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                     text: recipe.name,
                     style: TextStyle(
                       color: Color.fromARGB(255, 204, 198, 159),
-                      fontSize: 30,
+                      fontSize: 40,
                     ),
                   ),
                 ],
               ),
             ),
           ),
+          SizedBox(height: 8),
+          RatingBarIndicator(
+            rating: (recipe.rating ?? 0).toDouble(), // Display the recipe's current rating
+            itemBuilder: (context, index) => Icon(
+              Icons.star,
+              color: Color.fromARGB(255, 204, 198, 159),
+            ),
+            itemCount: 5,
+            itemSize: 40.0,
+            direction: Axis.horizontal,
+                  ),
           Divider(
             color: Color.fromARGB(255, 204, 198, 159),
             thickness: 1,
@@ -91,7 +102,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                       Expanded(
                         flex: 2,
                         child: Text(
-                          'CookTime:\n${recipe.cookTime} ${recipe.cookUnit}',
+                          'Cook Time:\n${recipe.cookTime} ${recipe.cookUnit}',
                           style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
                           textAlign: TextAlign.right,
                         ),
@@ -119,31 +130,11 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                   SizedBox(height: 20),
                   DashedLine(height: 2, color: Color.fromARGB(255, 204, 198, 159)),
                   SizedBox(height: 20),
-                  // Star Rating Section
-                  Text(
-                    'Rating',
-                    style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
-                  ),
-                  SizedBox(height: 8),
-                   RatingBarIndicator(
-                  rating: (recipe.rating ?? 0).toDouble(), // Display the recipe's current rating
-                  itemBuilder: (context, index) => Icon(
-                    Icons.star,
-                    color: Color.fromARGB(255, 204, 198, 159),
-                  ),
-                  itemCount: 5,
-                  itemSize: 40.0,
-                  direction: Axis.horizontal,
-                ),
-                  SizedBox(height: 20),
-                  DashedLine(height: 2, color: Color.fromARGB(255, 204, 198, 159)),
-                  SizedBox(height: 20),
                   // Ingredients Section
                   Text(
                     'Ingredients',
                     style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
                   ),
-                  SizedBox(height: 8),
                   ListView.builder(
                     physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
@@ -161,7 +152,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                               style: TextStyle(fontSize: 24, color: Color.fromARGB(255, 204, 198, 159)),
                             ),
                           ),
-                          SizedBox(width: 4),  // Adjust the space between bullet and text
+                          SizedBox(width: 8),  // Adjust the space between bullet and text
                           Expanded(
                             child: Baseline(
                               baselineType: TextBaseline.alphabetic,
@@ -179,7 +170,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                       );
                     },
                   ),
-       
+                  SizedBox(height: 20),
                   DashedLine(height: 2, color: Color.fromARGB(255, 204, 198, 159)),
                   SizedBox(height: 20),
                   // Cook Steps Section
@@ -187,7 +178,6 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                     'Cook Steps',
                     style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
                   ),
-                  SizedBox(height: 8),
                   ListView.builder(
                     physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
