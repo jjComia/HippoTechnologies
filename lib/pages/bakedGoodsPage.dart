@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../services/session_service.dart';
 import '../models/bakedGoods.dart';
+import '../services/session_service.dart';
+import '../pages/bakedGoodsDetailPage.dart'; // Import the BakedGoodsDetailsPage
 
 final SessionService sessionService = SessionService();
-List<BakedGoods> bakedGoods = [];
+List<BakedGoods> bakedGoodsItems = [];
+List<BakedGoods> filteredBakedGoods = [];
 
 Future<void> getBakedGoods() async {
   var url = Uri.https('bakery.permavite.com', 'api/cookedgoods');
+  print(await sessionService.getSessionID());
 
   // Include the session ID in the headers
   var response = await http.get(
@@ -19,24 +22,29 @@ Future<void> getBakedGoods() async {
     },
   );
 
+  var jsonData = jsonDecode(response.body);
+
   if (response.statusCode == 200) {
-    var jsonData = jsonDecode(response.body);
+    bakedGoodsItems.clear(); // Clear the list to avoid duplicates
 
-    bakedGoods.clear(); // Clear the list to avoid duplicates
-
-    for (var eachBakedGood in jsonData) {
-      final good = BakedGoods(
-        id: eachBakedGood['id'],
-        name: eachBakedGood['name'],
-        quantity: eachBakedGood['quantity'],
+    for (var eachBakedGoods in jsonData) {
+      final bakedGoods = BakedGoods(
+        id: eachBakedGoods['id'],
+        name: eachBakedGoods['name'],
+        quantity: eachBakedGoods['quantity'],
       );
-      bakedGoods.add(good);
+      bakedGoodsItems.add(bakedGoods);
     }
-    print('Number of Baked Goods loaded: ${bakedGoods.length}');
+
+    filteredBakedGoods = List.from(bakedGoodsItems); // Initialize filtered list
+    print('Number of Baked Goods loaded: ${bakedGoodsItems.length}');
   } else {
-    print('Failed to load baked goods: ${response.statusCode}');
+    print('Failed to load Baked Goods: ${response.statusCode}');
   }
 }
+
+// Text editing controller for search input
+final TextEditingController searchController = TextEditingController();
 
 class BakedGoodsDetailPage extends StatefulWidget {
   @override
@@ -44,40 +52,19 @@ class BakedGoodsDetailPage extends StatefulWidget {
 }
 
 class _BakedGoodsPageState extends State<BakedGoodsDetailPage> {
-  TextEditingController searchController = TextEditingController();
-  List<BakedGoods> filteredBakedGoods = [];
-  bool isLoaded = false;
-  bool isSearching = false; // New state to track the search progress
-
   @override
   void initState() {
     super.initState();
-    fetchBakedGoods();
+    getBakedGoods(); // Fetch baked goods data when the page initializes
   }
 
-  Future<void> fetchBakedGoods() async {
-    await getBakedGoods();
-    setState(() {
-      filteredBakedGoods = bakedGoods; // Only set this after the data is loaded
-      isLoaded = true;
-    });
-  }
-
-  // Function to filter search results
-  void filterSearch(String query) async {
-    setState(() {
-      isSearching = true; // Start search
-    });
-
-    await Future.delayed(Duration(milliseconds: 500)); // Simulate loading time
-
-    List<BakedGoods> tempList = bakedGoods.where((item) {
-      return item.name.toLowerCase().contains(query.toLowerCase());
+  void filterSearch(String query) {
+    List<BakedGoods> tempList = bakedGoodsItems.where((bakedGood) {
+      return bakedGood.name.toLowerCase().contains(query.toLowerCase());
     }).toList();
 
     setState(() {
       filteredBakedGoods = tempList;
-      isSearching = false; // End search
     });
   }
 
@@ -91,9 +78,18 @@ class _BakedGoodsPageState extends State<BakedGoodsDetailPage> {
         ),
         backgroundColor: Color.fromARGB(255, 255, 253, 241),
       ),
-      body: isLoaded
-          ? Column(
+      body: FutureBuilder(
+        future: getBakedGoods(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (bakedGoodsItems.isEmpty) {
+              return Center(
+                child: Text('No Baked Goods available'),
+              );
+            }
+            return Column(
               children: [
+                // Search bar
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
@@ -104,7 +100,7 @@ class _BakedGoodsPageState extends State<BakedGoodsDetailPage> {
                     child: TextField(
                       controller: searchController,
                       onSubmitted: (value) {
-                        filterSearch(value); // Search when "Enter" is pressed
+                        filterSearch(value); // Trigger search when the enter key is pressed
                       },
                       decoration: InputDecoration(
                         labelText: 'Search Baked Goods',
@@ -116,43 +112,66 @@ class _BakedGoodsPageState extends State<BakedGoodsDetailPage> {
                     ),
                   ),
                 ),
-                isSearching
-                    ? Center(child: CircularProgressIndicator()) // Show loading circle while searching
-                    : Expanded(
-                        child: ListView.builder(
-                          itemCount: filteredBakedGoods.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: const Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: ListTile(
-                                  title: Text(
-                                    filteredBakedGoods[index].name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                  textColor: const Color.fromARGB(255, 32, 3, 3),
-                                  subtitle: Text(
-                                    'In stock: ${filteredBakedGoods[index].quantity}',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: filteredBakedGoods.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              filteredBakedGoods[index].name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
                               ),
-                            );
-                          },
+                            ),
+                            textColor: const Color.fromARGB(255, 37, 3, 3),
+                            subtitle: Text(
+                              'In stock: ${filteredBakedGoods[index].quantity}',
+                              style: const TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                            onTap: () async {
+                              bool? shouldRefresh = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BakedGoodsDetailsPage(bakedGoods: bakedGoodsItems[index]),
+                                ),
+                              );
+
+                              if (shouldRefresh == true) {
+                                // Refresh the BakedGoods list by calling the API again
+                                await getBakedGoods();
+                                setState(() {});
+                              }
+                            },
+
+                          ),
                         ),
-                      ),
+                      );
+                    },
+                  ),
+                ),
               ],
-            )
-          : Center(child: CircularProgressIndicator()),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
     );
   }
 }
