@@ -343,7 +343,7 @@ Widget _buildRoundedButton(BuildContext context, String text, IconData icon, {re
   return ElevatedButton(
     onPressed: onTap,
     style: ElevatedButton.styleFrom(
-      fixedSize: Size(200, 200),  // Set the fixed size here
+      fixedSize: Size(400, 400),  // Set the fixed size here
       padding: const EdgeInsets.all(18.0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24.0),  // Rounded corners
