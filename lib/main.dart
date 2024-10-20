@@ -301,7 +301,7 @@ class HomePage extends StatelessWidget {
               children: [
                 _buildRoundedButton(
                   context,
-                  'Inventory',
+                  'Baked Goods',
                   Icons.inventory,
                   onTap: () {
                     onPageTap(InventoryDetailPage());

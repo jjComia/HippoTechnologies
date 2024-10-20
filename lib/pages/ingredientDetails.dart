@@ -61,12 +61,14 @@ Future<Ingredient> getUpdatedIngredient(ingredientID) {
   ).then((response) {
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
+      print(data);
+
       return Ingredient(
         id: data['id'],
         name: data['name'],
-        quantity: data['quantity'],
+        quantity: (data['quantity'] is int) ? (data['quantity'] as int).toDouble() : data['quantity'],
         purchaseQuantity: data['purchaseQuantity'],
-        costPerPurchaseUnit: data['costPerPurchaseUnit'],
+        costPerPurchaseUnit: (data['costPerPurchaseUnit'] is int) ? (data['costPerPurchaseUnit'] as int).toDouble() : data['costPerPurchaseUnit'],
         unit: data['unit'],
         notes: data['notes'],
       );
@@ -109,8 +111,6 @@ Future<void> editIngredient(ingredient, editQuantity, editUnit, editPurchaseQuan
     'unit': editUnit,
     'notes': editNotes,
   };
-
-  print(params);
 
   return http.put(
     url,
@@ -357,13 +357,13 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                           title: 'Delete Ingredient',
                           desc: 'Are you sure you want to remove this ingredient?',
                           btnCancelOnPress: () {},
-                          btnOkOnPress: () {
+                          btnOkOnPress: () async {
                             final url = Uri.https('bakery.permavite.com', 'api/inventory/id/${ingredient.id}');
                             http.delete(
                               url,
                               headers: <String, String>{
                                 'Content-Type': 'application/json; charset=UTF-8',
-                                'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+                                'Authorization': '${await sessionService.getSessionID()}',
                               },
                             ).then((response) {
                               if (response.statusCode == 200) {
@@ -569,23 +569,24 @@ void showEditDialogue(context, ingredient, VoidCallback onEdit) {
                   ),
                   TextField(
                     controller: editUnitController,
-                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(labelText: 'Unit (e.g. kg, g, L, mL, etc.)'),
+                    maxLines: null,
+                    keyboardType: TextInputType.multiline,
                   ),
                   TextField(
                     controller: editPurchaseQuantityController,
-                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(labelText: 'Purchase Quantity'),
+                    keyboardType: TextInputType.number,
                   ),
                   TextField(
                     controller: editCostPerPurchaseUnitController,
-                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(labelText: 'Cost Per Purchase Unit'),
+                    keyboardType: TextInputType.number,
                   ),
                   TextField(
-                    maxLines: null,
                     controller: editNotesController,
                     decoration: InputDecoration(labelText: 'Notes'),
+                    maxLines: null,
                     keyboardType: TextInputType.multiline,
                   ),
                 ],
@@ -628,8 +629,6 @@ void showEditDialogue(context, ingredient, VoidCallback onEdit) {
     },
   );
 }
-
-
 
 class DashedLine extends StatelessWidget {
   final double height;

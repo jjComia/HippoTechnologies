@@ -4,7 +4,6 @@ class Ingredient
   final String name;
   final double quantity;
   final int purchaseQuantity;
-  //doesnt work if double??
   final double costPerPurchaseUnit;
   final String unit;
   final String notes;

@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../services/session_service.dart';
 import 'dart:convert';
-import '../models/recipe.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../functions/showSlidingGeneralDialog.dart';
+import '../models/recipe.dart';
+import '../models/recipeIngredient.dart';
+import '../models/cookStep.dart';
+import 'recipeDetailsPage.dart';
 
 final SessionService sessionService = SessionService();
 List<Recipe> recipes = [];
@@ -241,33 +244,44 @@ void _showAddRecipeDialog(BuildContext context) {
               TextField(
                 controller: _recipeNameController,
                 decoration: InputDecoration(labelText: 'Recipe Name'),
+                maxLines: null,
+                keyboardType: TextInputType.text,
               ),
               TextField(
                 controller: _descriptionController,
                 decoration: InputDecoration(labelText: 'Description'),
+                maxLines: null,
+                keyboardType: TextInputType.text,
+              ),
+              TextField(
+                controller: _prepTimeController,
+                decoration: InputDecoration(labelText: 'Prep Time (e.g. 15 for 15 minutes)'),
+                maxLines: null,
+                keyboardType: TextInputType.number,
               ),
               TextField(
                 controller: _prepUnitController,
                 decoration: InputDecoration(labelText: 'Prep Unit (e.g. Minutes, Hours)'),
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+              ),
+              TextField(
+                controller: _cookTimeController,
+                decoration: InputDecoration(labelText: 'Cook Time (e.g. 30 for 30 minutes)'),
+                maxLines: null,
+                keyboardType: TextInputType.number,
               ),
               TextField(
                 controller: _cookUnitController,
                 decoration: InputDecoration(labelText: 'Cook Unit (e.g. Minutes, Hours)'),
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
               ),
               TextField(
                 controller: _ratingController,
-                keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: 'Rating (0-5)'),
-              ),
-              TextField(
-                controller: _prepTimeController,
+                maxLines: null,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Prep Time (e.g. 15 for 15 minutes)'),
-              ),
-              TextField(
-                controller: _cookTimeController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Cook Time (e.g. 30 for 30 minutes)'),
               ),
             ],
           ),
@@ -576,6 +590,9 @@ void _showAddStepsDialog(BuildContext context) {
                             String? recipeId = await addRecipe();
 
                             if (recipeId != null) {
+                              // Add the recipe to the cookedGoods table
+                              await addCookedGoods(recipeId);
+
                               // After recipe is added, we proceed with cook steps
                               await addSteps(recipeId, steps);
                               print('Steps added for Recipe ID: $recipeId');
@@ -650,9 +667,6 @@ void _showAddStepsDialog(BuildContext context) {
                         },
                         child: Text('Add'),
                       )
-
-
-
                     ],
                   ),
                 )
@@ -673,16 +687,36 @@ class RecipesDetailPage extends StatefulWidget {
 }
 
 class _RecipesDetailPageState extends State<RecipesDetailPage> {
+  TextEditingController searchController = TextEditingController();
+  List<Recipe> filteredRecipes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the filteredRecipes with the full list of recipes
+    filteredRecipes = recipes;
+  }
+
+  void filterSearch(String query) {
+    List<Recipe> tempList = recipes.where((recipe) {
+      return recipe.name.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    setState(() {
+      filteredRecipes = tempList;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Recipes',
-        style: TextStyle(color: Color.fromARGB(255, 37, 3, 3)),  // Set the text color to black
+          style: TextStyle(color: Color.fromARGB(255, 37, 3, 3)), // Set the text color to black
+        ),
+        backgroundColor: Color.fromARGB(255, 255,253,241),
       ),
-      backgroundColor: Color.fromARGB(255, 255,253,241),
-    ),
       body: FutureBuilder(
         future: getRecipes(),
         builder: (context, snapshot) {
@@ -692,38 +726,96 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
                 child: Text('No recipes available'),
               );
             }
-            return ListView.builder(
-              itemCount: recipes.length,
-              itemBuilder: (context, index) {
-                return Padding(
+            return Column(
+              children: [
+                Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+                      color: const Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: ListTile(
-                      title: Text(
-                        recipes[index].name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
-                      textColor: const Color.fromARGB(255, 37, 3, 3),
-                      subtitle: Text(
-                        recipes[index].description,
-                        style: const TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      onTap: () {
-                        // Navigate to recipe details
+                    child: TextField(
+                      controller: searchController,
+                      onSubmitted: (value) {
+                        filterSearch(value);
                       },
+                      decoration: InputDecoration(
+                        labelText: 'Search Recipes',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        prefixIcon: Icon(Icons.search),
+                      ),
                     ),
                   ),
-                );
-              },
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: filteredRecipes.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              filteredRecipes[index].name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                            textColor: const Color.fromARGB(255, 37, 3, 3),
+                            subtitle: Text(
+                              filteredRecipes[index].description,
+                              style: const TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                            onTap: () async {
+                             try {
+                              // Get ingredients for the selected recipe
+                              List<RecipeIngredient> ingredients = await getIngredientsForRecipe(filteredRecipes[index].id);
+
+                              // Get the cook steps for the selected recipe
+                              List<CookStep> cookSteps = await getCookStepsForRecipe(filteredRecipes[index].id);
+
+                              // If ingredients are successfully fetched, navigate to the details page
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RecipeDetailsPage(recipe: recipes[index], recipeIngredients: ingredients, steps: cookSteps),  // Pass ingredients to the details page
+                                ),
+                              ).then((shouldRefresh) {
+                                if (shouldRefresh == true) {
+                                  setState(() {
+                                    // Reload the data or refresh the page
+                                    getRecipes();
+                                  });
+                                }
+                              });
+                            } catch (e) {
+                              // Handle the error (show a dialog or a snackbar)
+                              print('Error: $e');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to load ingredients. Please try again later.'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             );
           } else if (snapshot.hasError) {
             return Center(
@@ -746,17 +838,6 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
         spaceBetweenChildren: 12,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.search, color:Color.fromARGB(255, 37,3, 3)),
-            label: 'Search Recipes',
-            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
-            labelStyle: const TextStyle(color: Color.fromARGB(255, 37,3, 3)),
-            onTap: () {
-              // Add search functionality here
-              print('Search button tapped');
-            },
-          ),
-          SpeedDialChild(
             child: Icon(Icons.add, color:Color.fromARGB(255, 37,3, 3)),
             label: 'Add Recipe',
             labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
@@ -766,18 +847,121 @@ class _RecipesDetailPageState extends State<RecipesDetailPage> {
               _showAddRecipeDialog(context); // Show the add recipe dialog
             },
           ),
-          SpeedDialChild(
-            child: Icon(Icons.delete, color:Color.fromARGB(255, 37,3, 3)),
-            label: 'Delete Recipe',
-            labelBackgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
-            backgroundColor: const Color.fromARGB(255, 255,253,241).withOpacity(0.8),
-            labelStyle: const TextStyle(color: Color.fromARGB(255, 37,3, 3)),
-            onTap: () {
-              print('Delete button tapped');
-            },
-          ),
         ],
       ),
     );
+  }
+}
+
+Future<List<RecipeIngredient>> getIngredientsForRecipe(String recipeID) async {
+  try {
+    // Create the URL for the GET request
+    var url = Uri.https('bakery.permavite.com', 'api/ingredients/recipeid/$recipeID');
+
+    // Include the session ID in the headers
+    var response = await http.get(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': '${await sessionService.getSessionID()}',
+      },
+    );
+
+    // Check if response is successful
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+
+      // Create a new List of RecipeIngredients
+      List<RecipeIngredient> ingredients = [];
+
+      // Iterate through the JSON data adding each ingredient to the list
+      for (var eachIngredient in jsonData) {
+        final ingredient = RecipeIngredient(
+          id: eachIngredient['id'],
+          recipeID: eachIngredient['recipeId'],
+          inventoryID: eachIngredient['inventoryId'],
+          name: eachIngredient['name'],
+          quantity: eachIngredient['quantity'],
+          minQuantity: eachIngredient['minQuantity'],
+          unit: eachIngredient['unit'],
+        );
+        ingredients.add(ingredient);
+      }
+
+      // Print the number of ingredients loaded
+      print('Number of ingredients loaded: ${ingredients.length}');
+      return ingredients;
+    } else {
+      throw Exception('Failed to load ingredients: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error occurred while fetching ingredients: $e');
+    throw Exception('Error fetching ingredients: $e');
+  }
+}
+
+Future<List<CookStep>> getCookStepsForRecipe(String recipeID) async {
+  try {
+    // Create the URL for the GET request
+    var url = Uri.https('bakery.permavite.com', 'api/cookstep/recipeid/$recipeID');
+
+    // Include the session ID in the headers
+    var response = await http.get(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': '${await sessionService.getSessionID()}',
+      },
+    );
+
+    // Check if response is successful
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+
+      // Create a new List of CookSteps
+      List<CookStep> steps = [];
+
+      // Iterate through the JSON data adding each step to the list
+      for (var eachStep in jsonData) {
+        final step = CookStep(
+          id: eachStep['id'],
+          recipeID: eachStep['recipeId'],
+          description: eachStep['description'],
+        );
+        steps.add(step);
+      }
+
+      // Print the number of steps loaded
+      print('Number of steps loaded: ${steps.length}');
+      return steps;
+    } else {
+      throw Exception('Failed to load steps: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error occurred while fetching steps: $e');
+    throw Exception('Error fetching steps: $e');
+  }
+}
+
+Future<void> addCookedGoods(String recipeId) async {
+  var url = Uri.https('bakery.permavite.com', 'api/cookedgoods');
+
+  // POST request to add the recipe to the cookedGoods table
+  var response = await http.post(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '${await sessionService.getSessionID()}',
+    },
+    body: jsonEncode({
+      'recipeId': recipeId,
+      'quantity': 0, // Default quantity
+    }),
+  );
+
+  if (response.statusCode == 201) {
+    print('Recipe added to cookedGoods successfully');
+  } else {
+    print('Failed to add recipe to cookedGoods: ${response.statusCode}');
   }
 }
