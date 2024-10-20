@@ -7,7 +7,6 @@ import 'dart:convert';
 import '../models/recipe.dart';
 import '../models/cookStep.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../functions/showSlidingGeneralDialog.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
@@ -73,11 +72,15 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
   late List<CookStep> steps;
 
   void refreshPage() async {
-    Recipe updatedRecipe = await getUpdatedRecipe(recipe.id);
-    setState(() {
-      recipe = updatedRecipe;
-    });
-  }
+  Recipe updatedRecipe = await getUpdatedRecipe(recipe.id);
+
+  setState(() {
+    recipe = updatedRecipe;
+    ingredientsStock = []; // Reset the ingredientsStock before fetching the updated values
+  });
+
+  getIngredientsStock(recipeIngredients);
+}
 
   @override
   void initState() {
@@ -116,7 +119,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
           ),
           SizedBox(height: 8),
           RatingBarIndicator(
-            rating: (recipe.rating ?? 0).toDouble(), // Display the recipe's current rating
+            rating: (recipe.rating).toDouble(), // Display the recipe's current rating
             itemBuilder: (context, index) => Icon(
               Icons.star,
               color: Color.fromARGB(255, 204, 198, 159),
@@ -267,10 +270,10 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                 Align(
                   alignment: Alignment.center,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       // Add functionality here to start baking
-                      print(ingredientsStock);
-                      showStartBakingDialogue(context, recipe, recipeIngredients, steps, ingredientsStock);
+                      showStartBakingDialogue(context, recipe, recipeIngredients, steps, ingredientsStock, refreshPage);
+                      refreshPage();
                     },
                     child: Text('Start Baking!', style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 37, 3, 3))),
                   ),
@@ -529,7 +532,7 @@ Future<Recipe> getUpdatedRecipe(recipeID) {
   });
 }
 
-void showStartBakingDialogue(context, recipe, recipeIngredients, steps, List<Map<String, int>> ingredientsStock) {
+void showStartBakingDialogue(context, recipe, recipeIngredients, steps, List<Map<String, int>> ingredientsStock, VoidCallback onBake) {
   // Initialize the quantity to 1
   int currentQuantity = 1;
 
@@ -743,6 +746,7 @@ void showStartBakingDialogue(context, recipe, recipeIngredients, steps, List<Map
                             return;
                           } else {
                             showSuccessDialog(context, recipe.name);
+                            onBake();
                           }
                         },
                         child: Text('Start Baking'),
