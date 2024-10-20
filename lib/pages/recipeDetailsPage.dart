@@ -12,6 +12,34 @@ import '../functions/showSlidingGeneralDialog.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 final SessionService sessionService = SessionService();
+List<Map<String, int>> ingredientsStock = [];
+
+// Gets this recipe's ingredients and their stock for checking if there is enough stock to start baking
+Future<void> getIngredientsStock(recipeIngredients) async {
+  // Get all ingredients and their stocks
+  for (var ingredient in recipeIngredients) {
+    var url = Uri.https('bakery.permavite.com', '/api/inventory/id/${ingredient.inventoryID}');
+    var response = await http.get(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': '${await sessionService.getSessionID()}',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      print('Ingredient: ${ingredient.id}');
+      print('Ingredient stock: ${jsonData['quantity']}');
+      ingredientsStock.add({
+        'id': ingredient.id,
+        'stock': jsonData['quantity'],
+      });
+    } else {
+      print('Failed to get ingredient stock: ${response.statusCode}');
+    }
+  }
+}
 
 void displayEditError(context) {
   AwesomeDialog(
@@ -54,9 +82,11 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
   @override
   void initState() {
     super.initState();
+    ingredientsStock = [];
     recipe = widget.recipe;
     recipeIngredients = widget.recipeIngredients;
     steps = widget.steps;
+    getIngredientsStock(recipeIngredients);
   }
 
   @override
@@ -239,7 +269,8 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       // Add functionality here to start baking
-                      showStartBakingDialogue(context, recipe, recipeIngredients, steps);
+                      print(ingredientsStock);
+                      showStartBakingDialogue(context, recipe, recipeIngredients, steps, ingredientsStock);
                     },
                     child: Text('Start Baking!', style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 37, 3, 3))),
                   ),
@@ -305,9 +336,9 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
 void showEditDialogue(context, recipe, VoidCallback onEdit) {
   final TextEditingController editNameController = TextEditingController(text: recipe.name);
   final TextEditingController editDescriptionController = TextEditingController(text: recipe.description);
-  final TextEditingController editPrepUnitController = TextEditingController(text: recipe.prepUnit);
+  final TextEditingController prepUnitController = TextEditingController(text: recipe.prepUnit);
   final TextEditingController editCookUnitController = TextEditingController(text: recipe.cookUnit);
-  final TextEditingController editPrepTimeController = TextEditingController(text: recipe.prepTime.toString());
+  final TextEditingController prepTimeController = TextEditingController(text: recipe.prepTime.toString());
   final TextEditingController editCookTimeController = TextEditingController(text: recipe.cookTime.toString());
   final TextEditingController editRatingController = TextEditingController(text: recipe.rating.toString());
 
@@ -357,12 +388,12 @@ void showEditDialogue(context, recipe, VoidCallback onEdit) {
                   ),
                   TextField(
                     maxLines: null,
-                    controller: editPrepTimeController,
+                    controller: prepTimeController,
                     decoration: InputDecoration(labelText: 'Prep Time (e.g. 15 for 15 minutes)'),
                     keyboardType: TextInputType.number,
                   ),
                   TextField(
-                    controller: editPrepUnitController,
+                    controller: prepUnitController,
                     keyboardType: TextInputType.multiline,
                     decoration: InputDecoration(labelText: 'Prep Unit'),
                   ),
@@ -403,14 +434,14 @@ void showEditDialogue(context, recipe, VoidCallback onEdit) {
               TextButton(
                 onPressed: () async{
                   // Check to make sure the fields are not empty
-                  if (editNameController.text.isEmpty || editDescriptionController.text.isEmpty || editPrepUnitController.text.isEmpty || editCookUnitController.text.isEmpty || editPrepTimeController.text.isEmpty || editCookTimeController.text.isEmpty || editRatingController.text.isEmpty) {
+                  if (editNameController.text.isEmpty || editDescriptionController.text.isEmpty || prepUnitController.text.isEmpty || editCookUnitController.text.isEmpty || prepTimeController.text.isEmpty || editCookTimeController.text.isEmpty || editRatingController.text.isEmpty) {
                     print('Please fill in all fields');
                     displayEditError(context);
                     return;
                   }
 
                   print('Editing Recipe');
-                  await editRecipe(recipe, editNameController.text, editDescriptionController.text, editPrepUnitController.text, editCookUnitController.text, editPrepTimeController.text, editCookTimeController.text, editRatingController.text);
+                  await editRecipe(recipe, editNameController.text, editDescriptionController.text, prepUnitController.text, editCookUnitController.text, prepTimeController.text, editCookTimeController.text, editRatingController.text);
                   onEdit(); // Trigger page refresh
                   if(context.mounted) {
                     Navigator.of(context).pop(); // Close the dialog
@@ -426,7 +457,7 @@ void showEditDialogue(context, recipe, VoidCallback onEdit) {
   );
 }
 
-Future<void> editRecipe(recipe, editName, editDescription, editPrepUnit, editCookUnit, editPrepTime, editCookTime, editRating) async {
+Future<void> editRecipe(recipe, editName, editDescription, prepUnit, editCookUnit, prepTime, editCookTime, editRating) async {
   print('Editing ingredient');
   var url = Uri.parse('https://bakery.permavite.com/api/recipes');
 
@@ -434,9 +465,9 @@ Future<void> editRecipe(recipe, editName, editDescription, editPrepUnit, editCoo
     'id': recipe.id,
     'name': editName,
     'description': editDescription,
-    'prepUnit': editPrepUnit,
+    'prepUnit': prepUnit,
     'cookUnit': editCookUnit,
-    'prepTime': editPrepTime,
+    'prepTime': prepTime,
     'cookTime': editCookTime,
     'rating': editRating,
   };
@@ -498,10 +529,10 @@ Future<Recipe> getUpdatedRecipe(recipeID) {
   });
 }
 
-void showStartBakingDialogue(context, recipe, RecipeIngredients, steps) {
+void showStartBakingDialogue(context, recipe, recipeIngredients, steps, List<Map<String, int>> ingredientsStock) {
   // Initialize the quantity to 1
   int currentQuantity = 1;
-  
+
   showSlidingGeneralDialog(
     context: context,
     barrierLabel: "Start Baking",
@@ -530,6 +561,8 @@ void showStartBakingDialogue(context, recipe, RecipeIngredients, steps) {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  SizedBox(height: 12),
+                  DashedLine(height: 2, color: Color.fromARGB(255, 204, 198, 159)),
                 ],
               ),
             ),
@@ -546,12 +579,30 @@ void showStartBakingDialogue(context, recipe, RecipeIngredients, steps) {
                   ),
                   SizedBox(height: 8),
                   // Display each ingredient in the list
-                  ...RecipeIngredients.map<Widget>((ingredient) {
+                  ...recipeIngredients.map<Widget>((ingredient) {
+                    // Find the stock for this ingredient
+                    print(ingredientsStock);
+                    int ingredientStock = ingredientsStock.firstWhere(
+                      (stockItem) => stockItem['id'] == ingredient.id,
+                      orElse: () => {'id': ingredient.id, 'stock': 0},
+                    )['stock']!;
+
+                    print(ingredientStock);
+
+                    // Calculate required quantity
+                    int requiredQuantity = ingredient.quantity * currentQuantity;
+
+                    // Determine text color
+                    Color textColor = requiredQuantity > ingredientStock ? Colors.red : Colors.black;
+
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: Text(
-                        '- ${ingredient.quantity} ${ingredient.unit} ${ingredient.name}', // Display quantity, unit, and ingredient name
-                        style: TextStyle(fontSize: 16),
+                        '- $requiredQuantity ${ingredient.unit} ${ingredient.name}', // Display quantity, unit, and ingredient name
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: textColor,
+                        ),
                       ),
                     );
                   }).toList(),
@@ -562,6 +613,20 @@ void showStartBakingDialogue(context, recipe, RecipeIngredients, steps) {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  DashedLine(height: 2, color: Color.fromARGB(255, 204, 198, 159)),
+                  SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Scale Recipe?', // Display text
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    ],
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -589,7 +654,6 @@ void showStartBakingDialogue(context, recipe, RecipeIngredients, steps) {
                         onPressed: () {
                           setState(() {
                             currentQuantity++; // Increase quantity
-                            print(currentQuantity);
                           });
                         },
                         child: Text('+'),
@@ -607,9 +671,79 @@ void showStartBakingDialogue(context, recipe, RecipeIngredients, steps) {
                         child: Text('Cancel'),
                       ),
                       TextButton(
-                        onPressed: () {
-                          // Add your logic to start baking here, using `currentQuantity` if needed
-                          Navigator.of(context).pop(); // Close the dialog
+                        onPressed: () async {
+                          // Check if there is enough stock to start baking
+                          print('1');
+                          bool canBake = true;
+                          for (var ingredient in recipeIngredients) {
+                            int requiredQuantity = ingredient.quantity * currentQuantity;
+                            int ingredientStock = ingredientsStock.firstWhere(
+                              (stockItem) => stockItem['id'] == ingredient.id,
+                              orElse: () => {'id': ingredient.id, 'stock': 0},
+                            )['stock']!;
+
+                            if (requiredQuantity > ingredientStock) {
+                              canBake = false;
+                              break;
+                            }
+                          }
+
+                          if (!canBake) {
+                            AwesomeDialog(
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.scale,
+                              title: 'Error',
+                              desc: 'Not enough stock to start baking',
+                              btnOkOnPress: () {},
+                            ).show();
+                            return;
+                          }
+
+                          print('2');
+                          // Remove the required stock from the inventory
+                          for (var ingredient in recipeIngredients) {
+                            int requiredQuantity = ingredient.quantity * currentQuantity;
+                            int ingredientStock = ingredientsStock.firstWhere(
+                              (stockItem) => stockItem['id'] == ingredient.id,
+                              orElse: () => {'id': ingredient.id, 'stock': 0},
+                            )['stock']!;
+
+                            // Calculate the new stock
+                            int newStock = ingredientStock - requiredQuantity;
+
+                            // Update the inventory
+                            bool blnCheck =  await editIngredientStock(ingredient, newStock);
+                            if (!blnCheck) {
+                              AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.error,
+                                animType: AnimType.scale,
+                                title: 'Error',
+                                desc: 'Failed to update inventory',
+                                btnOkOnPress: () {},
+                              ).show();
+                              return;
+                            }
+                          }
+
+                          print('3');
+                          // Add Goods to Inventory
+                          // Add Goods to Inventory
+                          bool blnCheck = await addFinsihedGoods(recipe, currentQuantity);
+                          if (!blnCheck) {
+                            AwesomeDialog(
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.scale,
+                              title: 'Error',
+                              desc: 'Failed to add finished goods',
+                              btnOkOnPress: () {},
+                            ).show();
+                            return;
+                          } else {
+                            showSuccessDialog(context, recipe.name);
+                          }
                         },
                         child: Text('Start Baking'),
                       ),
@@ -623,6 +757,122 @@ void showStartBakingDialogue(context, recipe, RecipeIngredients, steps) {
       );
     },
   );
+}
+
+void showSuccessDialog(BuildContext context, String recipeName) {
+  AwesomeDialog(
+    context: context,
+    dialogType: DialogType.success,
+    animType: AnimType.scale,
+    title: 'Baking successful',
+    desc: '$recipeName has been successfully baked!',
+    btnOkText: 'Awesome!',
+    btnOkOnPress: () {
+      Navigator.of(context).pop(); // Pop after confirming success
+    },
+  ).show();
+}
+
+
+Future<bool> addFinsihedGoods(recipe, int finishedQuantity) async {
+  // First get the current amount of this finished good in the inventory
+  var url = Uri.https('bakery.permavite.com', '/api/cookedgoods/recipeid/${recipe.id}');
+
+  var response = await http.get(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '${await sessionService.getSessionID()}',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    var jsonData = jsonDecode(response.body);
+    int currentQuantity = jsonData['quantity'];
+
+    // Add the new quantity to the current quantity
+    int newQuantity = currentQuantity + finishedQuantity;
+
+    // Update the inventory
+    var params = {
+      'recipeId': recipe.id,
+      'quantity': newQuantity,
+    };
+
+    var url = Uri.parse('https://bakery.permavite.com/api/cookedgoods');
+
+    var response2 = await http.put(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': '${await sessionService.getSessionID()}',
+      },
+      body: jsonEncode(params),
+    );
+
+    if (response2.statusCode == 200) {
+      print('Finished goods added successfully');
+    } else {
+      print('Failed to add finished goods: ${response2.statusCode}');
+      return false;
+    }
+  } else {
+    print('Failed to get finished goods: ${response.statusCode}');
+    return false;
+  }
+
+  return true;
+}
+
+Future<bool> editIngredientStock(ingredient, stock) async {
+  // First get the current information for this ingredient
+  var url = Uri.https('bakery.permavite.com', '/api/inventory/id/${ingredient.inventoryID}');
+  var response = await http.get(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '${await sessionService.getSessionID()}',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    var jsonData = jsonDecode(response.body);
+    print(jsonData);
+
+    // Update the stock
+    var params = {
+      'id': jsonData['id'],
+      'name': jsonData['name'],
+      'quantity': stock,
+      'purchaseQuantity': jsonData['purchaseQuantity'],
+      'costPerPurchaseUnit': jsonData['costPerPurchaseUnit'],
+      'unit':jsonData['unit'],
+      'notes': jsonData['notes'],
+    };
+
+    var url = Uri.parse('https://bakery.permavite.com/api/inventory');
+
+    var response2 = await http.put(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': '${await sessionService.getSessionID()}',
+      },
+      body: jsonEncode(params),
+    );
+
+    if (response2.statusCode == 200) {
+      print('Stock updated successfully');
+    } else {
+      print('Failed to update stock: ${response2.statusCode}');
+      return false;
+    }
+  } else {
+    print('Failed to get ingredient stock: ${response.statusCode}');
+    return false;
+  }
+
+  return true;
 }
 
 class DashedLine extends StatelessWidget {

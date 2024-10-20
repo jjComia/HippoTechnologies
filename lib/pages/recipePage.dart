@@ -590,6 +590,9 @@ void _showAddStepsDialog(BuildContext context) {
                             String? recipeId = await addRecipe();
 
                             if (recipeId != null) {
+                              // Add the recipe to the cookedGoods table
+                              await addCookedGoods(recipeId);
+
                               // After recipe is added, we proceed with cook steps
                               await addSteps(recipeId, steps);
                               print('Steps added for Recipe ID: $recipeId');
@@ -664,9 +667,6 @@ void _showAddStepsDialog(BuildContext context) {
                         },
                         child: Text('Add'),
                       )
-
-
-
                     ],
                   ),
                 )
@@ -940,5 +940,28 @@ Future<List<CookStep>> getCookStepsForRecipe(String recipeID) async {
   } catch (e) {
     print('Error occurred while fetching steps: $e');
     throw Exception('Error fetching steps: $e');
+  }
+}
+
+Future<void> addCookedGoods(String recipeId) async {
+  var url = Uri.https('bakery.permavite.com', 'api/cookedgoods');
+
+  // POST request to add the recipe to the cookedGoods table
+  var response = await http.post(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '${await sessionService.getSessionID()}',
+    },
+    body: jsonEncode({
+      'recipeId': recipeId,
+      'quantity': 0, // Default quantity
+    }),
+  );
+
+  if (response.statusCode == 201) {
+    print('Recipe added to cookedGoods successfully');
+  } else {
+    print('Failed to add recipe to cookedGoods: ${response.statusCode}');
   }
 }
