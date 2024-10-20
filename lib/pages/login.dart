@@ -125,7 +125,7 @@ class LoginPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Image.asset(
-                'assets/images/HippoTechnologiesLogo.png',
+                'assets/images/clearhippo.png',
                 height: 225.0, // Adjust the height as needed
               ),
               SizedBox(height: 24.0), // Space between image and text fields
