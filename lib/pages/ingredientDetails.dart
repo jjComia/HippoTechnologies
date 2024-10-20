@@ -61,12 +61,14 @@ Future<Ingredient> getUpdatedIngredient(ingredientID) {
   ).then((response) {
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
+      print(data);
+
       return Ingredient(
         id: data['id'],
         name: data['name'],
-        quantity: data['quantity'],
+        quantity: (data['quantity'] is int) ? (data['quantity'] as int).toDouble() : data['quantity'],
         purchaseQuantity: data['purchaseQuantity'],
-        costPerPurchaseUnit: data['costPerPurchaseUnit'],
+        costPerPurchaseUnit: (data['costPerPurchaseUnit'] is int) ? (data['costPerPurchaseUnit'] as int).toDouble() : data['costPerPurchaseUnit'],
         unit: data['unit'],
         notes: data['notes'],
       );
