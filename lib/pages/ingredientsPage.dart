@@ -155,6 +155,7 @@ Future<bool> _showAddIngredientDialog(BuildContext context) {
     transitionDuration: Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) {
       return AlertDialog(
+        backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.97),
         title: Text('Add Ingredient'),
         content: SingleChildScrollView(
           child: Column(
