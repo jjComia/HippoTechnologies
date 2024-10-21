@@ -356,8 +356,6 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                     ),
                   ],
                 )
-
-
                 ],
               ),
             ),
