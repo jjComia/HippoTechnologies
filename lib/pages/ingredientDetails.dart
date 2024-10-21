@@ -306,6 +306,58 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                       ),
                     ],
                   ),
+                  SizedBox(height: 20),
+                  DashedLine(height: 2, color: Color.fromARGB( 255, 204,198,159)),
+                  SizedBox(height: 20),
+                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start, // Aligns the text from the top
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        'Notes:',
+                        style: TextStyle(
+                          fontSize: 20, 
+                          color: Color.fromARGB(255, 204,198,159), 
+                          fontWeight: FontWeight.w700,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 8), // Add some space between "Notes:" and the bullet
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '• ', // Bullet point symbol
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Color.fromARGB(255, 204,198,159),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  ingredient.notes.trim(), // Show the full notes as one string
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Color.fromARGB(255, 204,198,159),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+
+
                 ],
               ),
             ),
