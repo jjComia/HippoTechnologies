@@ -273,7 +273,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(25.0),
       child: Column(
         children: [
           // Add the image from assets at the top
@@ -286,11 +286,12 @@ class HomePage extends StatelessWidget {
           SizedBox(height: 20), // Add some spacing between the image and grid
 
           // Grid layout for buttons
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,  // 2 buttons per row
+            GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 1,  // 2 buttons per row
               mainAxisSpacing: 20.0,  // Vertical spacing between buttons
-              crossAxisSpacing: 20.0,  // Horizontal spacing between buttons
+              crossAxisSpacing: 20.0, 
+              childAspectRatio: 2.6, // Horizontal spacing between buttons
               children: [
                 _buildRoundedButton(
                   context,
@@ -318,44 +319,45 @@ class HomePage extends StatelessWidget {
                 ),
               ],
             ),
+          ],
+        ),
+      );
+    }
+  }
+Widget _buildRoundedButton(BuildContext context, String text, IconData icon, {required VoidCallback onTap}) {
+  return SizedBox(
+    height: 200.0,
+    width: 200.0,
+    child: ElevatedButton(
+      onPressed: onTap, 
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.all(1.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24.0)
+        ),
+        backgroundColor: const Color.fromARGB(255, 255, 253, 241),
+        elevation: 0.0,  // Shadow elevation
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: 40.0,
+            color: const Color.fromARGB(255, 37, 3, 3),
           ),
+          const SizedBox(height: 8.0),
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Color.fromARGB(255, 37, 3, 3),
+            ),
+          )
         ],
       ),
-    );
-  }
-
-Widget _buildRoundedButton(BuildContext context, String text, IconData icon, {required VoidCallback onTap}) {
-  return ElevatedButton(
-    onPressed: onTap,
-    style: ElevatedButton.styleFrom(
-      fixedSize: Size(400, 400),  // Set the fixed size here
-      padding: const EdgeInsets.all(18.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24.0),  // Rounded corners
-      ),
-      backgroundColor: const Color.fromARGB(255, 255, 253, 241),  // Background color
-      elevation: 0.0,  // Shadow elevation
-    ),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          size: 40.0,  // Adjust icon size
-          color: const Color.fromARGB(255, 37, 3, 3),  // Icon color
-        ),
-        const SizedBox(height: 8.0),
-        Text(
-          text,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Color.fromARGB(255, 37, 3, 3),
-          ),
-        ),
-      ],
     ),
   );
-}
 }
 
 class ProfileSettingsPage extends StatelessWidget {
@@ -426,7 +428,6 @@ class AccountSettingsPage extends StatelessWidget {
     );
   }
 }
-
 class SettingsPage extends StatefulWidget {
   final Function(Widget) onPageTap;
 

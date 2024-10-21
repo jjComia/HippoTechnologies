@@ -116,7 +116,7 @@ class LoginPage extends StatelessWidget {
         title: Text(
           'Login', 
           style: TextStyle (fontSize: 25,
-          color: Color.fromARGB(255, 154,51,52))),
+          color: Color.fromARGB(255, 37,3,3))),
         backgroundColor: Color.fromARGB(255, 249, 251, 250),
         centerTitle: true,
       ),
