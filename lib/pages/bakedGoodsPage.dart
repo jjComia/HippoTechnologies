@@ -23,6 +23,7 @@ Future<void> getBakedGoods() async {
   );
 
   var jsonData = jsonDecode(response.body);
+  print(jsonData);
 
   if (response.statusCode == 200) {
     bakedGoodsItems.clear(); // Clear the list to avoid duplicates
@@ -31,6 +32,7 @@ Future<void> getBakedGoods() async {
       final bakedGoods = BakedGoods(
         id: eachBakedGoods['id'],
         name: eachBakedGoods['name'],
+        recipeID: eachBakedGoods['recipeId'],
         quantity: eachBakedGoods['quantity'],
       );
       bakedGoodsItems.add(bakedGoods);

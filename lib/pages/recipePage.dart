@@ -412,7 +412,7 @@ void _showAddIngredientsDialog(BuildContext context) {
                         child: Text('Back'),
                       ),
                      TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           bool isValid = true;
                           for (int i = 0; i < ingredientControllers.length; i++) {
                             if (ingredientControllers[i].text.isEmpty || quantityControllers[i].text.isEmpty) {
@@ -431,6 +431,27 @@ void _showAddIngredientsDialog(BuildContext context) {
                               btnOkOnPress: () {},
                             ).show();
                           } else {
+                            // Check if all ingredients exists in the database tables
+                            for (int i = 0; i < ingredientControllers.length; i++) {
+                              String ingredientName = ingredientControllers[i].text;
+                      
+                              // Search for the ingredient in the inventory
+                              Map<String, dynamic>? ingredientData = await searchInventoryByName(ingredientName);
+                      
+                              if (ingredientData == null) {
+                                // Handle ingredient not found
+                                AwesomeDialog(
+                                  context: context,
+                                  dialogType: DialogType.error,
+                                  animType: AnimType.scale,
+                                  title: 'Error',
+                                  desc: 'Ingredient not found: $ingredientName. Please add it to the ingredients page first.',
+                                  btnOkOnPress: () {},
+                                ).show();
+                                return;
+                              }
+                            }
+
                             Navigator.of(context).pop();
                       
                             // Delay before showing the next dialog

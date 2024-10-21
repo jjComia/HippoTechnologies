@@ -168,7 +168,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Register', style: TextStyle(fontSize: 25),),
+        title: Text(
+          'Register', 
+          style: TextStyle(fontSize: 25,
+          color: Color.fromARGB(255, 154,51,52)),
+          ),
         backgroundColor: Color.fromARGB(255, 249, 251, 250),
         centerTitle: true,
       ),
@@ -188,7 +192,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 decoration: InputDecoration(
                   labelText: 'First Name',
                   labelStyle: TextStyle(
-                    color: Colors.black,  // Default label color
+                    color: Color.fromARGB(255, 255,253,241),  // Default label color
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Color.fromARGB(255, 49, 108, 244), width: 2.0),       // Change the color of the border when focused
@@ -205,13 +209,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 decoration: InputDecoration(
                   labelText: 'Last Name',
                   labelStyle: TextStyle(
-                    color: Colors.black,  // Default label color
+                    color: Color.fromARGB(255, 255,253,241),  // Default label color
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 108, 244), width: 2.0),       // Change the color of the border when focused
+                    borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),       // Change the color of the border when focused
                   ),
                   floatingLabelStyle: TextStyle(
-                    color: Color.fromARGB(255, 49, 108, 244),  // Label color when the field is focused
+                    color: Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(),
                 ),
@@ -222,13 +226,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 decoration: InputDecoration(
                   labelText: 'Username',
                   labelStyle: TextStyle(
-                    color: Colors.black,  // Default label color
+                    color: Color.fromARGB(255, 255,253,241),  // Default label color
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 108, 244), width: 2.0),       // Change the color of the border when focused
+                    borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),       // Change the color of the border when focused
                   ),
                   floatingLabelStyle: TextStyle(
-                    color: Color.fromARGB(255, 49, 108, 244),  // Label color when the field is focused
+                    color: Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(),
                 ),
@@ -240,13 +244,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 decoration: InputDecoration(
                   labelText: 'Password',
                   floatingLabelStyle: TextStyle(
-                    color:Colors.blue,  // Label color when the field is focused
+                    color:Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderSide: BorderSide (color: Color.fromARGB(255, 204,198,159)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color:Colors.blue),
+                    borderSide: BorderSide(color:Color.fromARGB(255, 204,198,159)),
                   ),
                 ),
                 onChanged: (value) => _checkPasswords(),
@@ -258,19 +262,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 decoration: InputDecoration(
                   labelText: 'Confirm Password',
                   floatingLabelStyle: TextStyle(
-                    color: !_passwordsMatch ? Colors.red : Color.fromARGB(255, 49, 108, 244),  // Label color when the field is focused
+                    color: !_passwordsMatch ? Color.fromARGB(255, 255,253,241) : Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Color.fromARGB(255, 49, 108, 244)),
+                    borderSide: BorderSide(color: !_passwordsMatch ? Color.fromARGB(255, 255,253,241) : Color.fromARGB(255, 204,198,159)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: !_passwordsMatch ? Colors.red : Color.fromARGB(255, 49, 108, 244)),
+                    borderSide: BorderSide(color: !_passwordsMatch ? Color.fromARGB(255, 255,253,241) : Color.fromARGB(255, 204,198,159)),
                   ),
                   errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 1.0),
+                    borderSide: BorderSide(color: Color.fromARGB(255, 154,51,52), width: 1.0),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 1.0),
+                    borderSide: BorderSide(color: Color.fromARGB(255, 154,51,52), width: 1.0),
                   ),
                   errorText: !_passwordsMatch ? 'Passwords do not match' : null,
                 ),
@@ -283,7 +287,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   OutlinedButton(
                     onPressed: widget.onBackToLogin,
                     style: OutlinedButton.styleFrom(
-                        foregroundColor: Color.fromARGB(255, 49, 108, 244), // Text color
+                        foregroundColor: Color.fromARGB(255, 204,198,159), // Text color
                         side: BorderSide(color: Color.fromARGB(255, 49, 108, 244)), // Border color
                       ),
                     child: Text('Back to Login'),
@@ -294,7 +298,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       nextRegisterPage(context); // Register user
                     },
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue, // Background color
+                        backgroundColor: Color.fromARGB(255, 204,198,159), // Background color
                         foregroundColor: Colors.white, // Text color
                       ),
                     child: Text('Next'),

@@ -67,6 +67,8 @@ class MyAppState extends ChangeNotifier {
   String lastName = '';
   String username = '';
   String password = '';
+  String email = '';
+  String phone = '';
 
   // Nullable Type Function - Can be null or have function reference - Used to reset navigation  
   Function? resetNavigation;
@@ -259,16 +261,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-// Employees Page
-class EmployeesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Employees')),
-      body: Center(child: Text('Employees Page')),
-    );
-  }
-}
+
 
 
 //Home Page on nav bar. Contains subpages of inventory, recipes, ingredients and employees
@@ -305,14 +298,6 @@ class HomePage extends StatelessWidget {
                   Icons.inventory,
                   onTap: () {
                     onPageTap(BakedGoodsDetailPage());
-                  },
-                ),
-                _buildRoundedButton(
-                  context,
-                  'Employees',
-                  Icons.person,
-                  onTap: () {
-                    onPageTap(EmployeesPage());
                   },
                 ),
                 _buildRoundedButton(
@@ -454,39 +439,103 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
+        backgroundColor: Color.fromARGB(255, 154, 51, 52), // Customize AppBar color
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Display User Information
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              color: Color.fromARGB(255, 255, 253, 241), // Light background for info cards
+              elevation: 4,
+              margin: const EdgeInsets.only(bottom: 20.0),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'User Information',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 154, 51, 52),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    _buildUserInfoRow('Username:', appState.username),
+                    _buildUserInfoRow('Name:', '${appState.firstName} ${appState.lastName}'),
+                    _buildUserInfoRow('Email:', appState.email ?? 'Not provided'),
+                    _buildUserInfoRow('Phone Number:', appState.phone ?? 'Not provided'),
+                  ],
+                ),
+              ),
+            ),
+
             // Account Settings
             ListTile(
-              title: Text('Account Settings'),
+              title: Text(
+                'Account Settings',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               onTap: () {
                 widget.onPageTap(AccountSettingsPage());
               },
             ),
             // Update Email
             ListTile(
-              title: Text('Update Email'),
+              title: Text(
+                'Update Email',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               onTap: () {
                 widget.onPageTap(UpdateEmailPage());
               },
             ),
             // Update Phone Number
             ListTile(
-              title: Text('Update Phone Number'),
+              title: Text(
+                'Update Phone Number',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               onTap: () {
                 widget.onPageTap(UpdatePhonePage());
               },
             ),
-            // New Product Notifications (kept as a toggle option)
           ],
         ),
+      ),
+    );
+  }
+
+  // Helper function to build rows for user information
+  Widget _buildUserInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$label ',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(color: Colors.black87),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -506,6 +555,7 @@ class _UpdateEmailPageState extends State<UpdateEmailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Update Email'),
+        backgroundColor: Color.fromARGB(255, 154, 51, 52),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -527,6 +577,9 @@ class _UpdateEmailPageState extends State<UpdateEmailPage> {
                 // Handle email saving or updating logic here
                 print('Email: $email');
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 154, 51, 52), // Button color
+              ),
               child: Text('Save'),
             ),
           ],
@@ -550,6 +603,7 @@ class _UpdatePhonePageState extends State<UpdatePhonePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Update Phone Number'),
+        backgroundColor: Color.fromARGB(255, 154, 51, 52),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -571,6 +625,9 @@ class _UpdatePhonePageState extends State<UpdatePhonePage> {
                 // Handle phone saving or updating logic here
                 print('Phone: $phone');
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 154, 51, 52), // Button color
+              ),
               child: Text('Save'),
             ),
           ],

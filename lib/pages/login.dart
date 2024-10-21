@@ -113,7 +113,10 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login', style: TextStyle(fontSize: 25),),
+        title: Text(
+          'Login', 
+          style: TextStyle (fontSize: 25,
+          color: Color.fromARGB(255, 154,51,52))),
         backgroundColor: Color.fromARGB(255, 249, 251, 250),
         centerTitle: true,
       ),
@@ -134,13 +137,13 @@ class LoginPage extends StatelessWidget {
                 decoration: InputDecoration(
                   labelText: 'Username',
                   labelStyle: TextStyle(
-                    color: Colors.black,  // Default label color
+                    color: Color.fromARGB(255, 255,253,241),  // Default label color
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 108, 244), width: 2.0),       // Change the color of the border when focused
+                    borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),       // Change the color of the border when focused
                   ),
                   floatingLabelStyle: TextStyle(
-                    color: Colors.blue,  // Label color when the field is focused
+                    color: Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(),
                 ),
@@ -152,13 +155,13 @@ class LoginPage extends StatelessWidget {
                 decoration: InputDecoration(
                   labelText: 'Password',
                   labelStyle: TextStyle(
-                    color: Colors.black,  // Default label color
+                    color: Color.fromARGB(255, 255,253,241),  // Default label color
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 108, 244), width: 2.0),       // Change the color of the border when focused
+                    borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),       // Change the color of the border when focused
                   ),
                   floatingLabelStyle: TextStyle(
-                    color: Color.fromARGB(255, 49, 108, 244),  // Label color when the field is focused
+                    color: Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(),
                 ),
@@ -171,7 +174,7 @@ class LoginPage extends StatelessWidget {
                     print('Forgot password');
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: Color.fromARGB(255, 49, 108, 244), // Text color
+                    foregroundColor: Color.fromARGB(255, 204,198,159), // Text color
                   ),
                   child: Text('Forgot password?'),
                 ),
@@ -189,8 +192,8 @@ class LoginPage extends StatelessWidget {
                         loginUser(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 49, 108, 244), // Background color
-                        foregroundColor: Color.fromARGB(255, 255, 255, 255), // Text color
+                        backgroundColor: Color.fromARGB(255, 255,253,241), // Background color
+                        foregroundColor: Color.fromARGB(255, 37,3,3), // Text color
                       ),
                       child: Text('Login'),
                     ),
@@ -200,8 +203,8 @@ class LoginPage extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: onRegisterTap, // Go to registration page
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Color.fromARGB(255, 49, 108, 244), // Text color
-                        side: BorderSide(color: Color.fromARGB(255, 49, 108, 244)), // Border color
+                        foregroundColor: Color.fromARGB(255, 255,253,241), // Text color
+                        side: BorderSide(color: Color.fromARGB(255, 255,253,241)), // Border color
                       ),
                       child: Text('Register'),
                     ),
