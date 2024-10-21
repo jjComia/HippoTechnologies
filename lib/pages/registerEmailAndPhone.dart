@@ -44,7 +44,12 @@ class _RegisterEmailAndPhoneState extends State<RegisterEmailAndPhone> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Email and Phone', style: TextStyle(fontSize: 25),),
+        title: Text(
+          'Add Email and Phone', 
+          style: TextStyle(fontSize: 25,
+          color: Color.fromARGB(255, 154,51,52)
+        ),
+      ),
         backgroundColor: Color.fromARGB(255, 249, 251, 250),
         centerTitle: true,
       ),
@@ -63,18 +68,24 @@ class _RegisterEmailAndPhoneState extends State<RegisterEmailAndPhone> {
                 decoration: InputDecoration(
                   hintText: 'example@example.com',
                   hintStyle: TextStyle(
-                    color: Colors.grey,  // Default label color
+                    color: Color.fromARGB(255, 204,198,159),  // Default label color
                     fontSize: 14.0,
                   ),
                   labelText: 'Email',
+                  labelStyle: TextStyle(
+                    color: Color.fromARGB(255, 255,253,241),  // Default label color
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
+                  ),
                   floatingLabelStyle: TextStyle(
-                    color: Colors.blue,  // Label color when the field is focused
+                    color: Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159)),
                   ),
                 ),
                 onChanged: (value) => _checkEmails(),
@@ -84,24 +95,34 @@ class _RegisterEmailAndPhoneState extends State<RegisterEmailAndPhone> {
                 controller: _confirmEmailController,
                 decoration: InputDecoration(
                   labelText: 'Confirm Email',
+                  labelStyle: TextStyle(
+                    color: Color.fromARGB(255, 255,253,241),  // Default label color
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
+                  ),
                   floatingLabelStyle: TextStyle(
-                    color: !_emailsMatch ? Colors.red : Colors.blue,  // Label color when the field is focused
+                    color: !_emailsMatch ? Color.fromARGB(255, 255,253,241) : Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: !_emailsMatch ? Colors.red : Colors.blue),
+                    borderSide: BorderSide(color: !_emailsMatch ? Color.fromARGB(255, 255,253,241) : Color.fromARGB(255, 204,198,159)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: !_emailsMatch ? Colors.red : Colors.blue),
+                    borderSide: BorderSide(color: !_emailsMatch ? Color.fromARGB(255, 255,253,241) : Color.fromARGB(255, 204,198,159)),
                   ),
                   errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 1.0),
+                    borderSide: BorderSide(color: Color.fromARGB(255, 37,3,3), width: 1.0),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 1.0),
+                    borderSide: BorderSide(color: Color.fromARGB(255, 37,3,3), width: 1.0),
                   ),
                   errorText: !_emailsMatch ? 'Emails Must Match' : null,
+                  errorStyle: TextStyle(
+                    color: Color.fromARGB(255, 37,3,3),  // Custom error text color
+                    fontSize: 14.0,  // Adjust font size if needed
                 ),
-                onChanged: (value) => _checkEmails(),
+              ),
+              onChanged: (value) => _checkEmails(),
               ),
               SizedBox(height: 16.0),
               TextField(
@@ -109,18 +130,21 @@ class _RegisterEmailAndPhoneState extends State<RegisterEmailAndPhone> {
                 decoration: InputDecoration(
                   hintText: '(123) 456-7890',
                   hintStyle: TextStyle(
-                    color: Colors.grey,
+                    color: Color.fromARGB(255, 204,198,159),
                     fontSize: 14.0,
                   ),
                   labelText: 'Phone (Optional)',
                   labelStyle: TextStyle(
-                    color: Colors.black,
+                    color: Color.fromARGB(255, 255,253,241),  // Default label color
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                    borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),
                   ),
                   floatingLabelStyle: TextStyle(
-                    color: Colors.blue,
+                    color: Color.fromARGB(255, 204,198,159),
                   ),
                   border: OutlineInputBorder(),
                 ),
@@ -245,14 +269,14 @@ class _RegisterEmailAndPhoneState extends State<RegisterEmailAndPhone> {
                     }
                   }
                 },
-                child: Text('Register'),
+                child: Text('Register', style: TextStyle( color: Color.fromARGB(255, 37, 3, 3))),
               ),
               TextButton(
                 onPressed: () {
                   print('Cancel registration');
                   widget.onCancelTap();
                 },
-                child: Text('Cancel registration'),
+                child: Text('Cancel registration', style: TextStyle(color: Color.fromARGB(255, 204,198,159)),),
               ),
             ],
           ),

@@ -139,6 +139,9 @@ class LoginPage extends StatelessWidget {
                   labelStyle: TextStyle(
                     color: Color.fromARGB(255, 255,253,241),  // Default label color
                   ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
+                  ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),       // Change the color of the border when focused
                   ),
@@ -156,6 +159,9 @@ class LoginPage extends StatelessWidget {
                   labelText: 'Password',
                   labelStyle: TextStyle(
                     color: Color.fromARGB(255, 255,253,241),  // Default label color
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),       // Change the color of the border when focused

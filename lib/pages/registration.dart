@@ -194,11 +194,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   labelStyle: TextStyle(
                     color: Color.fromARGB(255, 255,253,241),  // Default label color
                   ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
+                  ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color.fromARGB(255, 49, 108, 244), width: 2.0),       // Change the color of the border when focused
+                    borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),       // Change the color of the border when focused
                   ),
                   floatingLabelStyle: TextStyle(
-                    color: Color.fromARGB(255, 49, 108, 244),  // Label color when the field is focused
+                    color: Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(),
                 ),
@@ -210,6 +213,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   labelText: 'Last Name',
                   labelStyle: TextStyle(
                     color: Color.fromARGB(255, 255,253,241),  // Default label color
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),       // Change the color of the border when focused
@@ -228,6 +234,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   labelStyle: TextStyle(
                     color: Color.fromARGB(255, 255,253,241),  // Default label color
                   ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
+                  ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),       // Change the color of the border when focused
                   ),
@@ -243,6 +252,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
+                  labelStyle: TextStyle(
+                    color: Color.fromARGB(255, 255,253,241),  // Default label color
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
+                  ),
                   floatingLabelStyle: TextStyle(
                     color:Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
@@ -261,6 +276,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Confirm Password',
+                  labelStyle: TextStyle(
+                    color: Color.fromARGB(255, 255,253,241),  // Default label color
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
+                  ),
                   floatingLabelStyle: TextStyle(
                     color: !_passwordsMatch ? Color.fromARGB(255, 255,253,241) : Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
@@ -271,15 +292,20 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     borderSide: BorderSide(color: !_passwordsMatch ? Color.fromARGB(255, 255,253,241) : Color.fromARGB(255, 204,198,159)),
                   ),
                   errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color.fromARGB(255, 154,51,52), width: 1.0),
+                    borderSide: BorderSide(color: Color.fromARGB(255, 37,3,3), width: 1.0),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color.fromARGB(255, 154,51,52), width: 1.0),
+                    borderSide: BorderSide(color: Color.fromARGB(255, 37,3,3), width: 1.0),
                   ),
                   errorText: !_passwordsMatch ? 'Passwords do not match' : null,
+                  errorStyle: TextStyle(
+                    color: Color.fromARGB(255, 37,3,3),  // Custom error text color
+                    fontSize: 14.0,  // Adjust font size if needed
+                  ),
                 ),
                 onChanged: (value) => _checkPasswords(),
               ),
+        
               SizedBox(height: 24.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -287,8 +313,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   OutlinedButton(
                     onPressed: widget.onBackToLogin,
                     style: OutlinedButton.styleFrom(
-                        foregroundColor: Color.fromARGB(255, 204,198,159), // Text color
-                        side: BorderSide(color: Color.fromARGB(255, 49, 108, 244)), // Border color
+                        foregroundColor: Color.fromARGB(255, 255,253,241), // Text color
+                        side: BorderSide(color: Color.fromARGB(255, 255,253,241)), // Border color
                       ),
                     child: Text('Back to Login'),
                   ),
@@ -298,8 +324,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       nextRegisterPage(context); // Register user
                     },
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 204,198,159), // Background color
-                        foregroundColor: Colors.white, // Text color
+                        backgroundColor: Color.fromARGB(255, 255,253,241), // Background color
+                        foregroundColor: Color.fromARGB(255, 37,3, 3), // Text color
                       ),
                     child: Text('Next'),
                   ),
