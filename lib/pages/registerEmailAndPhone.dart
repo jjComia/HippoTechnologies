@@ -88,6 +88,9 @@ class _RegisterEmailAndPhoneState extends State<RegisterEmailAndPhone> {
                     borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159)),
                   ),
                 ),
+                style: TextStyle(
+                  color: Color.fromARGB(255, 204, 198, 159), // Change the color of the inputted text
+                ),
                 onChanged: (value) => _checkEmails(),
               ),
               SizedBox(height: 16.0),
@@ -95,6 +98,7 @@ class _RegisterEmailAndPhoneState extends State<RegisterEmailAndPhone> {
                 controller: _confirmEmailController,
                 decoration: InputDecoration(
                   labelText: 'Confirm Email',
+                  
                   labelStyle: TextStyle(
                     color: Color.fromARGB(255, 255,253,241),  // Default label color
                   ),
@@ -122,6 +126,9 @@ class _RegisterEmailAndPhoneState extends State<RegisterEmailAndPhone> {
                     fontSize: 14.0,  // Adjust font size if needed
                 ),
               ),
+              style: TextStyle(
+                  color: Color.fromARGB(255, 204, 198, 159), // Change the color of the inputted text
+                ),
               onChanged: (value) => _checkEmails(),
               ),
               SizedBox(height: 16.0),
@@ -147,6 +154,9 @@ class _RegisterEmailAndPhoneState extends State<RegisterEmailAndPhone> {
                     color: Color.fromARGB(255, 204,198,159),
                   ),
                   border: OutlineInputBorder(),
+                ),
+                style: TextStyle(
+                  color: Color.fromARGB(255, 204, 198, 159), // Change the color of the inputted text
                 ),
                 keyboardType: TextInputType.phone,
                 inputFormatters: [

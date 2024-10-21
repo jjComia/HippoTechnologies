@@ -9,6 +9,12 @@ import 'pages/bakedGoodsPage.dart'; //Import the Inventory Page
 import 'services/session_service.dart';
 import 'pages/recipePage.dart'; // Import the Recipes Page
 import 'pages/ingredientsPage.dart'; // Import the Ingredients Page
+import 'package:http/http.dart' as http;
+import 'dart:convert'; // Importing dart:convert to use jsonDecode function
+
+final SessionService sessionService = SessionService();
+var userID = '';
+
 
 void main() {
   debugPaintSizeEnabled = false; // Set to true for visual layout debugging
@@ -55,7 +61,6 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  final SessionService sessionService = SessionService();
   bool isLoggedIn = false; // Flag for login status
   bool showRegistrationPage = false; // Flag for registration page
   bool showNextPage = false; // Flag for next registration page
@@ -67,22 +72,70 @@ class MyAppState extends ChangeNotifier {
   String lastName = '';
   String username = '';
   String password = '';
-  String email = '';
-  String phone = '';
 
   // Nullable Type Function - Can be null or have function reference - Used to reset navigation  
   Function? resetNavigation;
+
+  // Gets user information to display username, name, email, and phone number
+  Future<void> getUserInfo() async {
+    // Get userID from sessionID
+    var url = Uri.https('bakery.permavite.com', '/api/session/${await sessionService.getSessionID()}');
+
+    var response = await http.get(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': '24201287-A54D-4D16-9CC3-5920A823FF12',
+      },
+    );
+
+    print('Response Status: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
+    if(response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      userID = jsonData['userId'];
+
+      // Get user information from userID
+      url = Uri.https('bakery.permavite.com', '/api/users/$userID');
+
+      var response2 = await http.get(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': '${await sessionService.getSessionID()}',
+        },
+      );
+
+      print('Response Status: ${response2.statusCode}');
+      print('Response Body: ${response2.body}');
+
+      if (response2.statusCode == 200) {
+        var jsonData2 = jsonDecode(response2.body);
+        firstName = jsonData2['firstName'];
+        lastName = jsonData2['lastName'];
+        username = jsonData2['username'];
+        notifyListeners(); // Rebuild the UI
+      } else {
+        print('Failed to get user information: ${response.statusCode}');
+      }
+    } else {
+      print('Failed to get user information: ${response.statusCode}');
+    }
+  }
 
   Future<void> checkSessionID() async {
     String? sessionID = await sessionService.getSessionID();
     if (sessionID != null) {
       isLoggedIn = true; // Mark as logged in
+      getUserInfo(); // Get user information
     }
     notifyListeners(); // Rebuild the UI
   }
   
   void login() {
     isLoggedIn = true; // Mark as logged in
+    getUserInfo();
     notifyListeners(); // Rebuild the UI
   }
 
@@ -264,170 +317,114 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
-//Home Page on nav bar. Contains subpages of inventory, recipes, ingredients and employees
 class HomePage extends StatelessWidget {
   final Function(Widget) onPageTap;
 
   const HomePage({required this.onPageTap});
-  
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(25.0),
-      child: Column(
-        children: [
-          // Add the image from assets at the top
-          Image.asset(
-            'assets/images/clearhippo.png', // Path to your image in the assets folder
-            width: 150,
-            height: 150,
-            fit: BoxFit.cover,
-          ),
-          SizedBox(height: 20), // Add some spacing between the image and grid
 
-          // Grid layout for buttons
-            GridView.count(
-              shrinkWrap: true,
-              crossAxisCount: 1,  // 2 buttons per row
-              mainAxisSpacing: 20.0,  // Vertical spacing between buttons
-              crossAxisSpacing: 20.0, 
-              childAspectRatio: 2.6, // Horizontal spacing between buttons
-              children: [
-                _buildRoundedButton(
-                  context,
-                  'Baked Goods',
-                  Icons.inventory,
-                  onTap: () {
-                    onPageTap(BakedGoodsDetailPage());
-                  },
-                ),
-                _buildRoundedButton(
-                  context,
-                  'Recipes',
-                  Icons.local_dining,
-                  onTap: () {
-                    onPageTap(RecipesDetailPage());
-                  },
-                ),
-                _buildRoundedButton(
-                  context,
-                  'Ingredients',
-                  Icons.list,
-                  onTap: () {
-                    onPageTap(IngredientsPage());
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
-  }
-Widget _buildRoundedButton(BuildContext context, String text, IconData icon, {required VoidCallback onTap}) {
-  return SizedBox(
-    height: 200.0,
-    width: 200.0,
-    child: ElevatedButton(
-      onPressed: onTap, 
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.all(1.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24.0)
-        ),
-        backgroundColor: const Color.fromARGB(255, 255, 253, 241),
-        elevation: 0.0,  // Shadow elevation
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 40.0,
-            color: const Color.fromARGB(255, 37, 3, 3),
-          ),
-          const SizedBox(height: 8.0),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Color.fromARGB(255, 37, 3, 3),
-            ),
-          )
-        ],
-      ),
-    ),
-  );
-}
-
-class ProfileSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile Settings'),
+        title: Text(
+          'Home',
+          style: TextStyle(color: Color.fromARGB(255, 37, 3, 3)), // Set the text color to black
+        ),
+        backgroundColor: Color.fromARGB(255, 255,253,241),
       ),
-      body: Center(
-        child: Text('This is the Profile Settings Page'),
-      ), 
-    );
-  }
-}
-
-
-// Account Settings Page
-class AccountSettingsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    return Scaffold(
-      appBar: AppBar(title: Text('Account Settings')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 255,253,241),  // White background color
-                borderRadius: BorderRadius.circular(8.0),  // Rounded corners
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),  // Slight shadow for elevation effect
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),  // Offset to add a shadow below the button
-                  ),
-                ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: Column(
+            children: [
+              // Add the image from assets at the top
+              Image.asset(
+                'assets/images/clearhippo.png', // Path to your image in the assets folder
+                width: 150,
+                height: 150,
+                fit: BoxFit.cover,
               ),
-              child: InkWell(
-                onTap: () {
-                  appState.logout();  // Call the logout method
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,  // Center text horizontally
-                    children: [
-                      Text(
-                        'LOGOUT',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 154,51,52),  // Red text color
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,  // Bold text
-                        ),
-                      ),
-                    ],
-                  ),
+              const SizedBox(height: 20), // Add some spacing between the image and grid
+
+              // Grid layout for buttons wrapped in a container with fixed height
+              Container(
+                child: GridView.count(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(), // Prevent internal scrolling
+                  crossAxisCount: 1, // 1 button per row
+                  mainAxisSpacing: 20.0, // Vertical spacing between buttons
+                  crossAxisSpacing: 20.0,
+                  childAspectRatio: 2.6, // Aspect ratio for buttons
+                  children: [
+                    _buildRoundedButton(
+                      context,
+                      'Baked Goods',
+                      Icons.inventory,
+                      onTap: () {
+                        onPageTap(BakedGoodsDetailPage());
+                      },
+                    ),
+                    _buildRoundedButton(
+                      context,
+                      'Recipes',
+                      Icons.local_dining,
+                      onTap: () {
+                        onPageTap(RecipesDetailPage());
+                      },
+                    ),
+                    _buildRoundedButton(
+                      context,
+                      'Ingredients',
+                      Icons.list,
+                      onTap: () {
+                        onPageTap(IngredientsPage());
+                      },
+                    ),
+                  ],
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoundedButton(BuildContext context, String text, IconData icon, {required VoidCallback onTap}) {
+    return SizedBox(
+      height: 200.0,
+      width: 200.0,
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.all(1.0),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.0)),
+          backgroundColor: const Color.fromARGB(255, 255, 253, 241),
+          elevation: 0.0, // Shadow elevation
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 40.0,
+              color: const Color.fromARGB(255, 37, 3, 3),
             ),
+            const SizedBox(height: 8.0),
+            Text(
+              text,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Color.fromARGB(255, 37, 3, 3),
+              ),
+            )
           ],
         ),
       ),
     );
   }
 }
+
 class SettingsPage extends StatefulWidget {
   final Function(Widget) onPageTap;
 
@@ -444,77 +441,98 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings'),
-        backgroundColor: Color.fromARGB(255, 154, 51, 52), // Customize AppBar color
+        title: Text(
+          'Settings',
+          style: TextStyle(color: Color.fromARGB(255, 37, 3, 3)), // Set the text color to black
+        ),
+        backgroundColor: Color.fromARGB(255, 255,253,241),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Display User Information
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              color: Color.fromARGB(255, 255, 253, 241), // Light background for info cards
-              elevation: 4,
-              margin: const EdgeInsets.only(bottom: 20.0),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'User Information',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 154, 51, 52),
+      body: Column(
+        children: [
+          // Scrollable content in the middle
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Display User Information
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    color: Color.fromARGB(255, 255, 253, 241), // Light background for info cards
+                    elevation: 4,
+                    margin: const EdgeInsets.only(bottom: 20.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'User Information',
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 154, 51, 52),
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          _buildUserInfoRow('Username:', appState.username),
+                          _buildUserInfoRow('Name:', '${appState.firstName} ${appState.lastName}'),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 8),
-                    _buildUserInfoRow('Username:', appState.username),
-                    _buildUserInfoRow('Name:', '${appState.firstName} ${appState.lastName}'),
-                    _buildUserInfoRow('Email:', appState.email ?? 'Not provided'),
-                    _buildUserInfoRow('Phone Number:', appState.phone ?? 'Not provided'),
-                  ],
+                  ),
+                  /*
+                  // Update Email
+                  ListTile(
+                    title: Text(
+                      'Update Email',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 255, 253, 241)),
+                    ),
+                    onTap: () {
+                      widget.onPageTap(UpdateEmailPage());
+                    },
+                  ),
+                  // Update Phone Number
+                  ListTile(
+                    title: Text(
+                      'Update Phone Number',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 255, 253, 241)),
+                    ),
+                    onTap: () {
+                      widget.onPageTap(UpdatePhonePage());
+                    },
+                  ),
+                  */
+                ],
+              ),
+            ),
+          ),
+          
+          // Buttons at the bottom
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Add functionality here, e.g., logging out
+                      appState.logout();  // Call the logout method
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
+                    ),
+                    child: Text('Log Out', style: TextStyle(fontSize: 20,color: Color.fromARGB(255, 37, 3, 3))),
+                  ),
                 ),
-              ),
+              ],
             ),
-
-            // Account Settings
-            ListTile(
-              title: Text(
-                'Account Settings',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                widget.onPageTap(AccountSettingsPage());
-              },
-            ),
-            // Update Email
-            ListTile(
-              title: Text(
-                'Update Email',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                widget.onPageTap(UpdateEmailPage());
-              },
-            ),
-            // Update Phone Number
-            ListTile(
-              title: Text(
-                'Update Phone Number',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                widget.onPageTap(UpdatePhonePage());
-              },
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -528,12 +546,12 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           Text(
             '$label ',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54, fontSize: 20),
           ),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(color: Colors.black87),
+              style: TextStyle(color: Colors.black87, fontSize: 20),
             ),
           ),
         ],
@@ -542,6 +560,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
+/*
 // Update Email Page
 class UpdateEmailPage extends StatefulWidget {
   @override
@@ -565,23 +584,33 @@ class _UpdateEmailPageState extends State<UpdateEmailPage> {
             TextField(
               controller: _emailController,
               decoration: InputDecoration(
-                labelText: 'Email',
+                labelText: 'Username',
+                labelStyle: TextStyle(
+                  color: Color.fromARGB(255, 255,253,241),  // Default label color
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),       // Change the color of the border when focused
+                ),
+                floatingLabelStyle: TextStyle(
+                  color: Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
+                ),
                 border: OutlineInputBorder(),
-                hintText: 'Enter your new email address',
               ),
-              keyboardType: TextInputType.emailAddress,
             ),
             SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
                 String email = _emailController.text;
                 // Handle email saving or updating logic here
-                print('Email: $email');
+                updateEmail(email);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 154, 51, 52), // Button color
+                backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
               ),
-              child: Text('Save'),
+              child: Text('Save', style: TextStyle(fontSize: 20,color: Color.fromARGB(255, 37, 3, 3))),
             ),
           ],
         ),
@@ -589,6 +618,39 @@ class _UpdateEmailPageState extends State<UpdateEmailPage> {
     );
   }
 }
+
+void updateEmail(String email) async {
+  // Add functionality here to update the email
+  print('Updating Email: $email');
+
+  // Construct the URL for updating the email using the userId
+  var url = Uri.https('bakery.permavite.com', '/api/email/${await sessionService.getSessionID()}/$email');
+
+  // Make the PUT request to update the email
+  var response = await http.put(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': '${await sessionService.getSessionID()}',
+    },
+    body: jsonEncode({
+      'id': await sessionService.getSessionID(),
+      'userId': await sessionService.getSessionID(),
+      'address': email,
+      'verified': false,
+    }),
+  );
+
+  print('Response Status: ${response.statusCode}');
+  print('Response Body: ${response.body}');
+
+  if (response.statusCode == 200) {
+    print('Email updated successfully');
+  } else {
+    print('Failed to update email: ${response.statusCode}');
+  }
+}
+
 
 // Update Phone Page
 class UpdatePhonePage extends StatefulWidget {
@@ -613,23 +675,33 @@ class _UpdatePhonePageState extends State<UpdatePhonePage> {
             TextField(
               controller: _phoneController,
               decoration: InputDecoration(
-                labelText: 'Phone Number',
+                labelText: 'Username',
+                labelStyle: TextStyle(
+                  color: Color.fromARGB(255, 255,253,241),  // Default label color
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),       // Change the color of the border when focused
+                ),
+                floatingLabelStyle: TextStyle(
+                  color: Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
+                ),
                 border: OutlineInputBorder(),
-                hintText: 'Enter your new phone number',
               ),
-              keyboardType: TextInputType.phone,
             ),
             SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
                 String phone = _phoneController.text;
-                // Handle phone saving or updating logic here
-                print('Phone: $phone');
+                // Handle email saving or updating logic here
+                updatePhone(phone);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 154, 51, 52), // Button color
+                backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
               ),
-              child: Text('Save'),
+              child: Text('Save', style: TextStyle(fontSize: 20,color: Color.fromARGB(255, 37, 3, 3))),
             ),
           ],
         ),
@@ -637,3 +709,8 @@ class _UpdatePhonePageState extends State<UpdatePhonePage> {
     );
   }
 }
+
+void updatePhone(String phone) async {
+  // Add functionality here to update the phone number
+  print('Updating Phone Number: $phone')
+}*/

@@ -38,6 +38,8 @@ Future<void> getBakedGoods() async {
       bakedGoodsItems.add(bakedGoods);
     }
 
+    bakedGoodsItems.sort((a, b) => a.name.compareTo(b.name));
+
     filteredBakedGoods = List.from(bakedGoodsItems); // Initialize filtered list
     print('Number of Baked Goods loaded: ${bakedGoodsItems.length}');
   } else {

@@ -20,6 +20,8 @@ class LoginPage extends StatelessWidget {
     var username = _usernameController.text;
     var password = _passwordController.text;
 
+    
+
     var strError = '';
     if (username.length < 3) {
       strError += 'Username must be 3 or more characters.\n';
@@ -137,18 +139,27 @@ class LoginPage extends StatelessWidget {
                 decoration: InputDecoration(
                   labelText: 'Username',
                   labelStyle: TextStyle(
-                    color: Color.fromARGB(255, 255,253,241),  // Default label color
+                    color: Color.fromARGB(255, 255, 253, 241), // Default label color
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color.fromARGB(255, 255,253,241), width: 2.0)
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 255, 253, 241), 
+                      width: 2.0,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color.fromARGB(255, 204,198,159), width: 2.0),       // Change the color of the border when focused
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 204, 198, 159), 
+                      width: 2.0,
+                    ), // Change the color of the border when focused
                   ),
                   floatingLabelStyle: TextStyle(
-                    color: Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
+                    color: Color.fromARGB(255, 204, 198, 159), // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(),
+                ),
+                style: TextStyle(
+                  color: Color.fromARGB(255, 204, 198, 159), // Change the color of the inputted text
                 ),
               ),
               SizedBox(height: 16.0),
@@ -170,6 +181,9 @@ class LoginPage extends StatelessWidget {
                     color: Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(),
+                ),
+                style: TextStyle(
+                  color: Color.fromARGB(255, 204, 198, 159), // Change the color of the inputted text
                 ),
               ),
               Align(

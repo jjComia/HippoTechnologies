@@ -205,6 +205,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ),
                   border: OutlineInputBorder(),
                 ),
+                style: TextStyle(
+                  color: Color.fromARGB(255, 204, 198, 159), // Change the color of the inputted text
+                ),
               ),
               SizedBox(height: 16.0),
               TextField(
@@ -225,6 +228,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ),
                   border: OutlineInputBorder(),
                 ),
+                style: TextStyle(
+                  color: Color.fromARGB(255, 204, 198, 159), // Change the color of the inputted text
+                ),
               ),
               SizedBox(height: 16.0),
               TextField(
@@ -244,6 +250,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     color: Color.fromARGB(255, 204,198,159),  // Label color when the field is focused
                   ),
                   border: OutlineInputBorder(),
+                ),
+                style: TextStyle(
+                  color: Color.fromARGB(255, 204, 198, 159), // Change the color of the inputted text
                 ),
               ),
               SizedBox(height: 16.0),
@@ -267,6 +276,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color:Color.fromARGB(255, 204,198,159)),
                   ),
+                ),
+                style: TextStyle(
+                  color: Color.fromARGB(255, 204, 198, 159), // Change the color of the inputted text
                 ),
                 onChanged: (value) => _checkPasswords(),
               ),
@@ -303,9 +315,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     fontSize: 14.0,  // Adjust font size if needed
                   ),
                 ),
+                style: TextStyle(
+                  color: Color.fromARGB(255, 204, 198, 159), // Change the color of the inputted text
+                ),
                 onChanged: (value) => _checkPasswords(),
               ),
-        
               SizedBox(height: 24.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

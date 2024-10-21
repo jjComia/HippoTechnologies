@@ -80,7 +80,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
   });
 
   getIngredientsStock(recipeIngredients);
-}
+ }
 
   @override
   void initState() {
@@ -297,7 +297,6 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                           ),
                         ),
                       );
-
                     },
                   ),
                 ],

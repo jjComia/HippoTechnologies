@@ -60,7 +60,12 @@ Future<void> getIngredients() async {
           print('Ingredient data missing required fields: $eachIngredient');
         }
       }
+      // After adding all ingredients to the list
+      ingredients.sort((a, b) => a.name.compareTo(b.name));
 
+      // Confirm that the list has been sorted
+      print('Sorted ingredients:');
+      ingredients.forEach((ingredient) => print(ingredient.name));
       print('Number of Ingredients loaded: ${ingredients.length}');
     } else {
       print('Unexpected JSON format. Expected a list but got: ${jsonData.runtimeType}');
@@ -388,7 +393,14 @@ class _IngredientsPageState extends State<IngredientsPage> {
           backgroundColor: const Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
           labelStyle: const TextStyle(color: Color.fromARGB(255, 37, 3, 3)),
           onTap: () {
-            _showAddIngredientDialog(context); // Show the add ingredient dialog
+            _showAddIngredientDialog(context).then((shouldRefresh) {
+              if (shouldRefresh) {
+                setState(() {
+                  // Perform any necessary refresh actions here.
+                  getIngredients();
+                });
+              }
+            });
           },
         ),
       ],

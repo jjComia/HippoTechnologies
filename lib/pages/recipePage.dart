@@ -45,6 +45,8 @@ Future<void> getRecipes() async {
       );
       recipes.add(recipe);
     }
+
+    recipes.sort((a, b) => a.name.compareTo(b.name));
     print('Number of recipes loaded: ${recipes.length}');
   } else {
     print('Failed to load recipes: ${response.statusCode}');
@@ -652,21 +654,7 @@ void _showAddStepsDialog(BuildContext context) {
                                   ).show();
                                 }
                               }
-
-                              // Reload the recipes after adding a new one
                               await getRecipes();
-
-                              
-                              // Optionally, you can display a success message when all operations are done
-                              // AwesomeDialog(
-                              //   context: localContext,
-                              //   dialogType: DialogType.success,
-                              //   animType: AnimType.scale,
-                              //   title: 'Success',
-                              //   desc: 'Recipe, Cook Steps, and Ingredients added successfully!',
-                              //   btnOkOnPress: () {},
-                              // ).show();
-
                             } else {
                               // Handle recipe addition failure
                               // AwesomeDialog(
