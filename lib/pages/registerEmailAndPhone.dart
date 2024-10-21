@@ -54,7 +54,7 @@ class _RegisterEmailAndPhoneState extends State<RegisterEmailAndPhone> {
           child: Column(
             children: [
               Image.asset(
-                'assets/images/HippoTechnologiesLogo.png',
+                'assets/images/clearhippo.png',
                 height: 225.0, // Adjust the height as needed
               ),
               TextField(
