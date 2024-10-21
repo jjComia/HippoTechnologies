@@ -316,12 +316,27 @@ class _IngredientsPageState extends State<IngredientsPage> {
                             ),
                           ),
                           textColor: const Color.fromARGB(255, 32, 3, 3),
-                          subtitle: Text(
-                            'In stock: ${filteredIngredients[index].quantity.toString()} ${filteredIngredients[index].unit}',
-                            style: const TextStyle(
-                              fontSize: 20,
-                            ),
+                          subtitle: Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'In stock: ', 
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              TextSpan(
+                                text: '${filteredIngredients[index].quantity.toString()} ${filteredIngredients[index].unit}', 
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ],
                           ),
+                        ),
+
                           onTap: () {
                             Navigator.push(
                               context,

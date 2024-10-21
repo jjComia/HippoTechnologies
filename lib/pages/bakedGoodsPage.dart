@@ -132,12 +132,27 @@ class _BakedGoodsPageState extends State<BakedGoodsDetailPage> {
                               ),
                             ),
                             textColor: const Color.fromARGB(255, 37, 3, 3),
-                            subtitle: Text(
-                              'In stock: ${filteredBakedGoods[index].quantity}',
-                              style: const TextStyle(
-                                fontSize: 20,
-                              ),
+                            subtitle: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'In stock: ', 
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: '${filteredBakedGoods[index].quantity}',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
+
                             onTap: () async {
                               bool? shouldRefresh = await Navigator.push(
                                 context,

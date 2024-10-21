@@ -236,6 +236,7 @@ void _showAddRecipeDialog(BuildContext context) {
     barrierLabel: "Add Recipe",
     pageBuilder: (context) {
       return AlertDialog(
+        backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.97),
         title: Text('Add Recipe'),
         content: SingleChildScrollView(
           child: Column(
@@ -337,6 +338,7 @@ void _showAddIngredientsDialog(BuildContext context) {
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
+            backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.97),
             title: Text('Add Ingredients'),
             content: SizedBox(
               width: 100,  // Set a fixed width
@@ -356,15 +358,6 @@ void _showAddIngredientsDialog(BuildContext context) {
                       ),
                       SizedBox(height: 10),
                     ],
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          ingredientControllers.add(TextEditingController());
-                          quantityControllers.add(TextEditingController());
-                        });
-                      },
-                      child: Text('Add Another Ingredient'),
-                    ),
                   ],
                 ),
               ),
@@ -397,7 +390,7 @@ void _showAddIngredientsDialog(BuildContext context) {
                       quantityControllers.add(TextEditingController());
                     });
                   },
-                  child: Text('Add Another Ingredient'),
+                  child: Text('Add Ingredient'),
                 ),
                 )
               ),
@@ -471,6 +464,7 @@ void _showAddStepsDialog(BuildContext context) {
       return StatefulBuilder(
         builder: (Context, setState) {
           return AlertDialog(
+            backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.97),
             title: Text('Add Steps'),
             content: SizedBox(
               width: 100,  // Same fixed width as Add Ingredients dialog
@@ -516,7 +510,7 @@ void _showAddStepsDialog(BuildContext context) {
                       stepControllers.add(TextEditingController());
                     });
                   },
-                  child: Text('Add Another Step'),
+                  child: Text('Add Step'),
                 ),
                 )
               ),

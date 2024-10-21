@@ -223,7 +223,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                         flex: 2,
                         child: Text(
                           'Name:',
-                          style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204,198,159)),
+                          style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204,198,159), fontWeight: FontWeight.w700),
                           textAlign: TextAlign.left,
                         ),
                       ),
@@ -246,7 +246,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                         flex: 2,
                         child: Text(
                           'In Stock:',
-                          style: TextStyle(fontSize: 20,color: Color.fromARGB(255, 204,198,159)),
+                          style: TextStyle(fontSize: 20,color: Color.fromARGB(255, 204,198,159), fontWeight: FontWeight.w700),
                           textAlign: TextAlign.left,
                         ),
                       ),
@@ -269,7 +269,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                         flex: 2,
                         child: Text(
                           'Purchase Quantity:',
-                          style: TextStyle(fontSize: 20, color: Color.fromARGB( 255, 204,198,159)),
+                          style: TextStyle(fontSize: 20, color: Color.fromARGB( 255, 204,198,159), fontWeight: FontWeight.w700),
                           textAlign: TextAlign.left,
                         ),
                       ),
@@ -292,7 +292,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                         flex: 2,
                         child: Text(
                           'Cost Per Purchase:',
-                          style: TextStyle(fontSize: 20, color: Color.fromARGB( 255, 204,198,159)),
+                          style: TextStyle(fontSize: 20, color: Color.fromARGB( 255, 204,198,159), fontWeight: FontWeight.w700),
                           textAlign: TextAlign.left,
                         ),
                       ),
@@ -322,6 +322,9 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                     onPressed: () {
                       showEditDialogue(context, ingredient, refreshPage);
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
+                    ),
                     child: Text('Edit Ingredient Details', style: TextStyle(fontSize: 20,color: Color.fromARGB(255, 37, 3, 3))),
                   ),
                 ),
@@ -332,6 +335,9 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                     onPressed: () {
                       showOrderMoreDialogue(context, ingredient, refreshPage);
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
+                    ),
                     child: Text('Order More', style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 37, 3, 3))),
                   ),
                 ),
@@ -345,7 +351,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                       },
                       child: Icon(
                         Icons.arrow_back,
-                        size: 52,
+                        size: 40,
                         color: Color.fromARGB(255,204,198,159)),
                     ),
                     TextButton(
@@ -377,7 +383,7 @@ class _IngredientDetailsPageState extends State<IngredientDetailsPage> {
                       },
                       child: Icon(
                         Icons.delete_forever,
-                        size: 60,
+                        size: 40,
                         color: Color.fromARGB(255,204,198,159)),
                     ),
                   ],
@@ -402,6 +408,7 @@ void showOrderMoreDialogue (context, ingredient, VoidCallback onOrderMore) {
     barrierLabel: "Order More",
     pageBuilder: (context) {
       return AlertDialog(
+        backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.97),
         title: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min, // Centers the content
@@ -417,7 +424,7 @@ void showOrderMoreDialogue (context, ingredient, VoidCallback onOrderMore) {
               Text(
                 '${ingredient.name}?', // Second text
                 style: TextStyle(
-                  color: Colors.blue, // Style for ingredient name
+                  color: Color.fromARGB(200, 154, 51, 52), // Style for ingredient name
                   fontSize: 20,
                   fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.bold,
@@ -511,7 +518,7 @@ void showOrderMoreDialogue (context, ingredient, VoidCallback onOrderMore) {
                     Navigator.of(context).pop(); // Close the dialog
                   }
                 },
-                child: Text('Confirm Order', style: TextStyle(color: Colors.blue)),
+                child: Text('Confirm Order', style: TextStyle(color: Color.fromARGB(200, 154, 51, 52))),
               ),
             ],
           ),
@@ -533,6 +540,8 @@ void showEditDialogue(context, ingredient, VoidCallback onEdit) {
     barrierLabel: "Order More",
     pageBuilder: (context) {
       return AlertDialog(
+        
+        backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.98),
         title: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min, // Centers the content
@@ -548,7 +557,7 @@ void showEditDialogue(context, ingredient, VoidCallback onEdit) {
               Text(
                 '${ingredient.name}?', // Second text
                 style: TextStyle(
-                  color: Colors.blue, // Style for ingredient name
+                  color: Color.fromARGB(200, 154, 51, 52), // Style for ingredient name
                   fontSize: 20,
                   fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.bold,
@@ -620,7 +629,7 @@ void showEditDialogue(context, ingredient, VoidCallback onEdit) {
                     Navigator.of(context).pop(); // Close the dialog
                   }
                 },
-                child: Text('Finish Edit', style: TextStyle(color: Colors.blue)),
+                child: Text('Finish Edit', style: TextStyle(color: Color.fromARGB(200, 154, 51, 52))),
               ),
             ],
           ),

@@ -78,14 +78,30 @@ class _BakedGoodsDetailsPageState extends State<BakedGoodsDetailsPage> {
                 ),
                 SizedBox(height: 20),
                 Center(
-                  child: Text(
-                    'In Stock: ${updatedBakedGoods.quantity}', // Show updated quantity
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Color.fromARGB(255, 204, 198, 159), // Cream color
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'In Stock: ', 
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 204, 198, 159), // Cream color
+                          ),
+                        ),
+                        TextSpan(
+                          text: '${updatedBakedGoods.quantity}', 
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.normal,
+                            color: Color.fromARGB(255, 204, 198, 159), // Cream color
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
+
                 SizedBox(height: 20),
                 Container(
                   decoration: BoxDecoration(
@@ -97,7 +113,7 @@ class _BakedGoodsDetailsPageState extends State<BakedGoodsDetailsPage> {
                     controller: _decreaseStockController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: 'Enter amount to decrease',
+                      labelText: 'Enter amount to decrease stock by:',
                       labelStyle: TextStyle(color: Color.fromARGB(255, 37, 3, 3)), // Cream label color
                       border: InputBorder.none,  // No default border
                       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Adjust padding inside the box

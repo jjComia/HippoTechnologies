@@ -145,20 +145,57 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                     children: [
                       Expanded(
                         flex: 2,
-                        child: Text(
-                          'Prep Time:\n${recipe.prepTime} ${recipe.prepUnit}',
-                          style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
-                          textAlign: TextAlign.left,
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Prep Time:\n',
+                                style: TextStyle(
+                                  fontSize: 20, 
+                                  color: Color.fromARGB(255, 204, 198, 159), 
+                                  fontWeight: FontWeight.w700, // Bold for 'Prep Time:'
+                                ),
+                              ),
+                              TextSpan(
+                                text: '${recipe.prepTime} ${recipe.prepUnit}',
+                                style: TextStyle(
+                                  fontSize: 20, 
+                                  color: Color.fromARGB(255, 204, 198, 159),
+                                  fontWeight: FontWeight.normal, // Normal weight for the remaining text
+                                ),
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.left, // Align text as required
                         ),
                       ),
                       Expanded(
                         flex: 2,
-                        child: Text(
-                          'Cook Time:\n${recipe.cookTime} ${recipe.cookUnit}',
-                          style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
-                          textAlign: TextAlign.right,
+                        child: RichText(
+                          textAlign: TextAlign.right, // Align text to the right
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Cook Time:\n',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Color.fromARGB(255, 204, 198, 159),
+                                  fontWeight: FontWeight.w700, // Bold for 'Cook Time:'
+                                ),
+                              ),
+                              TextSpan(
+                                text: '${recipe.cookTime} ${recipe.cookUnit}',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Color.fromARGB(255, 204, 198, 159),
+                                  fontWeight: FontWeight.normal, // Normal weight for the remaining text
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
+
                     ],
                   ),
                   SizedBox(height: 20),
@@ -168,7 +205,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                     children: [
                       Text(
                         'Description:',
-                        style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
+                        style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159), fontWeight: FontWeight.w700),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 8), // Add some space between the title and description
@@ -185,7 +222,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                   // Ingredients Section
                   Text(
                     'Ingredients',
-                    style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
+                    style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159), fontWeight: FontWeight.w700),
                   ),
                   ListView.builder(
                     physics: NeverScrollableScrollPhysics(),
@@ -228,7 +265,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                   // Cook Steps Section
                   Text(
                     'Cook Steps',
-                    style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159)),
+                    style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 204, 198, 159), fontWeight: FontWeight.w700),
                   ),
                   ListView.builder(
                     physics: NeverScrollableScrollPhysics(),
@@ -237,14 +274,30 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                     itemBuilder: (context, index) {
                       final step = steps[index];
                       return ListTile(
-                        title: Text(
-                          'Step ${index + 1}: ${step.description}',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Color.fromARGB(255, 204, 198, 159),
+                        title: RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Step ${index + 1}: ',  // Step label in bold
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,  // Bold for "Step {index + 1}:"
+                                  color: Color.fromARGB(255, 204, 198, 159),
+                                ),
+                              ),
+                              TextSpan(
+                                text: step.description,  // Description in normal weight
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.normal,  // Normal weight for the description
+                                  color: Color.fromARGB(255, 204, 198, 159),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );
+
                     },
                   ),
                 ],
@@ -263,6 +316,9 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                       // Add functionality here to edit the recipe
                       showEditDialogue(context, recipe, refreshPage);
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
+                    ),
                     child: Text('Edit Recipe', style: TextStyle(fontSize: 20,color: Color.fromARGB(255, 37, 3, 3))),
                   ),
                 ),
@@ -275,6 +331,9 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                       showStartBakingDialogue(context, recipe, recipeIngredients, steps, ingredientsStock, refreshPage);
                       refreshPage();
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.8),
+                    ),
                     child: Text('Start Baking!', style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 37, 3, 3))),
                   ),
                 ),
@@ -288,7 +347,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                       },
                       child: Icon(
                         Icons.arrow_back,
-                        size: 52,
+                        size: 40,
                         color: Color.fromARGB(255, 204, 198, 159),
                       ),
                     ),
@@ -321,7 +380,7 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                       },
                       child: Icon(
                         Icons.delete_forever,
-                        size: 60,
+                        size: 40,
                         color: Color.fromARGB(255, 204, 198, 159),
                       ),
                     ),
@@ -350,6 +409,7 @@ void showEditDialogue(context, recipe, VoidCallback onEdit) {
     barrierLabel: "Edit Recipe",
     pageBuilder: (context) {
       return AlertDialog(
+        backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.97),
         title: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min, // Centers the content
@@ -365,7 +425,7 @@ void showEditDialogue(context, recipe, VoidCallback onEdit) {
               Text(
                 '${recipe.name}?', // Second text
                 style: TextStyle(
-                  color: Colors.blue, // Style for recipe name
+                  color: Color.fromARGB(200, 154, 51, 52),
                   fontSize: 20,
                   fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.bold,
@@ -450,7 +510,8 @@ void showEditDialogue(context, recipe, VoidCallback onEdit) {
                     Navigator.of(context).pop(); // Close the dialog
                   }
                 },
-                child: Text('Finish Edit', style: TextStyle(color: Colors.blue)),
+                child: Text('Finish Edit', style: TextStyle(color: Color.fromARGB(200, 154, 51, 52)
+)),
               ),
             ],
           ),
@@ -543,6 +604,7 @@ void showStartBakingDialogue(context, recipe, recipeIngredients, steps, List<Map
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return AlertDialog(
+            backgroundColor: Color.fromARGB(255, 255, 253, 241).withOpacity(0.97),
             title: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min, // Centers the content
@@ -558,7 +620,7 @@ void showStartBakingDialogue(context, recipe, recipeIngredients, steps, List<Map
                   Text(
                     '${recipe.name}?', // Second text
                     style: TextStyle(
-                      color: Colors.blue, // Style for recipe name
+                      color: Color.fromARGB(200, 154, 51, 52),
                       fontSize: 20,
                       fontStyle: FontStyle.italic,
                       fontWeight: FontWeight.bold,
