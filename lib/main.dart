@@ -442,7 +442,6 @@ class AccountSettingsPage extends StatelessWidget {
   }
 }
 
-
 class SettingsPage extends StatefulWidget {
   final Function(Widget) onPageTap;
 
@@ -453,13 +452,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  String _selectedPreference = 'Pickup'; // Order preference state
-  Color _selectedAccentColor = Colors.lightBlue; // Accent color state
-
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
@@ -469,82 +463,115 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SwitchListTile(
-              title: Text('Enable Dark Mode'),
-              value: appState.isDarkMode,
-              onChanged: (bool value) {
-                appState.toggleDarkMode(value);
-              },
-            ),
+            // Account Settings
             ListTile(
               title: Text('Account Settings'),
               onTap: () {
                 widget.onPageTap(AccountSettingsPage());
               },
             ),
+            // Update Email
             ListTile(
-              title: Text('Order Preference'),
-              trailing: DropdownButton<String>(
-                value: _selectedPreference,
-                items: <String>['Pickup', 'Delivery'].map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedPreference = newValue!;
-                  });
-                  print('Order preference: $newValue');
-                },
-              ),
-            ),
-            ListTile(
-              title: Text('New Product Notifications'),
-              trailing: Switch(
-                value: true, // Replace with actual state
-                onChanged: (bool value) {
-                  // Toggle notifications
-                  print('New product notifications: $value');
-                },
-              ),
-            ),
-            ListTile(
-              title: Text('Accent Color'),
-              trailing: DropdownButton<Color>(
-                value: _selectedAccentColor,
-                items: <Color>[Colors.lightBlue, Colors.green, Colors.pink].map<DropdownMenuItem<Color>>((Color color) {
-                  return DropdownMenuItem<Color>(
-                    value: color,
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      color: color,
-                    ),
-                  );
-                }).toList(),
-                onChanged: (Color? newValue) {
-                  setState(()  {
-                    _selectedAccentColor = newValue!;
-                  });
-                  print('Accent color changed to: $newValue');
-                },
-              ),
-            ),
-            ListTile(
-              title: Text('Privacy Policy'),
+              title: Text('Update Email'),
               onTap: () {
-                // Show Privacy Policy
-                print('Privacy Policy Tapped');
+                widget.onPageTap(UpdateEmailPage());
               },
             ),
+            // Update Phone Number
             ListTile(
-              title: Text('Terms of Service'),
+              title: Text('Update Phone Number'),
               onTap: () {
-                // Show Terms of Service
-                print('Terms of Service Tapped');
+                widget.onPageTap(UpdatePhonePage());
               },
+            ),
+            // New Product Notifications (kept as a toggle option)
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Update Email Page
+class UpdateEmailPage extends StatefulWidget {
+  @override
+  _UpdateEmailPageState createState() => _UpdateEmailPageState();
+}
+
+class _UpdateEmailPageState extends State<UpdateEmailPage> {
+  final TextEditingController _emailController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Update Email'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+                hintText: 'Enter your new email address',
+              ),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () {
+                String email = _emailController.text;
+                // Handle email saving or updating logic here
+                print('Email: $email');
+              },
+              child: Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Update Phone Page
+class UpdatePhonePage extends StatefulWidget {
+  @override
+  _UpdatePhonePageState createState() => _UpdatePhonePageState();
+}
+
+class _UpdatePhonePageState extends State<UpdatePhonePage> {
+  final TextEditingController _phoneController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Update Phone Number'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _phoneController,
+              decoration: InputDecoration(
+                labelText: 'Phone Number',
+                border: OutlineInputBorder(),
+                hintText: 'Enter your new phone number',
+              ),
+              keyboardType: TextInputType.phone,
+            ),
+            SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () {
+                String phone = _phoneController.text;
+                // Handle phone saving or updating logic here
+                print('Phone: $phone');
+              },
+              child: Text('Save'),
             ),
           ],
         ),
