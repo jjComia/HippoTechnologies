@@ -1,10 +1,9 @@
-import 'dart:convert'; // Importing dart:convert to use jsonDecode function
+// Importing dart:convert to use jsonDecode function
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:awesome_dialog/awesome_dialog.dart';
 import '../services/session_service.dart';
 import 'dart:async';  // Make sure to add this import at the top of your file
-import 'registerEmailAndPhone.dart';  // Import the RegisterEmailAndPhone page
+// Import the RegisterEmailAndPhone page
 
 typedef RegisterNextCallback = void Function(String firstName, String lastName, String username, String password);
 

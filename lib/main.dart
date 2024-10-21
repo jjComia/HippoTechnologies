@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'pages/registration.dart'; // Import the RegistrationPage
 import 'pages/registerEmailAndPhone.dart'; // Import the RegisterEmailAndPhone Page
 import 'pages/login.dart';        // Import the LoginPage
-import 'pages/inventoryPage.dart'; //Import the Inventory Page
+import 'pages/bakedGoodsPage.dart'; //Import the Inventory Page
 import 'services/session_service.dart';
 import 'pages/recipePage.dart'; // Import the Recipes Page
 import 'pages/ingredientsPage.dart'; // Import the Ingredients Page
@@ -304,7 +304,7 @@ class HomePage extends StatelessWidget {
                   'Baked Goods',
                   Icons.inventory,
                   onTap: () {
-                    onPageTap(InventoryDetailPage());
+                    onPageTap(BakedGoodsDetailPage());
                   },
                 ),
                 _buildRoundedButton(
@@ -343,7 +343,7 @@ Widget _buildRoundedButton(BuildContext context, String text, IconData icon, {re
   return ElevatedButton(
     onPressed: onTap,
     style: ElevatedButton.styleFrom(
-      fixedSize: Size(200, 200),  // Set the fixed size here
+      fixedSize: Size(400, 400),  // Set the fixed size here
       padding: const EdgeInsets.all(18.0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24.0),  // Rounded corners

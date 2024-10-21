@@ -440,7 +440,7 @@ String _formatPhoneNumber(String input) {
   } else if (input.length >= 4) {
     // Format as (123) 456
     return '(${input.substring(0, 3)}) ${input.substring(3, input.length)}';
-  } else if (input.length >= 1) {
+  } else if (input.isNotEmpty) {
     // Format as (123
     return '(${input.substring(0, input.length)}';
   }
